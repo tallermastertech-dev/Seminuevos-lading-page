@@ -1726,10 +1726,17 @@
                         <div class="settings-grid">
                             <div class="form-group full">
                                 <label class="form-label">Apify API Token</label>
-                                <input type="password" class="form-input" id="sProxyKey"
-                                    placeholder="Tu API Token de Apify" value="">
-                                <p style="font-size: 0.75rem; color: var(--text3); margin-top: 4px;">Necesario para
-                                    importar links de IAAI/Copart en lote sin bloqueos usando Apify.
+                                <div style="display:flex; gap:8px; align-items:center;">
+                                    <input type="password" class="form-input" id="sProxyKey"
+                                        placeholder="Tu API Token de Apify (apify_api_...)" value="" style="flex:1; margin-bottom:0;">
+                                    <button type="button" class="btn btn-secondary" id="btnTestApify" onclick="testApifyToken()" style="white-space:nowrap; padding: 10px 14px;">
+                                        <i class="fas fa-plug"></i> Probar
+                                    </button>
+                                </div>
+                                <div id="apifyTokenStatus" style="font-size:0.8rem; margin-top:6px; display:none;"></div>
+                                <p style="font-size: 0.75rem; color: var(--text3); margin-top: 4px;">
+                                    Necesario para importar desde IAAI/Copart. Obtenlo en
+                                    <a href="https://console.apify.com/account/integrations" target="_blank" style="color:var(--accent);">console.apify.com → Integrations → API tokens</a>
                                 </p>
                             </div>
                             <div class="form-group full">
@@ -3393,6 +3400,58 @@
         modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
 
         // ===== TOAST =====
+        async function testApifyToken() {
+            const token = document.getElementById('sProxyKey').value.trim();
+            const statusEl = document.getElementById('apifyTokenStatus');
+            const btn = document.getElementById('btnTestApify');
+            if (!token) {
+                statusEl.style.display = 'block';
+                statusEl.innerHTML = '⚠️ Primero pega tu API Token de Apify arriba.';
+                statusEl.style.color = 'orange';
+                return;
+            }
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Probando...';
+            statusEl.style.display = 'block';
+            statusEl.innerHTML = '🔄 Verificando token con Apify...';
+            statusEl.style.color = 'var(--text3)';
+            try {
+                // Test 1: Verify token is valid via Apify user endpoint
+                const userRes = await fetch(`https://api.apify.com/v2/users/me?token=${encodeURIComponent(token)}`, {
+                    signal: AbortSignal.timeout(8000)
+                });
+                if (!userRes.ok) {
+                    statusEl.innerHTML = `❌ Token inválido (HTTP ${userRes.status}). Ve a <a href="https://console.apify.com/account/integrations" target="_blank" style="color:var(--accent)">console.apify.com → Integrations</a> y copia el token correcto.`;
+                    statusEl.style.color = '#ff5252';
+                    return;
+                }
+                const userData = await userRes.json();
+                const username = userData?.data?.username || 'Usuario';
+                const plan = userData?.data?.plan?.id || 'FREE';
+                const credits = userData?.data?.plan?.monthlyUsageCreditsUsd || 0;
+
+                // Test 2: Check actor access
+                const actorRes = await fetch(`https://api.apify.com/v2/acts/yyMRiF5a4sHPCV0q9?token=${encodeURIComponent(token)}`, {
+                    signal: AbortSignal.timeout(8000)
+                });
+                const actorOk = actorRes.ok;
+                const actorInfo = actorOk ? await actorRes.json() : null;
+                const actorName = actorInfo?.data?.name || 'easyapi/iaai-vehicle-detail-scraper';
+
+                statusEl.innerHTML = `✅ <strong>Token válido</strong> — Cuenta: <strong>${username}</strong> | Plan: <strong>${plan}</strong><br>
+                    ${actorOk ? `✅ Actor "${actorName}" accesible` : '⚠️ Actor IAAI no verificado — puede que no tengas acceso'}<br>
+                    <span style="color:#2ecc71;">¡Listo para importar desde IAAI!</span>`;
+                statusEl.style.color = '#2ecc71';
+                showToast('Token de Apify verificado correctamente', 'success');
+            } catch(e) {
+                statusEl.innerHTML = `❌ Error al verificar: ${e.message}. Revisa tu conexión o el formato del token.`;
+                statusEl.style.color = '#ff5252';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-plug"></i> Probar';
+            }
+        }
+
         function showToast(msg, type = 'success') { const t = document.getElementById('toast'); t.textContent = msg; t.className = `toast toast-${type} active`; setTimeout(() => t.classList.remove('active'), 3000); }
 
         // ===== INIT =====
