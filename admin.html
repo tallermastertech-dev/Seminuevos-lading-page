@@ -1416,8 +1416,10 @@
             <div class="tab-content active" id="tab-vehicles">
                 <div class="page-header">
                     <h1 class="page-title">Gestión de <span>Vehículos</span></h1>
-                    <button class="btn btn-primary" id="addVehicleBtn"><i class="fas fa-plus"></i> Agregar
-                        Vehículo</button>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn btn-secondary" id="restoreCatalogBtn" onclick="restoreFullCatalog()"><i class="fas fa-sync-alt"></i> Restaurar Catálogo (50 Autos)</button>
+                        <button class="btn btn-primary" id="addVehicleBtn"><i class="fas fa-plus"></i> Agregar Vehículo</button>
+                    </div>
                 </div>
                 <div class="stats-row" id="statsRow"></div>
 
@@ -2259,7 +2261,10 @@
             const { data, error } = await supabaseClient.from('vehicles').select('*').order('created_at', { ascending: false });
             if (error) { showToast('Error cargando vehículos: ' + error.message, 'error'); return; }
             
-            const allStatic = (typeof vehiclesSeminuevos !== 'undefined') ? vehiclesSeminuevos : [];
+            const staticSemi = (typeof vehiclesSeminuevos !== 'undefined') ? vehiclesSeminuevos : [];
+            const static0km = (typeof vehicles0km !== 'undefined') ? vehicles0km : [];
+            const allStatic = (typeof allVehicles !== 'undefined') ? allVehicles : [...staticSemi, ...static0km];
+            
             let localVehs = [];
             try { localVehs = JSON.parse(localStorage.getItem('sn_vehicles') || '[]'); } catch(e) {}
             let deleted = [];
@@ -2267,17 +2272,88 @@
             
             const dbVehs = data || [];
             const titleMap = new Map();
-            [...dbVehs, ...localVehs, ...allStatic].forEach(v => {
+            
+            // 1. DB vehicles ALWAYS take top priority and are NEVER hidden by local blacklist
+            dbVehs.forEach(v => {
                 const key = (v.title || '').toLowerCase().trim();
-                const idKey = String(v.id || '');
-                if (key && !deleted.includes(key) && !deleted.includes(idKey) && !titleMap.has(key)) {
+                if (key && !titleMap.has(key)) {
                     const catalog = v.catalog || (v.availability === 'entrega_inmediata' ? 'seminuevos' : (v.condition === '0km' ? '0km' : 'importados'));
                     titleMap.set(key, { ...v, catalog: catalog, status: v.status || 'active' });
                 }
             });
+
+            // 2. Static vehicles are added if not already in DB and not explicitly deleted
+            [...localVehs, ...allStatic].forEach(v => {
+                const key = (v.title || '').toLowerCase().trim();
+                const idKey = String(v.id || '');
+                if (key && !deleted.includes(key) && !deleted.includes(idKey) && !titleMap.has(key)) {
+                    const catalog = v.catalog || (v.availability === 'entrega_inmediata' ? 'seminuevos' : (v.condition === '0km' ? '0km' : 'importados'));
+                    titleMap.set(key, { ...v, catalog: catalog, status: v.status || 'active', isStatic: true });
+                }
+            });
+            
             vehicles = Array.from(titleMap.values());
             renderStats();
             renderTable();
+        }
+
+        async function restoreFullCatalog() {
+            if (!confirm('¿Deseas sincronizar los 50 vehículos del catálogo original en la base de datos de Supabase?')) return;
+            const btn = document.getElementById('restoreCatalogBtn');
+            const origHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Restaurando...';
+            
+            try {
+                // Clear any accidental deletion cache
+                localStorage.removeItem('sn_deleted_vehicles');
+                
+                const staticSemi = (typeof vehiclesSeminuevos !== 'undefined') ? vehiclesSeminuevos : [];
+                const static0km = (typeof vehicles0km !== 'undefined') ? vehicles0km : [];
+                const allStatic = (typeof allVehicles !== 'undefined') ? allVehicles : [...staticSemi, ...static0km];
+                
+                const { data: dbData } = await supabaseClient.from('vehicles').select('id, title');
+                const existingTitles = new Set((dbData || []).map(v => (v.title || '').toLowerCase().trim()));
+                
+                let added = 0;
+                for (const v of allStatic) {
+                    const tKey = (v.title || '').toLowerCase().trim();
+                    if (!existingTitles.has(tKey)) {
+                        const catalog = v.catalog || (v.availability === 'entrega_inmediata' ? 'seminuevos' : (v.condition === '0km' ? '0km' : 'importados'));
+                        const payload = {
+                            title: v.title,
+                            price: v.price || 'Consultar',
+                            year: parseInt(v.year) || 2024,
+                            km: v.km || '0 KM',
+                            engine: v.engine || '',
+                            transmission: v.transmission || 'Automático',
+                            fuel: v.fuel || 'Gasolina',
+                            body_type: v.bodyType || v.body_type || 'suv',
+                            condition: v.condition || 'seminuevo',
+                            availability: v.availability || 'entrega_inmediata',
+                            origin: v.origin || 'nacional',
+                            badge: v.badge || null,
+                            description: v.description || '',
+                            images: v.images || [],
+                            catalog: catalog,
+                            status: 'active'
+                        };
+                        const { error } = await supabaseClient.from('vehicles').insert([payload]);
+                        if (!error) {
+                            added++;
+                            existingTitles.add(tKey);
+                        }
+                    }
+                }
+                
+                showToast(`Catálogo sincronizado: ${added} nuevos vehículos guardados en la base de datos`, 'success');
+                await loadVehicles();
+            } catch(e) {
+                showToast('Error sincronizando catálogo: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+            }
         }
 
         function renderStats() {
@@ -2526,6 +2602,15 @@
                     showToast('Vehículo agregado', 'success');
                     logSecurityEvent('VEHICLE_ADD', 'info', `Nuevo vehículo agregado: ${title}`);
                 }
+
+                // Ensure newly saved vehicle is never filtered out by local blacklist
+                try {
+                    let del = JSON.parse(localStorage.getItem('sn_deleted_vehicles') || '[]');
+                    const tKey = title.toLowerCase().trim();
+                    del = del.filter(d => d !== tKey && d !== String(id));
+                    localStorage.setItem('sn_deleted_vehicles', JSON.stringify(del));
+                } catch(e) {}
+
                 await loadVehicles();
                 if (window.parent) window.parent.postMessage("CargaBD", "*"); // trigger frontend refresh if framed
                 isSaving = false;

@@ -577,10 +577,16 @@ document.addEventListener('DOMContentLoaded', () => {
             let deleted = [];
             try { deleted = JSON.parse(localStorage.getItem('sn_deleted_vehicles') || '[]'); } catch(e) {}
 
-            // Combine DB & Static vehicles without duplicating
+            // Combine DB & Static vehicles without duplicating (DB vehicles always take priority)
             const mergeByTitle = (dbArr, staticArr) => {
                 const map = new Map();
-                [...dbArr, ...staticArr].forEach(item => {
+                // 1. DB vehicles are always included
+                dbArr.forEach(item => {
+                    const key = (item.title || '').toLowerCase().trim();
+                    if (key && !map.has(key)) map.set(key, item);
+                });
+                // 2. Static vehicles added only if not in DB and not deleted
+                staticArr.forEach(item => {
                     const key = (item.title || '').toLowerCase().trim();
                     const idKey = String(item.id || '');
                     if (key && !deleted.includes(key) && !deleted.includes(idKey) && !map.has(key)) map.set(key, item);
