@@ -3543,35 +3543,8 @@
                             result = { success: false, message: e.message };
                         }
 
-                        // FALLBACK: Si el resultado fue bloqueado, usar el actor IAAI dedicado de Apify
-                        const isGenericOrFailed = !result.success || (result.data && (result.data.title?.includes('Vehículo') || result.data.make === 'Vehículo'));
-                        if (isGenericOrFailed && proxyKey && url.includes('iaai.com')) {
-                            try {
-                                const cleanToken = proxyKey.trim();
-                                const syncRes = await fetch(
-                                    `https://api.apify.com/v2/actors/yyMRiF5a4sHPCV0q9/run-sync-get-dataset-items?token=${encodeURIComponent(cleanToken)}&timeout=120&memory=512`,
-                                    {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({
-                                            detailUrls: [url],
-                                            proxyConfiguration: { useApifyProxy: false }
-                                        }),
-                                        signal: AbortSignal.timeout(130000)
-                                    }
-                                );
-                                if (syncRes.ok) {
-                                    const items = await syncRes.json();
-                                    const item = Array.isArray(items) ? items[0] : items;
-                                    if (item && (item.year || item.make || item.title)) {
-                                        result = { success: true, data: item };
-                                    }
-                                }
-                            } catch(fbErr) {
-                                console.log('IAAI actor fallback failed:', fbErr.message);
-                            }
-                        }
-
+                        // Note: /api/scrape already calls the yyMRiF5a4sHPCV0q9 actor server-side
+                        // when proxyKey is provided. No browser-direct Apify calls needed.
 
                         if (result.success && result.data && result.data.title && !result.data.title.includes('Vehículo')) {
                             const data = result.data;
