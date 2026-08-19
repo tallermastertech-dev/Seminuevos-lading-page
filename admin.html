@@ -2120,8 +2120,62 @@
             adminPanel.style.display = 'flex';
             document.getElementById('userName').textContent = user.email?.split('@')[0] || 'Admin';
             loadSettings();
+            // Automatically restore and sync Stock Local inventory to database
+            autoSyncStockLocal();
             // Bookmarklet import handler
             setTimeout(() => checkBookmarkletImport(), 800);
+        }
+
+        async function autoSyncStockLocal() {
+            try {
+                // Clear any stale local blacklist that might hide stock local vehicles
+                localStorage.removeItem('sn_deleted_vehicles');
+
+                const staticSemi = (typeof vehiclesSeminuevos !== 'undefined') ? vehiclesSeminuevos : [];
+                if (!staticSemi.length) return;
+
+                const { data: dbData, error } = await supabaseClient.from('vehicles').select('id, title');
+                if (error) return;
+
+                const existingTitles = new Set((dbData || []).map(v => (v.title || '').toLowerCase().trim()));
+                let inserted = false;
+
+                for (const v of staticSemi) {
+                    const tKey = (v.title || '').toLowerCase().trim();
+                    if (!existingTitles.has(tKey)) {
+                        const payload = {
+                            title: v.title,
+                            price: v.price || 'Consultar',
+                            year: parseInt(v.year) || 2024,
+                            km: v.km || '0 KM',
+                            engine: v.engine || '',
+                            transmission: v.transmission || 'Automático',
+                            fuel: v.fuel || 'Gasolina',
+                            body_type: v.bodyType || v.body_type || 'suv',
+                            condition: v.condition || 'seminuevo',
+                            availability: v.availability || 'entrega_inmediata',
+                            origin: v.origin || 'nacional',
+                            badge: v.badge || null,
+                            description: v.description || '',
+                            images: v.images || [],
+                            catalog: 'seminuevos',
+                            status: 'active'
+                        };
+                        const { error: insErr } = await supabaseClient.from('vehicles').insert([payload]);
+                        if (!insErr) {
+                            inserted = true;
+                            existingTitles.add(tKey);
+                        }
+                    }
+                }
+
+                if (inserted) {
+                    await loadVehicles();
+                    showToast('✓ Stock Local restaurado y sincronizado con éxito', 'success');
+                }
+            } catch (err) {
+                console.log('AutoSync Stock Local notice:', err.message);
+            }
         }
 
         async function checkBookmarkletImport() {
