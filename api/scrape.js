@@ -76,38 +76,81 @@ export default async function handler(req, res) {
                     const items = await apifyRes.json();
                     const item = Array.isArray(items) ? items[0] : items;
 
-                    if (item && (item.year || item.make || item.title)) {
-                        // Normalize all fields from the actor's output
-                        const rawData = scanForData(item);
+                    // Log full item for debugging (first run only)
+                    console.log('IAAI actor raw output keys:', item ? Object.keys(item).join(', ') : 'null');
 
-                        // Image URLs: actor may provide them, else build from lot ID
+                    if (item && (item.year || item.make || item.title || item.stockNumber)) {
+
+                        // ─── IMAGES ────────────────────────────────────────────────
+                        // Try every known image field from the actor, then fallback to CDN pattern
                         let cleanImages = [];
-                        if (item.images && Array.isArray(item.images) && item.images.length > 0) {
-                            cleanImages = item.images.slice(0, 15);
-                        } else if (item.imageUrls && Array.isArray(item.imageUrls)) {
-                            cleanImages = item.imageUrls.slice(0, 15);
-                        } else if (lotId) {
+                        const imgCandidates = [
+                            item.images, item.imageUrls, item.imageLinks, item.photos,
+                            item.vehicleImages, item.imgUrls, item.photoUrls
+                        ];
+                        for (const candidate of imgCandidates) {
+                            if (Array.isArray(candidate) && candidate.length > 0) {
+                                cleanImages = candidate.slice(0, 15).map(i => typeof i === 'string' ? i : (i.url || i.src || i));
+                                break;
+                            }
+                        }
+                        // Fallback: build from CDN lot-ID pattern (always works for IAAI lots)
+                        if (cleanImages.length === 0 && lotId) {
                             for (let i = 1; i <= 15; i++) {
                                 cleanImages.push(`https://vis.iaai.com/resizer?imageKeys=${lotId}~IAA~S${i}&width=1024&height=768`);
                             }
                         }
 
-                        const year = item.year || rawData.year || '';
-                        const make = item.make || item.brand || rawData.make || '';
-                        const model = item.model || rawData.model || '';
-                        const series = item.series || item.trim || item.series || rawData.series || '';
-                        const vin = item.vin || item.vinNumber || rawData.vin || 'N/A';
-                        const km = item.odometer || item.mileage || item.km || rawData.km || '0 KM';
-                        const engine = item.engine || item.engineDescription || rawData.engine || '';
-                        const transmission = item.transmission || rawData.transmission || '';
-                        const bodyType = item.bodyStyle || item.bodyType || rawData.bodyType || '';
-                        const fuel = item.fuelType || rawData.fuel || '';
-                        const color = item.color || item.exteriorColor || rawData.color || '';
-                        const location = item.location || item.sellingBranch || rawData.location || 'EE. UU. (IAAI)';
-                        const damage = item.damage || item.primaryDamage || rawData.damage || '';
-                        const price = item.price || item.buyNowPrice || item.currentBid || rawData.price || 'Consultar';
+                        // ─── YEAR / MAKE / MODEL ───────────────────────────────────
+                        const year = item.year || item.modelYear || item.vehicleYear || item.lcy || '';
+                        const make = item.make || item.brand || item.makeName || item.mkn || item.manufacturer || '';
+                        const model = item.model || item.modelName || item.lm || '';
+                        const series = item.series || item.trim || item.trimLevel || item.seriesName || item.srs || item.subModel || '';
 
-                        const fullTitle = item.title || `${year} ${make} ${model} ${series}`.trim().replace(/\s+/g, ' ');
+                        // ─── VIN ───────────────────────────────────────────────────
+                        const vin = item.vin || item.vinNumber || item.fv || item.vehicleVin || 'N/A';
+
+                        // ─── MILEAGE / KM ─────────────────────────────────────────
+                        const rawOdo = item.odometer || item.mileage || item.odometerReading || item.km || item.miles || item.orr || item.odo || '';
+                        const odoUnit = item.odometerUnit || item.mileageUnit || item.uom || (String(rawOdo).includes('km') ? 'KM' : 'mi');
+                        const km = rawOdo ? `${rawOdo} ${odoUnit}`.trim().replace(/\s+/g,' ') : '0 KM';
+
+                        // ─── ENGINE ────────────────────────────────────────────────
+                        const engine = item.engine || item.engineDescription || item.engineDesc || item.engineType || item.engineName || item.motor || '';
+
+                        // ─── TRANSMISSION ─────────────────────────────────────────
+                        const transmission = item.transmission || item.transmissionDescription || item.transmissionType || item.tsmn || '';
+
+                        // ─── BODY TYPE ────────────────────────────────────────────
+                        const bodyType = item.bodyStyle || item.bodyType || item.bodyStyleDescription || item.body || item.bs || item.vehicleType || '';
+
+                        // ─── FUEL ─────────────────────────────────────────────────
+                        const fuel = item.fuelType || item.fuel || item.fuelTypeDescription || item.ft || '';
+
+                        // ─── COLOR ────────────────────────────────────────────────
+                        const color = item.color || item.exteriorColor || item.primaryColor || item.clr || '';
+
+                        // ─── LOCATION ─────────────────────────────────────────────
+                        const location = item.location || item.sellingBranch || item.branchName || item.yard || item.yardName || item.saleLocation || item.facilityName || 'EE. UU. (IAAI)';
+
+                        // ─── DAMAGE ───────────────────────────────────────────────
+                        const damage = item.damage || item.primaryDamage || item.damageDescription || item.lossType || item.dd || item.condition || '';
+
+                        // ─── PRICE (subasta) ──────────────────────────────────────
+                        // Priority: Buy Now > Current Bid > ACV (Actual Cash Value) > Est. Repair Cost
+                        const buyNow = item.buyNowPrice || item.bnp || item.buyItNowPrice || item.buyNow || 0;
+                        const currentBid = item.currentBid || item.highBid || item.highBidAmount || item.curm || item.bid || 0;
+                        const acv = item.acv || item.actualCashValue || item.estimatedValue || 0;
+                        const rawPrice = buyNow || currentBid || acv || item.price || item.salePrice || item.auctionPrice || 0;
+                        let formattedPrice = 'Consultar';
+                        if (rawPrice) {
+                            const numPrice = parseInt(String(rawPrice).replace(/[^0-9]/g, ''));
+                            if (numPrice > 0) formattedPrice = `$${numPrice.toLocaleString()}`;
+                        }
+                        const priceType = buyNow ? '🔖 Buy It Now' : currentBid ? '🔨 Oferta Actual' : acv ? '💰 Valor Estimado' : '';
+
+                        // ─── BUILD TITLE & NORMALIZE ───────────────────────────────
+                        const fullTitle = (item.title || `${year} ${make} ${model} ${series}`.trim()).replace(/\s+/g, ' ');
                         const normTrans = normalizeTransmission(transmission);
                         const normFuelType = normalizeFuel(fuel);
                         const normBody = normalizeBodyType(bodyType, fullTitle);
@@ -119,8 +162,8 @@ export default async function handler(req, res) {
                             data: {
                                 title: fullTitle || `Vehículo IAAI #${lotId}`,
                                 year,
-                                price: typeof price === 'number' ? `$${price.toLocaleString()}` : String(price || 'Consultar'),
-                                km: String(km),
+                                price: formattedPrice,
+                                km,
                                 engine: normEng,
                                 transmission: normTrans,
                                 bodyType: normBody,
@@ -128,11 +171,30 @@ export default async function handler(req, res) {
                                 vin,
                                 damage: formattedDamage,
                                 location,
+                                color,
                                 images: cleanImages,
-                                description: `📋 FICHA TÉCNICA:\n• Vehículo: ${fullTitle}\n• Motor: ${normEng}\n• Transmisión: ${normTrans}\n• Recorrido: ${km}\n• Condición: ${formattedDamage}\n• Origen: ${location}\n• Color: ${color || 'N/A'}\n• VIN: ${vin}\n\n🚗 Importado bajo pedido. Contáctanos para cotizar.\n\n[ADMIN-LINK]: ${url}`
+                                description: `📋 FICHA TÉCNICA Y ESPECIFICACIONES:
+• Vehículo: ${fullTitle}
+• Año: ${year}
+• Motor: ${normEng}
+• Transmisión: ${normTrans}
+• Tipo de Carrocería: ${normBody}
+• Combustible: ${normFuelType}
+• Recorrido: ${km}
+• Color Exterior: ${color || 'N/A'}
+• Condición / Daño: ${formattedDamage}
+• Ubicación de Subasta: ${location}
+• Número VIN: ${vin}
+${priceType ? `• Precio en Subasta: ${formattedPrice} (${priceType})` : ''}
+
+🚗 Importado especialmente bajo pedido desde subasta IAAI.
+Contáctanos para cotizar impuestos, logística y precio final.
+
+[ADMIN-LINK]: ${url}`
                             }
                         });
                     }
+
                 } else {
                     const errText = await apifyRes.text().catch(() => '');
                     console.log(`Apify IAAI actor HTTP ${apifyRes.status}:`, errText.substring(0, 200));
