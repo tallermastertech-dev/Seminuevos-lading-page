@@ -2092,6 +2092,22 @@
                             <div id="f_stock_fields_group">
                                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                     <div class="form-group" style="margin-bottom:6px;">
+                                        <label class="form-label" style="font-size:0.7rem; color:#c084fc; font-weight:700;"><i class="fas fa-landmark"></i> Régimen / Estatus Legal</label>
+                                        <select class="form-input" id="f_regime" onchange="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12; border-color:rgba(168,85,247,0.4); color:#c084fc; font-weight:700;">
+                                            <option value="Puerto Libre / Nacional" selected>Puerto Libre / Nacional</option>
+                                            <option value="Nacionalizado (Libre Tránsito)">Nacionalizado (Libre Tránsito)</option>
+                                            <option value="Puerto Libre (Isla Margarita)">Puerto Libre (Isla Margarita)</option>
+                                            <option value="Régimen de Importación">Régimen de Importación</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom:6px;">
+                                        <label class="form-label" style="font-size:0.7rem;">Placa / Identificación</label>
+                                        <input type="text" class="form-input" id="f_plate" placeholder="En Trámite / Asignada" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
+                                    </div>
+                                </div>
+
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                    <div class="form-group" style="margin-bottom:6px;">
                                         <label class="form-label" style="font-size:0.7rem;">Odómetro Entrada (Millas)</label>
                                         <input type="number" class="form-input" id="f_miles" placeholder="18450" oninput="onMilesInput(this.value)" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                     </div>
@@ -2103,35 +2119,29 @@
 
                                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                     <div class="form-group" style="margin-bottom:6px;">
-                                        <label class="form-label" style="font-size:0.7rem;">Placa / Identificación</label>
-                                        <input type="text" class="form-input" id="f_plate" placeholder="En Trámite / Asignada" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
-                                    </div>
-                                    <div class="form-group" style="margin-bottom:6px;">
                                         <label class="form-label" style="font-size:0.7rem;">Propietarios / Dueños</label>
                                         <input type="text" class="form-input" id="f_owners" placeholder="Único Dueño (1 Owner)" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                     </div>
-                                </div>
-
-                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                     <div class="form-group" style="margin-bottom:6px;">
                                         <label class="form-label" style="font-size:0.7rem;">Tipo de Título / Doc</label>
                                         <input type="text" class="form-input" id="f_title_type" placeholder="Título Limpio (Clean Title)" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                     </div>
-                                    <div class="form-group" style="margin-bottom:6px;">
-                                        <label class="form-label" style="font-size:0.7rem;">Daño en Subasta</label>
-                                        <input type="text" class="form-input" id="f_primary_damage" placeholder="Sin Daño Estructural" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
-                                    </div>
                                 </div>
 
                                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                     <div class="form-group" style="margin-bottom:6px;">
+                                        <label class="form-label" style="font-size:0.7rem;">Daño en Subasta</label>
+                                        <input type="text" class="form-input" id="f_primary_damage" placeholder="Sin Daño Estructural" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom:6px;">
                                         <label class="form-label" style="font-size:0.7rem;">Llaves de Contacto</label>
                                         <input type="text" class="form-input" id="f_keys" placeholder="2 Llaves Inteligentes" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                     </div>
-                                    <div class="form-group" style="margin-bottom:6px;">
-                                        <label class="form-label" style="font-size:0.7rem;">Bolsas de Aire (Airbags)</label>
-                                        <input type="text" class="form-input" id="f_airbags" placeholder="Originales de Fábrica (Intactas)" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
-                                    </div>
+                                </div>
+
+                                <div class="form-group" style="margin-bottom:6px;">
+                                    <label class="form-label" style="font-size:0.7rem;">Bolsas de Aire (Airbags)</label>
+                                    <input type="text" class="form-input" id="f_airbags" placeholder="Originales de Fábrica (Intactas)" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                 </div>
 
                                 <div class="form-group" style="margin-bottom:0;">
@@ -2222,6 +2232,7 @@
                                         <span style="background:rgba(39,92,234,0.22); color:#4d7aef; font-size:0.62rem; padding:2px 7px; border-radius:4px; font-weight:700;" id="pv_drivetrain_tag">---</span>
                                         <span style="background:rgba(37,211,102,0.18); color:#25D366; font-size:0.62rem; padding:2px 7px; border-radius:4px; font-weight:700;"><i class="fas fa-shield-alt"></i> INSPECCIÓN 150 PTS</span>
                                         <span style="background:rgba(39,92,234,0.22); color:#38bdf8; font-size:0.62rem; padding:2px 7px; border-radius:4px; font-weight:700;" id="pv_showroom_badge"><i class="fas fa-store"></i> SHOWROOM & VITRINA</span>
+                                        <span style="background:rgba(168,85,247,0.22); color:#c084fc; font-size:0.62rem; padding:2px 7px; border-radius:4px; font-weight:700; border:1px solid rgba(168,85,247,0.4);" id="pv_regime_badge"><i class="fas fa-landmark"></i> <span id="pv_regime_text">PUERTO LIBRE / NACIONAL</span></span>
                                     </div>
                                     <!-- PRECIO DE VENTA DESTACADO EN CABECERA (20pt+ / 1.55rem+) -->
                                     <div id="pv_price_tag" style="margin-top:8px; display:flex; align-items:baseline; gap:8px;">
@@ -2319,6 +2330,10 @@
                                 <div class="ficha-grid-2">
                                     <!-- Columna Izquierda: Historial de Origen & Entrada -->
                                     <ul class="ficha-specs-list">
+                                        <li class="ficha-spec-item">
+                                            <span class="ficha-spec-label">Régimen / Circulación:</span>
+                                            <span class="ficha-spec-val highlight" id="pv_stock_regime" style="color:#c084fc; font-weight:700;">Puerto Libre / Nacional</span>
+                                        </li>
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Odómetro de Entrada:</span>
                                             <span class="ficha-spec-val" id="pv_stock_miles_entry">18,450 mi (29,692 KM)</span>
@@ -2443,7 +2458,7 @@
                             <!-- FOOTER -->
                             <div class="ficha-footer">
                                 <div class="ficha-footer-brand">
-                                    <i class="fas fa-car-side" style="color:#38bdf8;"></i> SemiNuevos Agency · Porlamar, Isla de Margarita
+                                    <i class="fas fa-car-side" style="color:#38bdf8;"></i> SemiNuevos Agency · Porlamar, Isla de Margarita · Régimen Puerto Libre & Nacional
                                 </div>
                                 <div>
                                     Asesoría Comercial: <strong>+58 424-870-0438</strong> · seminuevosagency.com
@@ -6742,6 +6757,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             const airbags = document.getElementById('f_airbags')?.value || '---';
             const startCode = document.getElementById('f_start_code')?.value || '---';
 
+            const regime = document.getElementById('f_regime')?.value || 'Puerto Libre / Nacional';
             const plate = document.getElementById('f_plate')?.value || 'En Trámite / Asignada';
             const owners = document.getElementById('f_owners')?.value || 'Único Dueño (1 Owner)';
             const keys = document.getElementById('f_keys')?.value || '2 Llaves Inteligentes (Presencia)';
@@ -6770,6 +6786,8 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             const entryKm = miles > 0 ? Math.round(miles * 1.60934).toLocaleString('es-ES') + ' KM' : '';
             const milesEntryStr = (miles > 0 && entryKm) ? `${miles.toLocaleString('es-ES')} mi (${entryKm})` : (miles > 0 ? `${miles.toLocaleString('es-ES')} mi` : '18,450 mi (29,692 KM)');
             
+            setTxt('pv_stock_regime', regime);
+            setTxt('pv_regime_text', regime.toUpperCase());
             setTxt('pv_stock_miles_entry', milesEntryStr);
             setTxt('pv_stock_km_current', km || '15,000 KM');
             setTxt('pv_stock_plate', plate);
