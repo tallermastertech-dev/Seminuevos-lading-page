@@ -1344,47 +1344,103 @@
            ===================================================== */
         .ficha-generator-container {
             display: grid;
-            grid-template-columns: 380px 1fr;
-            gap: 24px;
+            grid-template-columns: 460px minmax(0, 1fr);
+            gap: 28px;
             align-items: flex-start;
+            max-width: 1650px;
+            margin: 0 auto;
+            width: 100%;
         }
 
-        @media(max-width: 1200px) {
+        @media(max-width: 1380px) {
+            .ficha-generator-container {
+                grid-template-columns: 430px minmax(0, 1fr);
+                gap: 20px;
+            }
+        }
+
+        @media(max-width: 1180px) {
             .ficha-generator-container {
                 grid-template-columns: 1fr;
             }
         }
 
         .ficha-sidebar-card {
-            background: var(--bg2);
-            border: 1px solid var(--border-accent);
-            border-radius: var(--radius);
-            padding: 22px;
+            background: rgba(13, 20, 36, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
             position: sticky;
             top: 20px;
             max-height: calc(100vh - 40px);
             overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .ficha-sidebar-card::-webkit-scrollbar {
+            width: 5px;
+        }
+        .ficha-sidebar-card::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        .ficha-section-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .ficha-section-card:hover {
+            border-color: rgba(56, 189, 248, 0.35);
+            background: rgba(255, 255, 255, 0.045);
+        }
+
+        .ficha-section-header {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
         }
 
         .ficha-preview-wrapper {
-            background: #020408;
-            padding: 24px;
-            border-radius: var(--radius);
-            border: 1px solid rgba(39, 92, 234, 0.25);
+            background: radial-gradient(circle at 50% 15%, rgba(39, 92, 234, 0.08) 0%, rgba(3, 7, 18, 0.95) 75%);
+            padding: 24px 30px;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             flex-direction: column;
             align-items: center;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.5);
+            min-height: 800px;
+            width: 100%;
             overflow-x: auto;
         }
 
         .ficha-actions-bar {
             display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-            width: 100%;
-            max-width: 820px;
-            justify-content: flex-end;
-            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            width: 780px;
+            max-width: 100%;
+            margin-bottom: 18px;
+            background: rgba(13, 20, 36, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 10px 18px;
+            border-radius: 12px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
         }
 
         /* --- THE PRINTABLE 1-PAGE SHEET (EXACT LETTER SIZE) --- */
@@ -1393,6 +1449,7 @@
             max-width: 780px;
             min-height: 1010px;
             height: 1010px;
+            margin: 0 auto;
             background: #000000;
             background-image: radial-gradient(circle at 100% 0%, rgba(39, 92, 234, 0.18) 0%, transparent 40%),
                               radial-gradient(circle at 0% 100%, rgba(39, 92, 234, 0.1) 0%, transparent 40%);
@@ -1835,251 +1892,296 @@
                 <div class="ficha-generator-container">
                     <!-- LEFT CONTROLS & FORM -->
                     <div class="ficha-sidebar-card">
-                        <h3 style="font-size:1rem; font-weight:700; color:var(--accent); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
-                            <i class="fas fa-file-invoice"></i> Generador de Fichas Técnicas
-                        </h3>
-
-                        <!-- SELECTOR DE PLANTILLA DE FICHA TÉCNICA -->
-                        <div style="background:rgba(255,255,255,0.06); padding:4px; border-radius:10px; display:flex; gap:4px; margin-bottom:14px; border:1px solid rgba(255,255,255,0.12);">
-                            <button type="button" id="btnModeStockLocal" onclick="setFichaTemplateMode('stock_local')" style="flex:1; padding:9px 6px; font-size:0.75rem; font-weight:700; border-radius:8px; border:none; cursor:pointer; background:#25D366; color:#000; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 0 10px rgba(37,211,102,0.4);">
-                                <i class="fas fa-warehouse"></i> 1. Stock Local
-                            </button>
-                            <button type="button" id="btnModeSubasta" onclick="setFichaTemplateMode('subasta')" style="flex:1; padding:9px 6px; font-size:0.75rem; font-weight:700; border-radius:8px; border:none; cursor:pointer; background:transparent; color:#94a3b8; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:6px;">
-                                <i class="fas fa-gavel"></i> 2. Subasta USA
-                            </button>
+                        <!-- HEADER & TITLE -->
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:12px;">
+                            <h3 style="font-size:0.95rem; font-weight:800; color:#ffffff; display:flex; align-items:center; gap:8px; margin:0; font-family:'Unbounded',sans-serif;">
+                                <i class="fas fa-file-invoice" style="color:var(--accent);"></i> Panel de Fichas
+                            </h3>
+                            <span style="font-size:0.65rem; background:rgba(39,92,234,0.15); color:#38bdf8; padding:3px 8px; border-radius:6px; font-weight:700; border:1px solid rgba(39,92,234,0.3);">
+                                AUTO-SYNC LIVE
+                            </span>
                         </div>
 
-                        <!-- MÓDULO DE INTEGRACIÓN APIFY (COPART & IAAI) - Activo para Subasta -->
-                        <div id="ficha_apify_section" style="display:none; background:linear-gradient(135deg, rgba(39,92,234,0.15) 0%, rgba(56,189,248,0.08) 100%); border:1px solid rgba(39,92,234,0.35); border-radius:10px; padding:12px; margin-bottom:14px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                                <label style="font-size:0.78rem; font-weight:700; color:#ffffff; display:flex; align-items:center; gap:6px;">
-                                    <i class="fas fa-robot" style="color:#38bdf8;"></i> Extraer Lote con Apify (Copart / IAAI)
-                                </label>
-                                <span style="background:rgba(37,211,102,0.18); color:#25D366; font-size:0.62rem; padding:2px 6px; border-radius:4px; font-weight:700;"><i class="fas fa-plug"></i> API ACTIVA</span>
+                        <!-- 01. MODALIDAD & ORIGEN -->
+                        <div class="ficha-section-card">
+                            <div class="ficha-section-header">
+                                <span style="display:flex; align-items:center; gap:6px; color:#38bdf8;">
+                                    <i class="fas fa-layer-group"></i> 1. Modalidad & Origen de Datos
+                                </span>
+                                <span style="font-size:0.65rem; color:#94a3b8;">Paso 1</span>
                             </div>
-                            <div style="display:flex; gap:6px;">
-                                <input type="url" class="form-input" id="f_apify_url" placeholder="Pega link de Copart o IAAI (ej: copart.com/lot/...)" style="font-size:0.78rem; padding:8px 10px; flex:1;">
-                                <button type="button" class="btn btn-primary" id="btnApifyExtract" onclick="extractLotWithApify()" style="padding:8px 14px; font-size:0.78rem; font-weight:700; white-space:nowrap; display:flex; align-items:center; gap:6px;">
-                                    <i class="fas fa-bolt"></i> Extraer
+
+                            <!-- SELECTOR DE PLANTILLA -->
+                            <div style="background:rgba(0,0,0,0.4); padding:4px; border-radius:10px; display:flex; gap:4px; margin-bottom:12px; border:1px solid rgba(255,255,255,0.08);">
+                                <button type="button" id="btnModeStockLocal" onclick="setFichaTemplateMode('stock_local')" style="flex:1; padding:9px 6px; font-size:0.75rem; font-weight:700; border-radius:8px; border:none; cursor:pointer; background:#25D366; color:#000; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 0 10px rgba(37,211,102,0.4);">
+                                    <i class="fas fa-warehouse"></i> 1. Stock Local
+                                </button>
+                                <button type="button" id="btnModeSubasta" onclick="setFichaTemplateMode('subasta')" style="flex:1; padding:9px 6px; font-size:0.75rem; font-weight:700; border-radius:8px; border:none; cursor:pointer; background:transparent; color:#94a3b8; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:6px;">
+                                    <i class="fas fa-gavel"></i> 2. Subasta USA
                                 </button>
                             </div>
-                            <div id="apifyStatus" style="font-size:0.72rem; margin-top:6px; display:none;"></div>
-                        </div>
 
-                        <!-- Cargar desde Inventario Existente -->
-                        <div class="form-group" id="ficha_inventory_select_group" style="margin-bottom:12px;">
-                            <label class="form-label" style="font-size:0.75rem; color:#25D366; font-weight:700;"><i class="fas fa-car-side"></i> Cargar Vehículo de Stock Local (Showroom)</label>
-                            <select class="form-input" id="fichaVehicleSelect" onchange="loadFichaFromInventory(this.value)" style="font-size:0.85rem; padding:8px 12px; border-color:rgba(37,211,102,0.4);">
-                                <option value="">-- Selecciona un vehículo del catálogo --</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group" style="margin-bottom:14px;">
-                            <label class="form-label" style="font-size:0.75rem;">Número de Chasis / VIN (17 Caracteres)</label>
-                            <div style="display:flex; gap:6px;">
-                                <input type="text" class="form-input" id="fichaVinInput" placeholder="Ej: 1C4RJFLG8PC..." maxlength="17" style="text-transform:uppercase; font-family:monospace; font-weight:700; flex:1; font-size:0.85rem; padding:8px 10px;">
-                                <button type="button" class="btn btn-primary" id="btnDecodeNhtsa" onclick="decodeVinNhtsa()" style="padding:8px 12px; font-size:0.8rem; white-space:nowrap;">
-                                    <i class="fas fa-bolt"></i> NHTSA
-                                </button>
-                            </div>
-                            <div id="fichaVinStatus" style="font-size:0.75rem; margin-top:4px; display:none;"></div>
-                        </div>
-
-                        <!-- PARAMETERS ACCORDION -->
-                        <div style="border-top:1px solid var(--border-accent); padding-top:12px; display:flex; flex-direction:column; gap:10px;">
-                            <h4 style="font-size:0.85rem; color:#fff; font-weight:700; display:flex; align-items:center; gap:6px;">
-                                <i class="fas fa-sliders" style="color:var(--accent);"></i> Parámetros de la Ficha
-                            </h4>
-
-                            <!-- Foto de Referencia y Galería HD -->
-                            <div class="form-group" style="margin-bottom:6px; background:rgba(39,92,234,0.08); padding:10px; border-radius:8px; border:1px solid rgba(39,92,234,0.25);">
-                                <label class="form-label" style="font-size:0.75rem; color:#4d7aef; display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                                    <span><i class="fas fa-camera"></i> Foto de Portada (Ficha Técnica)</span>
-                                    <span id="f_img_indicator" style="color:#25D366; font-size:0.65rem; font-weight:600;">✓ Activa</span>
+                            <!-- Cargar desde Inventario Existente -->
+                            <div class="form-group" id="ficha_inventory_select_group" style="margin-bottom:10px;">
+                                <label class="form-label" style="font-size:0.72rem; color:#25D366; font-weight:700; display:flex; align-items:center; gap:5px;">
+                                    <i class="fas fa-car-side"></i> Cargar Vehículo de Stock Local:
                                 </label>
-                                <input type="text" class="form-input" id="f_image_url" placeholder="URL de imagen en alta resolución" oninput="onFichaImageUrlChange()" style="font-size:0.75rem; padding:6px 8px; margin-bottom:6px;">
+                                <select class="form-input" id="fichaVehicleSelect" onchange="loadFichaFromInventory(this.value)" style="font-size:0.8rem; padding:8px 10px; border-color:rgba(37,211,102,0.35); background:#060a12;">
+                                    <option value="">-- Selecciona un vehículo del catálogo --</option>
+                                </select>
+                            </div>
+
+                            <!-- VIN / NHTSA -->
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label" style="font-size:0.72rem; color:#ffffff;">Número de Chasis / VIN (17 Dígitos)</label>
+                                <div style="display:flex; gap:6px;">
+                                    <input type="text" class="form-input" id="fichaVinInput" placeholder="Ej: 1C4RJFLG8PC..." maxlength="17" style="text-transform:uppercase; font-family:monospace; font-weight:700; flex:1; font-size:0.8rem; padding:8px 10px; background:#060a12;">
+                                    <button type="button" class="btn btn-primary" id="btnDecodeNhtsa" onclick="decodeVinNhtsa()" style="padding:8px 12px; font-size:0.75rem; font-weight:700; white-space:nowrap; display:flex; align-items:center; gap:5px;">
+                                        <i class="fas fa-bolt"></i> NHTSA
+                                    </button>
+                                </div>
+                                <div id="fichaVinStatus" style="font-size:0.72rem; margin-top:4px; display:none;"></div>
+                            </div>
+
+                            <!-- APIFY (Solo Subasta) -->
+                            <div id="ficha_apify_section" style="display:none; background:rgba(39,92,234,0.1); border:1px solid rgba(39,92,234,0.35); border-radius:8px; padding:10px; margin-top:10px;">
+                                <label style="font-size:0.72rem; font-weight:700; color:#38bdf8; display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+                                    <i class="fas fa-robot"></i> Link Copart / IAAI (Apify)
+                                </label>
+                                <div style="display:flex; gap:6px;">
+                                    <input type="url" class="form-input" id="f_apify_url" placeholder="Pega link de subasta..." style="font-size:0.75rem; padding:6px 8px; flex:1; background:#060a12;">
+                                    <button type="button" class="btn btn-primary" id="btnApifyExtract" onclick="extractLotWithApify()" style="padding:6px 10px; font-size:0.75rem; font-weight:700; white-space:nowrap;">
+                                        <i class="fas fa-download"></i> Extraer
+                                    </button>
+                                </div>
+                                <div id="apifyStatus" style="font-size:0.7rem; margin-top:4px; display:none;"></div>
+                            </div>
+                        </div>
+
+                        <!-- 02. IDENTIFICACIÓN & FOTOGRAFÍA -->
+                        <div class="ficha-section-card">
+                            <div class="ficha-section-header">
+                                <span style="display:flex; align-items:center; gap:6px; color:#38bdf8;">
+                                    <i class="fas fa-camera"></i> 2. Identificación & Galería HD
+                                </span>
+                                <span style="font-size:0.65rem; color:#94a3b8;">Paso 2</span>
+                            </div>
+
+                            <!-- Portada y Miniaturas -->
+                            <div class="form-group" style="margin-bottom:8px; background:rgba(0,0,0,0.35); padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+                                <label class="form-label" style="font-size:0.7rem; color:#4d7aef; display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                                    <span>Foto de Portada Oficial:</span>
+                                    <span id="f_img_indicator" style="color:#25D366; font-size:0.65rem; font-weight:700;">✓ Activa</span>
+                                </label>
+                                <input type="text" class="form-input" id="f_image_url" placeholder="URL de imagen HD" oninput="onFichaImageUrlChange()" style="font-size:0.75rem; padding:6px 8px; margin-bottom:6px; background:#060a12;">
                                 
-                                <!-- Carrusel de Miniaturas HD del Vehículo Seleccionado -->
-                                <div id="ficha_gallery_section" style="display:none; margin-bottom:8px;">
-                                    <div style="font-size:0.68rem; color:#94a3b8; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;">
-                                        <span>📸 <strong>Fotos HD cargadas (<span id="ficha_gallery_count" style="color:#38bdf8;">0</span>):</strong></span>
-                                        <span style="color:#38bdf8; font-size:0.65rem;">Clic para cambiar portada</span>
+                                <div id="ficha_gallery_section" style="display:none; margin-bottom:6px;">
+                                    <div style="font-size:0.68rem; color:#94a3b8; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
+                                        <span>📸 <strong>Fotos HD (<span id="ficha_gallery_count" style="color:#38bdf8;">0</span>):</strong></span>
+                                        <span style="color:#38bdf8; font-size:0.62rem;">Clic para cambiar portada</span>
                                     </div>
-                                    <div id="ficha_gallery_grid" style="display:flex; gap:6px; overflow-x:auto; padding-bottom:6px; scrollbar-width:thin;"></div>
+                                    <div id="ficha_gallery_grid" style="display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; scrollbar-width:thin;"></div>
                                 </div>
 
                                 <input type="file" id="f_image_file" accept="image/*" onchange="onFichaImageUpload(event)" style="display:none;">
-                                <button type="button" class="btn btn-secondary" onclick="document.getElementById('f_image_file').click()" style="width:100%; padding:6px 8px; font-size:0.75rem; display:flex; align-items:center; justify-content:center; gap:6px;">
+                                <button type="button" class="btn btn-secondary" onclick="document.getElementById('f_image_file').click()" style="width:100%; padding:6px 8px; font-size:0.72rem; display:flex; align-items:center; justify-content:center; gap:6px;">
                                     <i class="fas fa-upload"></i> Subir Foto desde Galería / Dispositivo
                                 </button>
                             </div>
 
-                            <!-- Fabricacion -->
-                            <div class="form-group" style="margin-bottom:6px;">
+                            <!-- Título y Precio -->
+                            <div class="form-group" style="margin-bottom:8px;">
                                 <label class="form-label" style="font-size:0.7rem;">Título Comercial / Versión</label>
-                                <input type="text" class="form-input" id="f_title" placeholder="Año Marca Modelo Trim" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                <input type="text" class="form-input" id="f_title" placeholder="Año Marca Modelo Trim" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px; background:#060a12;">
                             </div>
 
-                            <div class="form-group" id="f_price_group" style="margin-bottom:6px;">
-                                <label class="form-label" style="font-size:0.7rem; color:#25D366; font-weight:700;"><i class="fas fa-tag"></i> Precio de Venta (Stock Local)</label>
-                                <input type="text" class="form-input" id="f_price" placeholder="Ej: $24,500 USD" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px; font-weight:700; color:#25D366;">
+                            <div class="form-group" id="f_price_group" style="margin-bottom:0;">
+                                <label class="form-label" style="font-size:0.7rem; color:#25D366; font-weight:700; display:flex; align-items:center; gap:4px;">
+                                    <i class="fas fa-tag"></i> Precio de Venta (Stock Local)
+                                </label>
+                                <input type="text" class="form-input" id="f_price" placeholder="Ej: $24,500 USD" oninput="updateFichaLive()" style="font-size:0.85rem; padding:7px 10px; font-weight:800; color:#25D366; border-color:rgba(37,211,102,0.4); background:#060a12;">
+                            </div>
+                        </div>
+
+                        <!-- 03. ESPECIFICACIONES TÉCNICAS & TREN MOTRIZ -->
+                        <div class="ficha-section-card">
+                            <div class="ficha-section-header">
+                                <span style="display:flex; align-items:center; gap:6px; color:#38bdf8;">
+                                    <i class="fas fa-gears"></i> 3. Fabricación & Tren Motriz
+                                </span>
+                                <span style="font-size:0.65rem; color:#94a3b8;">Paso 3</span>
                             </div>
 
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                 <div class="form-group" style="margin-bottom:6px;">
                                     <label class="form-label" style="font-size:0.7rem;">Año</label>
-                                    <input type="number" class="form-input" id="f_year" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    <input type="number" class="form-input" id="f_year" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                 </div>
                                 <div class="form-group" style="margin-bottom:6px;">
                                     <label class="form-label" style="font-size:0.7rem;">Trim / Versión</label>
-                                    <input type="text" class="form-input" id="f_trim" placeholder="Ej: Altitude X" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    <input type="text" class="form-input" id="f_trim" placeholder="Ej: Sport / Limited" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                 </div>
                             </div>
 
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                 <div class="form-group" style="margin-bottom:6px;">
                                     <label class="form-label" style="font-size:0.7rem;">Motorización</label>
-                                    <input type="text" class="form-input" id="f_engine" placeholder="3.6L V6 24V" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    <input type="text" class="form-input" id="f_engine" placeholder="3.6L V6 24V" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                 </div>
                                 <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Potencia (HP @ RPM)</label>
-                                    <input type="text" class="form-input" id="f_hp" placeholder="293 HP @ 6,400 RPM" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    <label class="form-label" style="font-size:0.7rem;">Potencia (HP)</label>
+                                    <input type="text" class="form-input" id="f_hp" placeholder="293 HP @ 6,400 RPM" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                 </div>
                             </div>
 
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                 <div class="form-group" style="margin-bottom:6px;">
                                     <label class="form-label" style="font-size:0.7rem;">Transmisión</label>
-                                    <input type="text" class="form-input" id="f_trans" placeholder="Automática 8 Vel." oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    <input type="text" class="form-input" id="f_trans" placeholder="Automática 8 Vel." oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                 </div>
                                 <div class="form-group" style="margin-bottom:6px;">
                                     <label class="form-label" style="font-size:0.7rem;">Tracción (Drivetrain)</label>
-                                    <input type="text" class="form-input" id="f_drivetrain" placeholder="4WD / AWD / FWD" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    <input type="text" class="form-input" id="f_drivetrain" placeholder="4WD / AWD / FWD" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                 </div>
                             </div>
 
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                 <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">País & Planta Ensamble</label>
-                                    <input type="text" class="form-input" id="f_plant" placeholder="Detroit, EE. UU." oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
-                                </div>
-                                <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Carrocería / Pasajeros</label>
-                                    <input type="text" class="form-input" id="f_body" placeholder="SUV 5 Puertas / 5 Pas." oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
-                                </div>
-                            </div>
-
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                                <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Color Exterior / Interior</label>
-                                    <input type="text" class="form-input" id="f_colors" placeholder="Ej: Blanco Perla / Cuero Negro" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    <label class="form-label" style="font-size:0.7rem;">Color Ext. / Interior</label>
+                                    <input type="text" class="form-input" id="f_colors" placeholder="Blanco Perla / Cuero Negro" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                 </div>
                                 <div class="form-group" style="margin-bottom:6px;">
                                     <label class="form-label" style="font-size:0.7rem;">Peso Bruto (GVWR)</label>
-                                    <input type="text" class="form-input" id="f_gvwr" placeholder="6,050 lbs (2,744 kg)" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    <input type="text" class="form-input" id="f_gvwr" placeholder="6,050 lbs (2,744 kg)" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                 </div>
                             </div>
 
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                 <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Tipo de Combustible</label>
-                                    <input type="text" class="form-input" id="f_fuel_type" placeholder="Gasolina / Híbrido" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    <label class="form-label" style="font-size:0.7rem;">País & Planta</label>
+                                    <input type="text" class="form-input" id="f_plant" placeholder="Detroit, EE. UU." oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                 </div>
                                 <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Sistema de Frenos</label>
-                                    <input type="text" class="form-input" id="f_brakes" placeholder="Frenos de Disco con ABS" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    <label class="form-label" style="font-size:0.7rem;">Carrocería / Pasajeros</label>
+                                    <input type="text" class="form-input" id="f_body" placeholder="SUV 5 Puertas / 5 Pas." oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                 </div>
                             </div>
 
-                            <!-- CAMPOS ESPECÍFICOS DE STOCK LOCAL -->
-                            <div id="f_stock_fields_group" style="border-top:1px solid rgba(37,211,102,0.25); padding-top:10px; margin-top:6px;">
-                                <h4 style="font-size:0.85rem; color:#25D366; font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
-                                    <i class="fas fa-clipboard-check"></i> Auditoría & Condición de Stock Local
-                                </h4>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label class="form-label" style="font-size:0.7rem;">Combustible</label>
+                                    <input type="text" class="form-input" id="f_fuel_type" placeholder="Gasolina / Híbrido" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
+                                </div>
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label class="form-label" style="font-size:0.7rem;">Sistema de Frenos</label>
+                                    <input type="text" class="form-input" id="f_brakes" placeholder="Frenos de Disco con ABS" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
+                                </div>
+                            </div>
+                        </div>
 
+                        <!-- 04. AUDITORÍA & CONDICIÓN -->
+                        <div class="ficha-section-card">
+                            <div class="ficha-section-header">
+                                <span style="display:flex; align-items:center; gap:6px; color:#38bdf8;">
+                                    <i class="fas fa-clipboard-check"></i> 4. Auditoría, Condición & Extras
+                                </span>
+                                <span style="font-size:0.65rem; color:#94a3b8;">Paso 4</span>
+                            </div>
+
+                            <!-- CAMPOS DE STOCK LOCAL -->
+                            <div id="f_stock_fields_group">
                                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                     <div class="form-group" style="margin-bottom:6px;">
                                         <label class="form-label" style="font-size:0.7rem;">Odómetro Entrada (Millas)</label>
-                                        <input type="number" class="form-input" id="f_miles" placeholder="Millas (ej: 18450)" oninput="onMilesInput(this.value)" style="font-size:0.8rem; padding:6px 10px;">
+                                        <input type="number" class="form-input" id="f_miles" placeholder="18450" oninput="onMilesInput(this.value)" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                     </div>
                                     <div class="form-group" style="margin-bottom:6px;">
-                                        <label class="form-label" style="font-size:0.7rem;">Kilometraje Actual (KM)</label>
-                                        <input type="text" class="form-input" id="f_km" placeholder="15,000 KM" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px; font-weight:700; color:#38bdf8;">
+                                        <label class="form-label" style="font-size:0.7rem; color:#38bdf8; font-weight:700;">Kilometraje Actual (KM)</label>
+                                        <input type="text" class="form-input" id="f_km" placeholder="15,000 KM" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; font-weight:700; color:#38bdf8; background:#060a12;">
                                     </div>
                                 </div>
 
                                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                     <div class="form-group" style="margin-bottom:6px;">
                                         <label class="form-label" style="font-size:0.7rem;">Placa / Identificación</label>
-                                        <input type="text" class="form-input" id="f_plate" placeholder="En Trámite / Asignada" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                        <input type="text" class="form-input" id="f_plate" placeholder="En Trámite / Asignada" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                     </div>
                                     <div class="form-group" style="margin-bottom:6px;">
                                         <label class="form-label" style="font-size:0.7rem;">Propietarios / Dueños</label>
-                                        <input type="text" class="form-input" id="f_owners" placeholder="Único Dueño (1 Owner)" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                        <input type="text" class="form-input" id="f_owners" placeholder="Único Dueño (1 Owner)" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                     </div>
                                 </div>
 
                                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                     <div class="form-group" style="margin-bottom:6px;">
                                         <label class="form-label" style="font-size:0.7rem;">Tipo de Título / Doc</label>
-                                        <input type="text" class="form-input" id="f_title_type" placeholder="Título Limpio (Clean Title)" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                        <input type="text" class="form-input" id="f_title_type" placeholder="Título Limpio (Clean Title)" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                     </div>
                                     <div class="form-group" style="margin-bottom:6px;">
                                         <label class="form-label" style="font-size:0.7rem;">Daño en Subasta</label>
-                                        <input type="text" class="form-input" id="f_primary_damage" placeholder="Sin Daño Estructural" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                        <input type="text" class="form-input" id="f_primary_damage" placeholder="Sin Daño Estructural" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                     </div>
                                 </div>
 
                                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                     <div class="form-group" style="margin-bottom:6px;">
                                         <label class="form-label" style="font-size:0.7rem;">Llaves de Contacto</label>
-                                        <input type="text" class="form-input" id="f_keys" placeholder="2 Llaves Inteligentes (Presencia)" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                        <input type="text" class="form-input" id="f_keys" placeholder="2 Llaves Inteligentes" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                     </div>
                                     <div class="form-group" style="margin-bottom:6px;">
                                         <label class="form-label" style="font-size:0.7rem;">Bolsas de Aire (Airbags)</label>
-                                        <input type="text" class="form-input" id="f_airbags" placeholder="Originales de Fábrica (100% Intactas)" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                        <input type="text" class="form-input" id="f_airbags" placeholder="Originales de Fábrica (Intactas)" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                     </div>
                                 </div>
 
-                                <div class="form-group" style="margin-bottom:6px;">
+                                <div class="form-group" style="margin-bottom:0;">
                                     <label class="form-label" style="font-size:0.7rem; color:#25D366; font-weight:700;"><i class="fas fa-plus-circle"></i> Extras / Servicios Realizados (Uno por línea)</label>
-                                    <textarea class="form-input" id="f_extras_services" rows="3" oninput="updateFichaLive()" style="font-size:0.75rem; line-height:1.4;" placeholder="Vehículo Asegurado / Póliza Vigente&#10;Mantenimiento preventivo integral de 150 puntos realizado&#10;Tratamiento cerámico de pintura e higienización interior"></textarea>
+                                    <textarea class="form-input" id="f_extras_services" rows="3" oninput="updateFichaLive()" style="font-size:0.72rem; line-height:1.4; background:#060a12;" placeholder="Vehículo Asegurado / Póliza Vigente&#10;Mantenimiento preventivo integral de 150 puntos realizado&#10;Tratamiento cerámico de pintura e higienización interior"></textarea>
                                 </div>
                             </div>
 
-                            <!-- CAMPOS ESPECÍFICOS DE SUBASTA (Se muestran sólo en Modo Subasta) -->
-                            <div id="f_auction_fields_group" style="display:none; border-top:1px solid rgba(56,189,248,0.25); padding-top:10px; margin-top:6px;">
-                                <h4 style="font-size:0.85rem; color:#38bdf8; font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
-                                    <i class="fas fa-gavel"></i> Datos de Subasta & Daño (USA)
-                                </h4>
-
+                            <!-- CAMPOS DE SUBASTA -->
+                            <div id="f_auction_fields_group" style="display:none;">
                                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                     <div class="form-group" style="margin-bottom:6px;">
                                         <label class="form-label" style="font-size:0.7rem;">Start Code / Operatividad</label>
-                                        <input type="text" class="form-input" id="f_start_code" placeholder="Run & Drive / Llaves Sí" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                        <input type="text" class="form-input" id="f_start_code" placeholder="Run & Drive / Llaves Sí" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                     </div>
                                     <div class="form-group" style="margin-bottom:6px;">
                                         <label class="form-label" style="font-size:0.7rem;">Stock # / Lote</label>
-                                        <input type="text" class="form-input" id="f_stock_no" placeholder="Ej: 45843959" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                        <input type="text" class="form-input" id="f_stock_no" placeholder="Ej: 45843959" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- Equipamiento Checklist Editable -->
-                            <h4 style="font-size:0.85rem; color:#fff; font-weight:700; margin-top:8px; display:flex; align-items:center; gap:6px;">
-                                <i class="fas fa-star" style="color:#f59e0b;"></i> Equipamiento Destacado
-                            </h4>
-                            <div class="form-group" style="margin-bottom:6px;">
-                                <textarea class="form-input" id="f_features_text" rows="4" oninput="updateFichaLive()" style="font-size:0.75rem; line-height:1.5;" placeholder="Un item por línea"></textarea>
+                        <!-- 05. EQUIPAMIENTO DESTACADO -->
+                        <div class="ficha-section-card">
+                            <div class="ficha-section-header">
+                                <span style="display:flex; align-items:center; gap:6px; color:#f59e0b;">
+                                    <i class="fas fa-star"></i> 5. Equipamiento Destacado
+                                </span>
+                                <span style="font-size:0.65rem; color:#94a3b8;">Paso 5</span>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <textarea class="form-input" id="f_features_text" rows="4" oninput="updateFichaLive()" style="font-size:0.72rem; line-height:1.45; background:#060a12;" placeholder="Un item por línea"></textarea>
                             </div>
                         </div>
                     </div>
 
                     <!-- RIGHT LIVE PREVIEW & ACTIONS -->
                     <div class="ficha-preview-wrapper">
-                        <!-- ACTIONS -->
+                        <!-- ACTIONS TOOLBAR -->
                         <div class="ficha-actions-bar">
-                            <button type="button" class="btn btn-primary" id="btnDownloadPdf" onclick="downloadFichaPDF()" style="display:flex; align-items:center; gap:8px; padding:10px 24px; font-weight:700; font-size:0.9rem; border-radius:8px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="background:rgba(37,211,102,0.18); color:#25D366; font-size:0.7rem; padding:4px 10px; border-radius:6px; font-weight:700; border:1px solid rgba(37,211,102,0.35); display:flex; align-items:center; gap:5px;">
+                                    <i class="fas fa-eye"></i> Vista Previa en Vivo
+                                </span>
+                                <span style="font-size:0.75rem; color:#94a3b8;">
+                                    1 Página Carta + Anexo HD
+                                </span>
+                            </div>
+                            <button type="button" class="btn btn-primary" id="btnDownloadPdf" onclick="downloadFichaPDF()" style="display:flex; align-items:center; gap:8px; padding:10px 24px; font-weight:800; font-size:0.85rem; border-radius:8px; box-shadow:0 0 15px rgba(39,92,234,0.5);">
                                 <i class="fas fa-file-pdf"></i> Descargar PDF Oficial
                             </button>
                         </div>
