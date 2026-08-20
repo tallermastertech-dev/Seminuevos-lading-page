@@ -1387,19 +1387,20 @@
 
         /* --- THE PRINTABLE 1-PAGE SHEET --- */
         .ficha-sheet {
-            width: 100%;
-            max-width: 820px;
+            width: 780px;
+            max-width: 780px;
             background: #000000;
-            background-image: radial-gradient(circle at 100% 0%, rgba(39, 92, 234, 0.15) 0%, transparent 40%),
-                              radial-gradient(circle at 0% 100%, rgba(39, 92, 234, 0.08) 0%, transparent 40%);
+            background-image: radial-gradient(circle at 100% 0%, rgba(39, 92, 234, 0.18) 0%, transparent 40%),
+                              radial-gradient(circle at 0% 100%, rgba(39, 92, 234, 0.1) 0%, transparent 40%);
             color: #ffffff;
-            border: 1px solid rgba(39, 92, 234, 0.3);
-            border-radius: 14px;
-            padding: 24px 28px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(39, 92, 234, 0.1);
+            border: 1px solid rgba(39, 92, 234, 0.35);
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(39, 92, 234, 0.12);
             font-family: 'Mina', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             position: relative;
             box-sizing: border-box;
+            overflow: hidden;
         }
 
         .ficha-header {
@@ -1407,24 +1408,24 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1.5px solid rgba(39, 92, 234, 0.25);
-            padding-bottom: 14px;
-            margin-bottom: 14px;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
         }
 
         .ficha-brand-col {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
         }
 
         .ficha-brand-logo-row {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .ficha-brand-img {
-            height: 46px;
+            height: 40px;
             width: auto;
             object-fit: contain;
         }
@@ -1432,35 +1433,35 @@
         .ficha-badge-top {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             background: rgba(39, 92, 234, 0.15);
             color: #4d7aef;
             border: 1px solid rgba(39, 92, 234, 0.4);
-            padding: 3px 12px;
+            padding: 2px 10px;
             border-radius: 999px;
-            font-size: 0.68rem;
+            font-size: 0.65rem;
             font-family: 'Unbounded', sans-serif;
             font-weight: 700;
-            letter-spacing: 0.6px;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
             width: fit-content;
         }
 
         .ficha-subtitle {
-            font-size: 0.72rem;
+            font-size: 0.68rem;
             color: var(--text2);
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
             text-transform: uppercase;
             font-weight: 600;
         }
 
         .ficha-meta-col {
             text-align: right;
-            font-size: 0.72rem;
+            font-size: 0.68rem;
             color: var(--text2);
-            line-height: 1.45;
+            line-height: 1.4;
             background: #060a12;
-            padding: 8px 14px;
+            padding: 6px 12px;
             border-radius: 8px;
             border: 1px solid rgba(39, 92, 234, 0.2);
         }
@@ -1473,52 +1474,54 @@
             font-family: 'Courier New', monospace;
             color: #4d7aef;
             font-weight: 700;
-            font-size: 0.82rem;
+            font-size: 0.80rem;
         }
 
         /* --- BLOCKS --- */
         .ficha-block {
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             background: #060a12;
             border: 1px solid rgba(39, 92, 234, 0.2);
-            border-radius: 10px;
-            padding: 12px 14px;
+            border-radius: 8px;
+            padding: 8px 12px;
         }
 
         .ficha-block-title {
             font-family: 'Unbounded', sans-serif;
-            font-size: 0.76rem;
+            font-size: 0.72rem;
             font-weight: 700;
             color: #4d7aef;
             text-transform: uppercase;
-            letter-spacing: 0.6px;
+            letter-spacing: 0.5px;
             display: flex;
             align-items: center;
-            gap: 6px;
-            margin-bottom: 10px;
-            padding-bottom: 6px;
+            gap: 5px;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
             border-bottom: 1px solid rgba(39, 92, 234, 0.2);
         }
 
         .ficha-grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 14px;
+            gap: 12px;
         }
 
         .ficha-specs-list {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 3px;
+            margin: 0;
+            padding: 0;
         }
 
         .ficha-spec-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.74rem;
-            padding: 2.5px 0;
+            font-size: 0.70rem;
+            padding: 1.5px 0;
             border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
         }
 
@@ -1547,21 +1550,21 @@
         .ficha-checklist-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 6px 14px;
+            gap: 4px 10px;
         }
 
         .ficha-check-item {
             display: flex;
             align-items: flex-start;
-            gap: 7px;
-            font-size: 0.73rem;
+            gap: 6px;
+            font-size: 0.69rem;
             color: #f1f5f9;
-            line-height: 1.35;
+            line-height: 1.25;
         }
 
         .ficha-check-icon {
             color: #275CEA;
-            font-size: 0.85rem;
+            font-size: 0.80rem;
             font-weight: 800;
             line-height: 1;
             margin-top: 1px;
@@ -1571,23 +1574,23 @@
         .ficha-pilares-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin-top: 10px;
-            padding-top: 10px;
+            gap: 6px;
+            margin-top: 6px;
+            padding-top: 6px;
             border-top: 1px solid rgba(39, 92, 234, 0.2);
         }
 
         .ficha-pilar-card {
             background: #000000;
             border: 1px solid rgba(37, 211, 102, 0.3);
-            border-radius: 8px;
-            padding: 8px 6px;
+            border-radius: 6px;
+            padding: 5px 4px;
             text-align: center;
         }
 
         .ficha-pilar-title {
             font-family: 'Unbounded', sans-serif;
-            font-size: 0.62rem;
+            font-size: 0.58rem;
             font-weight: 700;
             color: #25D366;
             text-transform: uppercase;
@@ -1595,7 +1598,7 @@
         }
 
         .ficha-pilar-desc {
-            font-size: 0.62rem;
+            font-size: 0.58rem;
             color: var(--text2);
         }
 
@@ -1604,17 +1607,17 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 12px;
-            padding-top: 10px;
+            margin-top: 8px;
+            padding-top: 6px;
             border-top: 1.5px solid rgba(39, 92, 234, 0.25);
-            font-size: 0.7rem;
+            font-size: 0.66rem;
             color: var(--text2);
         }
 
         .ficha-footer-brand {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             font-weight: 600;
             color: #ffffff;
         }
@@ -1933,6 +1936,9 @@
                         <div class="ficha-actions-bar">
                             <button type="button" class="btn btn-secondary" onclick="copyFichaWhatsApp()" style="display:flex; align-items:center; gap:8px; padding:10px 18px; font-weight:600;">
                                 <i class="fab fa-whatsapp" style="color:#25D366; font-size:1.1rem;"></i> Copiar WhatsApp
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="downloadFichaImage()" style="display:flex; align-items:center; gap:8px; padding:10px 18px; font-weight:600;">
+                                <i class="fas fa-image" style="color:#38bdf8; font-size:1.1rem;"></i> Descargar Imagen HD
                             </button>
                             <button type="button" class="btn btn-ghost" onclick="printFichaSheet()" style="display:flex; align-items:center; gap:8px; padding:10px 16px;">
                                 <i class="fas fa-print"></i> Imprimir
@@ -5627,27 +5633,60 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             const title = (document.getElementById('f_title')?.value || 'Vehiculo').replace(/[^a-zA-Z0-9]/g, '-');
             const filename = `Ficha-Tecnica-${title}-${vin}.pdf`;
 
-            showToast('Generando PDF oficial en alta resolución...', 'info');
+            showToast('Generando PDF oficial en 1 página completa...', 'info');
 
             const opt = {
-                margin: [5, 6, 5, 6],
+                margin: 0,
                 filename: filename,
                 image: { type: 'jpeg', quality: 0.99 },
                 html2canvas: { 
-                    scale: 2, 
+                    scale: 2.2, 
                     useCORS: true, 
                     backgroundColor: '#000000',
-                    logging: false
+                    logging: false,
+                    letterRendering: true,
+                    scrollY: 0,
+                    scrollX: 0
                 },
-                jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+                jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait', compress: true },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
             try {
                 await html2pdf().set(opt).from(sheet).save();
-                showToast('✓ PDF descargado exitosamente', 'success');
+                showToast('✓ PDF descargado exitosamente (1 Página Completa)', 'success');
             } catch (err) {
                 console.error('PDF error:', err);
-                showToast('Error al generar PDF. Puedes usar la opción Imprimir.', 'warning');
+                showToast('Error al generar PDF. Puedes usar Descargar Imagen HD.', 'warning');
+            }
+        }
+
+        async function downloadFichaImage() {
+            const sheet = document.getElementById('fichaSheet');
+            if (!sheet) return;
+            const vin = (document.getElementById('fichaVinInput')?.value || '').trim() || 'Seminuevos';
+            const title = (document.getElementById('f_title')?.value || 'Vehiculo').replace(/[^a-zA-Z0-9]/g, '-');
+            const filename = `Ficha-Tecnica-${title}-${vin}.png`;
+
+            showToast('Generando Imagen HD para WhatsApp / Redes...', 'info');
+
+            try {
+                const canvas = await html2canvas(sheet, {
+                    scale: 2.5,
+                    useCORS: true,
+                    backgroundColor: '#000000',
+                    logging: false,
+                    scrollY: 0,
+                    scrollX: 0
+                });
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL('image/png', 1.0);
+                link.click();
+                showToast('✓ Imagen HD descargada exitosamente', 'success');
+            } catch (err) {
+                console.error('Image error:', err);
+                showToast('Error al exportar imagen.', 'warning');
             }
         }
 
