@@ -6355,7 +6355,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 document.getElementById('f_plate').value = (desc.includes('placa nacional') || v.badge === 'PLACA NACIONAL') ? 'Placa Nacional Asignada' : 'En Trámite / Asignada';
             }
             if (document.getElementById('f_owners')) {
-                document.getElementById('f_owners').value = isOneOwner ? 'Único Dueño (1 Owner)' : '1 Propietario Verificado';
+                document.getElementById('f_owners').value = 'Único Dueño (1 Owner)';
             }
             if (document.getElementById('f_title_type')) document.getElementById('f_title_type').value = 'Título Limpio (Clean Title)';
             
