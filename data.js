@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ============================================
  *  DATOS DEL INVENTARIO DE VEHÍCULOS - SEMINUEVO
  * ============================================
@@ -13,7 +13,7 @@ const vehiclesSeminuevos = [
         title: "Honda HR-V Sport 2025 4x4 AWD",
         price: "$36,000",
         year: 2025,
-        km: "15,000 KM",
+        km: "17,000 KM",
         engine: "2.0L",
         transmission: "Automático",
         fuel: "Gasolina",
@@ -21,7 +21,9 @@ const vehiclesSeminuevos = [
         origin: "nacional",
         condition: "seminuevo",
         availability: "entrega_inmediata",
-        badge: "ENTREGA INMEDIATA",
+        badge: "PUERTO LIBRE / NACIONAL",
+        color: "Gris Platino / Interior Negro Sport",
+        vin: "3CZRZ2H54SM715088",
         images: [
             "images/gallery/honda-hrv-sport-2025-4x4-awd/1.jpg",
             "images/gallery/honda-hrv-sport-2025-4x4-awd/2.jpg",
@@ -45,14 +47,14 @@ const vehiclesSeminuevos = [
             "images/gallery/honda-hrv-sport-2025-4x4-awd/20.jpg",
             "images/gallery/honda-hrv-sport-2025-4x4-awd/21.jpg"
         ],
-        description: "Honda HR-V Sport 2025 con tracción 4x4 AWD. Motor 2.0L, transmisión automática. Ubicación Porlamar. Nivel de daño leve: golpe en puerta trasera piloto. 15,000 km recorridos. Entrega inmediata."
+        description: "Honda HR-V Sport 2025 con tracción 4x4 AWD. Motor 2.0L i-VTEC (158 HP), transmisión automática CVT. Color interior negro. Black Package de emblemas exteriores, rines 18\" Glossy Black, Honda Sensing. 17,000 km recorridos. Ubicación Porlamar, Puerto Libre / Nacional."
     },
     {
         id: 2,
-        title: "Honda HR-V 2024 Sport",
+        title: "Honda HR-V Sport 2024 FWD",
         price: "$33,000",
         year: 2024,
-        km: "25,000 KM",
+        km: "45,000 KM",
         engine: "2.0L",
         transmission: "Automático",
         fuel: "Gasolina",
@@ -61,6 +63,8 @@ const vehiclesSeminuevos = [
         condition: "seminuevo",
         availability: "entrega_inmediata",
         badge: "PUERTO LIBRE",
+        color: "Gris Grafito / Interior Negro Sport",
+        vin: "3CZRZ1H3XRM736546",
         images: [
             "images/gallery/honda-hrv-2024-sport/1.jpg",
             "images/gallery/honda-hrv-2024-sport/2.jpg",
@@ -87,7 +91,7 @@ const vehiclesSeminuevos = [
             "images/gallery/honda-hrv-2024-sport/23.jpg",
             "images/gallery/honda-hrv-2024-sport/24.jpg"
         ],
-        description: "Honda HR-V 2024 Sport. Motor 2.0L, automática. Ubicación Porlamar, Puerto Libre. Vehículo tuvo daño leve en esquina trasera izquierda. Entrega inmediata llave en mano. 25,000 km."
+        description: "Honda HR-V Sport 2024 FWD (Tracción delantera). Motor 2.0L i-VTEC (158 HP), transmisión automática CVT. Color interior negro. Black Package de emblemas, rines 17\" Glossy Black, botón de encendido Push Start (sin Smart Entry). Llave original (sin duplicado). 45,000 km recorridos. Ubicación Porlamar, Puerto Libre."
     },
     {
         id: 3,
@@ -102,7 +106,9 @@ const vehiclesSeminuevos = [
         origin: "nacional",
         condition: "seminuevo",
         availability: "entrega_inmediata",
-        badge: "PUERTO LIBRE",
+        badge: "PUERTO LIBRE / NACIONAL",
+        color: "Blanco Perla / Interior Negro",
+        vin: "3N1AB8CV8SY277317",
         images: [
             "images/gallery/nissan-sentra-sv-2025/1.jpg",
             "images/gallery/nissan-sentra-sv-2025/2.jpg",
@@ -122,11 +128,11 @@ const vehiclesSeminuevos = [
             "images/gallery/nissan-sentra-sv-2025/16.jpg",
             "images/gallery/nissan-sentra-sv-2025/17.jpg"
         ],
-        description: "Nissan Sentra SV 2025. Motor 2.0L, automático. Ubicación Porlamar, Puerto Libre. 12,000 km. Nivel de daño leve por granizo. Entrega inmediata."
+        description: "Nissan Sentra SV 2025. Motor 2.0L DOHC 16V (149 HP), transmisión Xtronic CVT. Tracción delantera (FWD). Color interior negro. Daño leve por granizo (sin golpes estructurales). 12,000 km. Ubicación Porlamar, Puerto Libre / Nacional."
     },
     {
         id: 4,
-        title: "Nissan Rogue Sport 2019",
+        title: "Nissan Rogue Sport 2019 FWD",
         price: "$22,000",
         year: 2019,
         km: "50,000 KM",
@@ -137,14 +143,16 @@ const vehiclesSeminuevos = [
         origin: "nacional",
         condition: "seminuevo",
         availability: "entrega_inmediata",
-        badge: "SIN GOLPES",
+        badge: "PLACA NACIONAL",
+        color: "Gris Plata / Interior Negro",
+        vin: "JN1BJ1CPXKW528684",
         images: [
             "images/gallery/rogue-sport-2019/1.jpg",
             "images/gallery/rogue-sport-2019/2.jpg",
             "images/gallery/rogue-sport-2019/3.jpg",
             "images/gallery/rogue-sport-2019/4.jpg"
         ],
-        description: "Nissan Rogue Sport 2019. Motor 2.0L, automática. 50,000 km. Ubicación Porlamar, Puerto Libre (lista para nacionalizar). Mantenimiento al día. Único dueño de concesionario, sin golpes."
+        description: "Nissan Rogue Sport 2019 FWD. Motor 2.0L DOHC 16V (141 HP), transmisión Xtronic CVT. Tracción delantera (FWD). Placa nacional asignada. Único dueño, 50,000 km. Mantenimiento al día, 100% sin golpes."
     },
     {
         id: 5,
