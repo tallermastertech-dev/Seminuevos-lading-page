@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         *,
@@ -1385,22 +1387,27 @@
             flex-wrap: wrap;
         }
 
-        /* --- THE PRINTABLE 1-PAGE SHEET --- */
+        /* --- THE PRINTABLE 1-PAGE SHEET (EXACT LETTER SIZE) --- */
         .ficha-sheet {
             width: 780px;
             max-width: 780px;
+            min-height: 1010px;
+            height: 1010px;
             background: #000000;
             background-image: radial-gradient(circle at 100% 0%, rgba(39, 92, 234, 0.18) 0%, transparent 40%),
                               radial-gradient(circle at 0% 100%, rgba(39, 92, 234, 0.1) 0%, transparent 40%);
             color: #ffffff;
             border: 1px solid rgba(39, 92, 234, 0.35);
-            border-radius: 12px;
-            padding: 16px 20px;
+            border-radius: 8px;
+            padding: 16px 20px 12px 20px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(39, 92, 234, 0.12);
             font-family: 'Mina', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             position: relative;
             box-sizing: border-box;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .ficha-header {
@@ -5885,28 +5892,45 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             const title = (document.getElementById('f_title')?.value || 'Vehiculo').replace(/[^a-zA-Z0-9]/g, '-');
             const filename = `Ficha-Tecnica-${title}-${vin}.pdf`;
 
-            showToast('Generando PDF oficial en 1 página completa...', 'info');
+            showToast('Generando PDF oficial en tamaño Carta (100% 1 Página)...', 'info');
 
-            const opt = {
-                margin: 0,
-                filename: filename,
-                image: { type: 'jpeg', quality: 0.99 },
-                html2canvas: { 
-                    scale: 2.2, 
+            try {
+                const canvas = await html2canvas(sheet, { 
+                    scale: 2.5, 
                     useCORS: true, 
                     backgroundColor: '#000000',
                     logging: false,
-                    letterRendering: true,
                     scrollY: 0,
                     scrollX: 0
-                },
-                jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait', compress: true },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-            };
+                });
 
-            try {
-                await html2pdf().set(opt).from(sheet).save();
-                showToast('✓ PDF descargado exitosamente (1 Página Completa)', 'success');
+                const imgData = canvas.toDataURL('image/jpeg', 0.98);
+                
+                // Usamos jsPDF para crear un documento Carta exacto (Letter: 215.9mm x 279.4mm)
+                let pdfDoc;
+                if (window.jspdf && window.jspdf.jsPDF) {
+                    pdfDoc = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+                } else if (typeof jsPDF !== 'undefined') {
+                    pdfDoc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+                }
+
+                if (pdfDoc) {
+                    // Dimensiones exactas de carta: 215.9 x 279.4 mm
+                    pdfDoc.addImage(imgData, 'JPEG', 0, 0, 215.9, 279.4, undefined, 'FAST');
+                    pdfDoc.save(filename);
+                    showToast('✓ PDF descargado exitosamente (Tamaño Carta 100%)', 'success');
+                } else {
+                    // Fallback con html2pdf
+                    const opt = {
+                        margin: 0,
+                        filename: filename,
+                        image: { type: 'jpeg', quality: 0.99 },
+                        html2canvas: { scale: 2.5, useCORS: true, backgroundColor: '#000000', scrollY: 0, scrollX: 0 },
+                        jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+                    };
+                    await html2pdf().set(opt).from(sheet).save();
+                    showToast('✓ PDF descargado exitosamente', 'success');
+                }
             } catch (err) {
                 console.error('PDF error:', err);
                 showToast('Error al generar PDF. Puedes usar Descargar Imagen HD.', 'warning');
