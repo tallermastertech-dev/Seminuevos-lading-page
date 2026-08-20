@@ -5845,6 +5845,11 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                     }
                 }
 
+                // Verificar si se extrajeron datos reales
+                if (!vin && !stockNo && !titleName && (!images || images.length === 0)) {
+                    throw new Error('La página de subasta bloqueó el acceso automatizado o el link requiere inicio de sesión en IAAI/Copart.');
+                }
+
                 if (vin && vin.length === 17) {
                     if (statusEl) statusEl.innerHTML = '⚡ Datos extraídos. Decodificando especificaciones con NHTSA...';
                     await decodeVinNhtsa(true);
@@ -5853,7 +5858,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 }
 
                 if (statusEl) {
-                    statusEl.innerHTML = `✅ <strong>Lote importado con Apify:</strong> ${titleName || vin || 'Completado'} (Fotos HD y datos listos)`;
+                    statusEl.innerHTML = `✅ <strong>Lote importado con Apify:</strong> ${titleName || vin || stockNo} (Fotos HD y datos listos)`;
                     statusEl.style.color = '#25D366';
                 }
                 showToast('✓ Lote importado con éxito desde Apify', 'success');
