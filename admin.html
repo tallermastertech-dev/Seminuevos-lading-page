@@ -2120,7 +2120,13 @@
                                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                     <div class="form-group" style="margin-bottom:6px;">
                                         <label class="form-label" style="font-size:0.7rem;">Propietarios / Dueños</label>
-                                        <input type="text" class="form-input" id="f_owners" placeholder="Único Dueño (1 Owner)" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
+                                        <input type="text" list="owners_options" class="form-input" id="f_owners" placeholder="Único Dueño (1 Owner)" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
+                                        <datalist id="owners_options">
+                                            <option value="Único Dueño (1 Owner)">
+                                            <option value="2 Propietarios (2 Owners)">
+                                            <option value="3 Propietarios (3 Owners)">
+                                            <option value="Flota Corporativa / Concesionario">
+                                        </datalist>
                                     </div>
                                     <div class="form-group" style="margin-bottom:6px;">
                                         <label class="form-label" style="font-size:0.7rem;">Tipo de Título / Doc</label>
@@ -6355,7 +6361,15 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 document.getElementById('f_plate').value = (desc.includes('placa nacional') || v.badge === 'PLACA NACIONAL') ? 'Placa Nacional Asignada' : 'En Trámite / Asignada';
             }
             if (document.getElementById('f_owners')) {
-                document.getElementById('f_owners').value = 'Único Dueño (1 Owner)';
+                if (v.owners) {
+                    document.getElementById('f_owners').value = v.owners;
+                } else if (desc.includes('2 dueños') || desc.includes('2 owners') || desc.includes('dos dueños') || desc.includes('2 propietarios')) {
+                    document.getElementById('f_owners').value = '2 Propietarios (2 Owners)';
+                } else if (desc.includes('3 dueños') || desc.includes('3 owners') || desc.includes('tres dueños') || desc.includes('3 propietarios')) {
+                    document.getElementById('f_owners').value = '3 Propietarios (3 Owners)';
+                } else {
+                    document.getElementById('f_owners').value = 'Único Dueño (1 Owner)';
+                }
             }
             if (document.getElementById('f_title_type')) document.getElementById('f_title_type').value = 'Título Limpio (Clean Title)';
             
