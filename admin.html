@@ -5557,6 +5557,8 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 ? v.images 
                 : (Array.isArray(v.gallery) && v.gallery.length > 0 ? v.gallery : (v.image ? [v.image] : []));
             
+            window._currentFichaImages = allImgs;
+
             if (allImgs.length > 0) {
                 const primaryImg = allImgs[0];
                 const urlInput = document.getElementById('f_image_url');
@@ -6292,15 +6294,27 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             if (!sheet) return;
             const vin = (document.getElementById('fichaVinInput')?.value || '').trim() || 'Seminuevos';
             const title = (document.getElementById('f_title')?.value || 'Vehiculo').replace(/[^a-zA-Z0-9]/g, '-');
+            const rawTitle = document.getElementById('f_title')?.value || 'Vehículo Seminuevo';
+            const reportNo = document.getElementById('pv_report_no')?.textContent || 'SN-FT-00000';
             const filename = `Ficha-Tecnica-${title}-${vin}.pdf`;
 
-            showToast('Generando PDF oficial en tamaño Carta (100% 1 Página)...', 'info');
+            const galleryImgs = (window._currentFichaImages && window._currentFichaImages.length > 0)
+                ? window._currentFichaImages
+                : [];
+
+            const totalGalleryPages = galleryImgs.length > 1 ? Math.ceil(galleryImgs.length / 6) : 0;
+            const totalPages = 1 + totalGalleryPages;
+
+            showToast(totalGalleryPages > 0 
+                ? `Generando PDF Oficial (${totalPages} Páginas con Galería HD Completa)...` 
+                : 'Generando PDF Oficial (Tamaño Carta 100%)...', 'info');
 
             try {
+                // 1. Renderizar Portada / Ficha Técnica (Página 1)
                 const canvas = await html2canvas(sheet, { 
                     scale: 2.5, 
                     useCORS: true, 
-                    backgroundColor: '#000000',
+                    backgroundColor: '#090d16',
                     logging: false,
                     scrollY: 0,
                     scrollX: 0
@@ -6308,7 +6322,6 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
 
                 const imgData = canvas.toDataURL('image/jpeg', 0.98);
                 
-                // Usamos jsPDF para crear un documento Carta exacto (Letter: 215.9mm x 279.4mm)
                 let pdfDoc;
                 if (window.jspdf && window.jspdf.jsPDF) {
                     pdfDoc = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
@@ -6316,26 +6329,104 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                     pdfDoc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
                 }
 
-                if (pdfDoc) {
-                    // Dimensiones exactas de carta: 215.9 x 279.4 mm
-                    pdfDoc.addImage(imgData, 'JPEG', 0, 0, 215.9, 279.4, undefined, 'FAST');
-                    pdfDoc.save(filename);
-                    showToast('✓ PDF descargado exitosamente (Tamaño Carta 100%)', 'success');
-                } else {
-                    // Fallback con html2pdf
-                    const opt = {
-                        margin: 0,
-                        filename: filename,
-                        image: { type: 'jpeg', quality: 0.99 },
-                        html2canvas: { scale: 2.5, useCORS: true, backgroundColor: '#000000', scrollY: 0, scrollX: 0 },
-                        jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
-                    };
-                    await html2pdf().set(opt).from(sheet).save();
-                    showToast('✓ PDF descargado exitosamente', 'success');
+                if (!pdfDoc) throw new Error('Biblioteca jsPDF no disponible');
+
+                // Agregar Página 1 (Ficha Técnica)
+                pdfDoc.addImage(imgData, 'JPEG', 0, 0, 215.9, 279.4, undefined, 'FAST');
+
+                // 2. Si el vehículo tiene galería de fotos, crear páginas de Anexo Fotográfico HD
+                if (totalGalleryPages > 0) {
+                    const tempContainer = document.createElement('div');
+                    tempContainer.style.position = 'fixed';
+                    tempContainer.style.left = '-9999px';
+                    tempContainer.style.top = '0';
+                    tempContainer.style.zIndex = '-1000';
+                    document.body.appendChild(tempContainer);
+
+                    for (let p = 0; p < totalGalleryPages; p++) {
+                        const pagePhotos = galleryImgs.slice(p * 6, (p + 1) * 6);
+                        const pageNum = p + 2;
+
+                        const galleryPageEl = document.createElement('div');
+                        galleryPageEl.style.width = '780px';
+                        galleryPageEl.style.height = '1010px';
+                        galleryPageEl.style.boxSizing = 'border-box';
+                        galleryPageEl.style.background = '#090d16';
+                        galleryPageEl.style.padding = '20px 24px';
+                        galleryPageEl.style.color = '#ffffff';
+                        galleryPageEl.style.fontFamily = "'Inter', sans-serif";
+                        galleryPageEl.style.display = 'flex';
+                        galleryPageEl.style.flexDirection = 'column';
+                        galleryPageEl.style.justifyContent = 'space-between';
+
+                        galleryPageEl.innerHTML = `
+                            <!-- ENCABEZADO ANEXO FOTOGRÁFICO -->
+                            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:10px;">
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <img src="images/logo-white.png" style="height:32px; object-fit:contain;" onerror="this.style.display='none'">
+                                    <div>
+                                        <div style="font-family:'Unbounded',sans-serif; font-size:0.9rem; font-weight:800; color:#38bdf8; letter-spacing:0.5px;">
+                                            ANEXO FOTOGRÁFICO & INSPECCIÓN VISUAL
+                                        </div>
+                                        <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">
+                                            ${rawTitle} · <strong style="color:#ffffff;">VIN: ${vin}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="text-align:right; font-size:0.68rem; color:#94a3b8; font-family:monospace;">
+                                    <div>REPORTE: <strong style="color:#38bdf8;">${reportNo}</strong></div>
+                                    <div style="color:#25D366; font-weight:700; margin-top:2px;">PÁGINA ${pageNum} DE ${totalPages}</div>
+                                </div>
+                            </div>
+
+                            <!-- GRID DE FOTOS EN ALTA RESOLUCIÓN (6 POR PÁGINA) -->
+                            <div style="display:grid; grid-template-columns:1fr 1fr; grid-template-rows:repeat(${Math.ceil(pagePhotos.length / 2)}, 1fr); gap:12px; flex:1; margin:14px 0;">
+                                ${pagePhotos.map((photoUrl, idx) => `
+                                    <div style="border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.15); background:#000; position:relative; box-shadow:0 4px 12px rgba(0,0,0,0.5);">
+                                        <img src="${photoUrl}" crossorigin="anonymous" style="width:100%; height:100%; object-fit:cover; display:block;">
+                                        <div style="position:absolute; bottom:6px; left:8px; background:rgba(9,13,22,0.8); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:0.62rem; padding:2px 8px; border-radius:4px; font-weight:700;">
+                                            Foto ${(p * 6) + idx + 1} de ${galleryImgs.length}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <!-- PIE DE PÁGINA OFICIAL -->
+                            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.12); padding-top:8px; font-size:0.68rem; color:#94a3b8;">
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <i class="fas fa-certificate" style="color:#38bdf8;"></i> Registro Fotográfico Oficial de Unidad · SemiNuevos Agency
+                                </div>
+                                <div>
+                                    Asesoría Comercial: <strong style="color:#ffffff;">+58 424-870-0438</strong> · seminuevosagency.com
+                                </div>
+                            </div>
+                        `;
+
+                        tempContainer.appendChild(galleryPageEl);
+
+                        // Renderizar página a canvas
+                        const gCanvas = await html2canvas(galleryPageEl, {
+                            scale: 2.2,
+                            useCORS: true,
+                            backgroundColor: '#090d16',
+                            logging: false,
+                            scrollY: 0,
+                            scrollX: 0
+                        });
+
+                        const gImgData = gCanvas.toDataURL('image/jpeg', 0.95);
+                        pdfDoc.addPage('letter', 'portrait');
+                        pdfDoc.addImage(gImgData, 'JPEG', 0, 0, 215.9, 279.4, undefined, 'FAST');
+                    }
+
+                    document.body.removeChild(tempContainer);
                 }
+
+                pdfDoc.save(filename);
+                showToast(`✓ PDF descargado exitosamente (${totalPages} ${totalPages > 1 ? 'Páginas con Fotos HD' : 'Página'})`, 'success');
             } catch (err) {
                 console.error('PDF error:', err);
-                showToast('Error al generar PDF. Puedes usar Descargar Imagen HD.', 'warning');
+                showToast('Error al generar PDF. Asegúrate de tener conexión.', 'warning');
             }
         }
 
