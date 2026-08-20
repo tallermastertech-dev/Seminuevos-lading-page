@@ -1835,12 +1835,22 @@
                 <div class="ficha-generator-container">
                     <!-- LEFT CONTROLS & FORM -->
                     <div class="ficha-sidebar-card">
-                        <h3 style="font-size:1rem; font-weight:700; color:var(--accent); margin-bottom:14px; display:flex; align-items:center; gap:8px;">
-                            <i class="fas fa-barcode"></i> Consulta y Decodificación VIN
+                        <h3 style="font-size:1rem; font-weight:700; color:var(--accent); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-file-invoice"></i> Generador de Fichas Técnicas
                         </h3>
 
-                        <!-- MÓDULO DE INTEGRACIÓN APIFY (COPART & IAAI) -->
-                        <div style="background:linear-gradient(135deg, rgba(39,92,234,0.15) 0%, rgba(56,189,248,0.08) 100%); border:1px solid rgba(39,92,234,0.35); border-radius:10px; padding:12px; margin-bottom:14px;">
+                        <!-- SELECTOR DE PLANTILLA DE FICHA TÉCNICA -->
+                        <div style="background:rgba(255,255,255,0.06); padding:4px; border-radius:10px; display:flex; gap:4px; margin-bottom:14px; border:1px solid rgba(255,255,255,0.12);">
+                            <button type="button" id="btnModeStockLocal" onclick="setFichaTemplateMode('stock_local')" style="flex:1; padding:9px 6px; font-size:0.75rem; font-weight:700; border-radius:8px; border:none; cursor:pointer; background:#25D366; color:#000; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 0 10px rgba(37,211,102,0.4);">
+                                <i class="fas fa-warehouse"></i> 1. Stock Local
+                            </button>
+                            <button type="button" id="btnModeSubasta" onclick="setFichaTemplateMode('subasta')" style="flex:1; padding:9px 6px; font-size:0.75rem; font-weight:700; border-radius:8px; border:none; cursor:pointer; background:transparent; color:#94a3b8; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:6px;">
+                                <i class="fas fa-gavel"></i> 2. Subasta USA
+                            </button>
+                        </div>
+
+                        <!-- MÓDULO DE INTEGRACIÓN APIFY (COPART & IAAI) - Activo para Subasta -->
+                        <div id="ficha_apify_section" style="display:none; background:linear-gradient(135deg, rgba(39,92,234,0.15) 0%, rgba(56,189,248,0.08) 100%); border:1px solid rgba(39,92,234,0.35); border-radius:10px; padding:12px; margin-bottom:14px;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                                 <label style="font-size:0.78rem; font-weight:700; color:#ffffff; display:flex; align-items:center; gap:6px;">
                                     <i class="fas fa-robot" style="color:#38bdf8;"></i> Extraer Lote con Apify (Copart / IAAI)
@@ -1856,9 +1866,10 @@
                             <div id="apifyStatus" style="font-size:0.72rem; margin-top:6px; display:none;"></div>
                         </div>
 
-                        <div class="form-group" style="margin-bottom:12px;">
-                            <label class="form-label" style="font-size:0.75rem;">Cargar desde Inventario Existente</label>
-                            <select class="form-input" id="fichaVehicleSelect" onchange="loadFichaFromInventory(this.value)" style="font-size:0.85rem; padding:8px 12px;">
+                        <!-- Cargar desde Inventario Existente -->
+                        <div class="form-group" id="ficha_inventory_select_group" style="margin-bottom:12px;">
+                            <label class="form-label" style="font-size:0.75rem; color:#25D366; font-weight:700;"><i class="fas fa-car-side"></i> Cargar Vehículo de Stock Local (Showroom)</label>
+                            <select class="form-input" id="fichaVehicleSelect" onchange="loadFichaFromInventory(this.value)" style="font-size:0.85rem; padding:8px 12px; border-color:rgba(37,211,102,0.4);">
                                 <option value="">-- Selecciona un vehículo del catálogo --</option>
                             </select>
                         </div>
@@ -1873,7 +1884,6 @@
                             </div>
                             <div id="fichaVinStatus" style="font-size:0.75rem; margin-top:4px; display:none;"></div>
                         </div>
-
 
                         <!-- PARAMETERS ACCORDION -->
                         <div style="border-top:1px solid var(--border-accent); padding-top:12px; display:flex; flex-direction:column; gap:10px;">
@@ -1910,8 +1920,8 @@
                                 <input type="text" class="form-input" id="f_title" placeholder="Año Marca Modelo Trim" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
                             </div>
 
-                            <div class="form-group" id="f_price_group" style="margin-bottom:6px; display:none;">
-                                <label class="form-label" style="font-size:0.7rem; color:#25D366; font-weight:700;"><i class="fas fa-tag"></i> Precio de Venta (Inventario)</label>
+                            <div class="form-group" id="f_price_group" style="margin-bottom:6px;">
+                                <label class="form-label" style="font-size:0.7rem; color:#25D366; font-weight:700;"><i class="fas fa-tag"></i> Precio de Venta (Stock Local)</label>
                                 <input type="text" class="form-input" id="f_price" placeholder="Ej: $24,500 USD" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px; font-weight:700; color:#25D366;">
                             </div>
 
@@ -1944,7 +1954,7 @@
                                 </div>
                                 <div class="form-group" style="margin-bottom:6px;">
                                     <label class="form-label" style="font-size:0.7rem;">Tracción (Drivetrain)</label>
-                                    <input type="text" class="form-input" id="f_drivetrain" placeholder="4WD / Quadra-Trac I" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    <input type="text" class="form-input" id="f_drivetrain" placeholder="4WD / AWD / FWD" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
                                 </div>
                             </div>
 
@@ -1965,8 +1975,8 @@
                                     <input type="text" class="form-input" id="f_colors" placeholder="Ej: Granite Crystal / Cuero Negro" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
                                 </div>
                                 <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Peso Bruto (GVWR)</label>
-                                    <input type="text" class="form-input" id="f_gvwr" placeholder="6,050 lbs (2,744 kg)" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    <label class="form-label" style="font-size:0.7rem;">Kilometraje / Odómetro</label>
+                                    <input type="text" class="form-input" id="f_km" placeholder="29,692 KM" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px; font-weight:700; color:#38bdf8;">
                                 </div>
                             </div>
 
@@ -1981,52 +1991,43 @@
                                 </div>
                             </div>
 
-                            <!-- Auditoria Subasta -->
-                            <h4 style="font-size:0.85rem; color:#fff; font-weight:700; margin-top:8px; display:flex; align-items:center; gap:6px;">
-                                <i class="fas fa-clipboard-check" style="color:#4ade80;"></i> Auditoría & Datos de Subasta
-                            </h4>
+                            <!-- CAMPOS ESPECÍFICOS DE SUBASTA (Se muestran sólo en Modo Subasta) -->
+                            <div id="f_auction_fields_group" style="display:none; border-top:1px solid rgba(56,189,248,0.25); padding-top:10px; margin-top:6px;">
+                                <h4 style="font-size:0.85rem; color:#38bdf8; font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                                    <i class="fas fa-gavel"></i> Datos de Subasta & Daño (USA)
+                                </h4>
 
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                                <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Millaje de Entrada</label>
-                                    <input type="number" class="form-input" id="f_miles" placeholder="Millas (ej: 18450)" oninput="onMilesInput(this.value)" style="font-size:0.8rem; padding:6px 10px;">
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                    <div class="form-group" style="margin-bottom:6px;">
+                                        <label class="form-label" style="font-size:0.7rem;">Millaje de Entrada (Yarda)</label>
+                                        <input type="number" class="form-input" id="f_miles" placeholder="Millas (ej: 18450)" oninput="onMilesInput(this.value)" style="font-size:0.8rem; padding:6px 10px;">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom:6px;">
+                                        <label class="form-label" style="font-size:0.7rem;">Tipo de Título</label>
+                                        <input type="text" class="form-input" id="f_title_type" placeholder="Clean / Salvage" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    </div>
                                 </div>
-                                <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Kilometraje Convertido</label>
-                                    <input type="text" class="form-input" id="f_km" placeholder="29,692 KM" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px; font-weight:700; color:#38bdf8;">
-                                </div>
-                            </div>
 
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                                <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Tipo de Título</label>
-                                    <input type="text" class="form-input" id="f_title_type" placeholder="Clean / Rebuilt / Salvage" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                    <div class="form-group" style="margin-bottom:6px;">
+                                        <label class="form-label" style="font-size:0.7rem;">Daño Primario</label>
+                                        <input type="text" class="form-input" id="f_primary_damage" placeholder="Daño cosmético / Frontal" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom:6px;">
+                                        <label class="form-label" style="font-size:0.7rem;">Bolsas de Aire (Airbags)</label>
+                                        <input type="text" class="form-input" id="f_airbags" placeholder="Originales / No detonadas" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    </div>
                                 </div>
-                                <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Origen / Subasta</label>
-                                    <input type="text" class="form-input" id="f_origin" placeholder="IAAI / Copart / USA" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
-                                </div>
-                            </div>
 
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                                <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Daño Primario / Motivo</label>
-                                    <input type="text" class="form-input" id="f_primary_damage" placeholder="Daño cosmético superficial" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
-                                </div>
-                                <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Daño Secundario / Desgaste</label>
-                                    <input type="text" class="form-input" id="f_secondary_damage" placeholder="Desgaste normal / Ninguno" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
-                                </div>
-                            </div>
-
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                                <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Bolsas de Aire (Airbags)</label>
-                                    <input type="text" class="form-input" id="f_airbags" placeholder="Originales / No detonadas" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
-                                </div>
-                                <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Start Code / Llaves</label>
-                                    <input type="text" class="form-input" id="f_start_code" placeholder="Run & Drive / Llaves Sí" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                    <div class="form-group" style="margin-bottom:6px;">
+                                        <label class="form-label" style="font-size:0.7rem;">Start Code / Operatividad</label>
+                                        <input type="text" class="form-input" id="f_start_code" placeholder="Run & Drive / Llaves Sí" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom:6px;">
+                                        <label class="form-label" style="font-size:0.7rem;">Stock # / Lote</label>
+                                        <input type="text" class="form-input" id="f_stock_no" placeholder="Ej: 45843959" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    </div>
                                 </div>
                             </div>
 
@@ -2056,19 +2057,19 @@
                                 <div class="ficha-brand-col">
                                     <div class="ficha-brand-logo-row">
                                         <img src="images/logo-white.png" alt="SemiNuevos Logo" class="ficha-brand-img" onerror="this.style.display='none'">
-                                        <div class="ficha-badge-top">
-                                            <i class="fas fa-certificate"></i> Ficha Técnica & Comercial
+                                        <div class="ficha-badge-top" id="pv_badge_top" style="color:#25D366; border-color:rgba(37,211,102,0.4); background:rgba(37,211,102,0.1);">
+                                            <i class="fas fa-certificate"></i> Ficha Comercial · Stock Local
                                         </div>
                                     </div>
-                                    <div class="ficha-subtitle">
-                                        Informe Técnico de Unidad & Especificaciones de Venta
+                                    <div class="ficha-subtitle" id="pv_subtitle">
+                                        Informe Técnico Oficial de Unidad en Vitrina · Entrega Inmediata
                                     </div>
                                 </div>
                                 <div class="ficha-meta-col">
                                     <div><strong>Nº REPORTE:</strong> <span id="pv_report_no">SN-FT-00000</span></div>
                                     <div><strong>FECHA:</strong> <span id="pv_date">20/08/2026</span></div>
                                     <div><strong>VIN:</strong> <span class="vin-badge" id="pv_vin">---</span></div>
-                                    <div style="margin-top:3px;"><span style="background:rgba(39,92,234,0.22); color:#4d7aef; padding:2px 8px; border-radius:4px; font-size:0.65rem; font-family:'Unbounded',sans-serif; font-weight:700;">SHOWROOM & VITRINA</span></div>
+                                    <div style="margin-top:3px;"><span id="pv_mode_badge" style="background:rgba(37,211,102,0.2); color:#25D366; padding:2px 8px; border-radius:4px; font-size:0.65rem; font-family:'Unbounded',sans-serif; font-weight:700;">SHOWROOM & VITRINA</span></div>
                                 </div>
                             </div>
 
@@ -2124,8 +2125,8 @@
                                             <span class="ficha-spec-val" id="pv_body">---</span>
                                         </li>
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Peso Bruto Vehicular (GVWR):</span>
-                                            <span class="ficha-spec-val" id="pv_gvwr">---</span>
+                                            <span class="ficha-spec-label">Odómetro / Kilometraje:</span>
+                                            <span class="ficha-spec-val highlight" id="pv_km_display">---</span>
                                         </li>
                                     </ul>
 
@@ -2171,10 +2172,58 @@
                                 </div>
                             </div>
 
-                            <!-- AUDITORÍA DE ORIGEN & CONDICIÓN DE SUBASTA -->
-                            <div class="ficha-block" style="margin-bottom:0;">
-                                <div class="ficha-block-title">
-                                    <i class="fas fa-clipboard-check"></i> Auditoría de Origen & Condición de Subasta
+                            <!-- PLANTILLA 1: CONDICIÓN COMERCIAL & GARANTÍA (STOCK LOCAL) -->
+                            <div class="ficha-block" id="ficha_block_stock_local" style="margin-bottom:0;">
+                                <div class="ficha-block-title" style="color:#25D366; border-bottom-color:rgba(37,211,102,0.3);">
+                                    <i class="fas fa-award"></i> Certificación Comercial & Garantía de Concesionario
+                                </div>
+                                <div class="ficha-grid-2">
+                                    <!-- Columna Izquierda: Documentación y Estado -->
+                                    <ul class="ficha-specs-list">
+                                        <li class="ficha-spec-item">
+                                            <span class="ficha-spec-label">Disponibilidad:</span>
+                                            <span class="ficha-spec-val success"><i class="fas fa-check-circle"></i> Entrega Inmediata</span>
+                                        </li>
+                                        <li class="ficha-spec-item">
+                                            <span class="ficha-spec-label">Documentación Legal:</span>
+                                            <span class="ficha-spec-val success">100% al Día para Traspaso</span>
+                                        </li>
+                                        <li class="ficha-spec-item">
+                                            <span class="ficha-spec-label">Ubicación Física:</span>
+                                            <span class="ficha-spec-val">Showroom Porlamar, Margarita</span>
+                                        </li>
+                                        <li class="ficha-spec-item">
+                                            <span class="ficha-spec-label">Condición Estética:</span>
+                                            <span class="ficha-spec-val success">Excelente / Pintura Impecable</span>
+                                        </li>
+                                    </ul>
+
+                                    <!-- Columna Derecha: Mecánica y Entrega -->
+                                    <ul class="ficha-specs-list">
+                                        <li class="ficha-spec-item">
+                                            <span class="ficha-spec-label">Condición Mecánica:</span>
+                                            <span class="ficha-spec-val success">150 Puntos Aprobados</span>
+                                        </li>
+                                        <li class="ficha-spec-item">
+                                            <span class="ficha-spec-label">Llaves de Contacto:</span>
+                                            <span class="ficha-spec-val success">Llave Original + Duplicado</span>
+                                        </li>
+                                        <li class="ficha-spec-item">
+                                            <span class="ficha-spec-label">Bolsas de Aire (Airbags):</span>
+                                            <span class="ficha-spec-val success">Originales de Fábrica (Intactas)</span>
+                                        </li>
+                                        <li class="ficha-spec-item">
+                                            <span class="ficha-spec-label">Modalidad:</span>
+                                            <span class="ficha-spec-val highlight"><i class="fas fa-key"></i> Llave en Mano</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- PLANTILLA 2: AUDITORÍA DE ORIGEN & CONDICIÓN DE SUBASTA (SUBASTA USA) -->
+                            <div class="ficha-block" id="ficha_block_subasta" style="display:none; margin-bottom:0;">
+                                <div class="ficha-block-title" style="color:#38bdf8; border-bottom-color:rgba(56,189,248,0.3);">
+                                    <i class="fas fa-clipboard-check"></i> Auditoría de Origen & Condición de Subasta USA
                                 </div>
                                 <div class="ficha-grid-2">
                                     <!-- Columna Izquierda: Documentación y Daños -->
@@ -2211,31 +2260,51 @@
                                             <span class="ficha-spec-label">Bolsas de Aire (Airbags):</span>
                                             <span class="ficha-spec-val success" id="pv_airbags_desc">---</span>
                                         </li>
-                                        <li class="ficha-spec-item" id="pv_modality_item">
-                                            <span class="ficha-spec-label" id="pv_modality_label">Modalidad Comercial:</span>
-                                            <span class="ficha-spec-val highlight" id="pv_modality_val"><i class="fas fa-truck-ramp-box"></i> Importación Bajo Pedido</span>
+                                        <li class="ficha-spec-item">
+                                            <span class="ficha-spec-label">Modalidad Comercial:</span>
+                                            <span class="ficha-spec-val highlight"><i class="fas fa-truck-ramp-box"></i> Importación Puerta a Puerta</span>
                                         </li>
                                     </ul>
                                 </div>
                             </div>
 
-                            <!-- 4 Pilares de Control de Calidad -->
-                            <div class="ficha-pilares-grid">
+                            <!-- 4 Pilares de Control de Calidad (Stock Local) -->
+                            <div class="ficha-pilares-grid" id="ficha_pilares_stock">
                                 <div class="ficha-pilar-card">
-                                    <div class="ficha-pilar-title"><i class="fas fa-file-shield"></i> HISTORIAL DE ORIGEN</div>
-                                    <div class="ficha-pilar-desc">Validado en Subasta USA</div>
+                                    <div class="ficha-pilar-title"><i class="fas fa-file-shield"></i> HISTORIAL LIMPIO</div>
+                                    <div class="ficha-pilar-desc">Unidad 100% Verificada</div>
                                 </div>
                                 <div class="ficha-pilar-card">
                                     <div class="ficha-pilar-title"><i class="fas fa-wrench"></i> INSPECCIÓN MECÁNICA</div>
                                     <div class="ficha-pilar-desc">150 Puntos Aprobados</div>
                                 </div>
                                 <div class="ficha-pilar-card">
-                                    <div class="ficha-pilar-title"><i class="fas fa-stamp"></i> DOCUMENTACIÓN</div>
-                                    <div class="ficha-pilar-desc">Verificada al 100%</div>
+                                    <div class="ficha-pilar-title"><i class="fas fa-stamp"></i> PAPELES AL DÍA</div>
+                                    <div class="ficha-pilar-desc">Listo para Traspaso</div>
                                 </div>
                                 <div class="ficha-pilar-card">
                                     <div class="ficha-pilar-title"><i class="fas fa-award"></i> GARANTÍA CONCESIONARIO</div>
-                                    <div class="ficha-pilar-desc">Certificada por SemiNuevos</div>
+                                    <div class="ficha-pilar-desc">Certificada SemiNuevos</div>
+                                </div>
+                            </div>
+
+                            <!-- 4 Pilares de Control de Calidad (Subasta USA) -->
+                            <div class="ficha-pilares-grid" id="ficha_pilares_subasta" style="display:none;">
+                                <div class="ficha-pilar-card">
+                                    <div class="ficha-pilar-title" style="color:#38bdf8;"><i class="fas fa-file-shield"></i> HISTORIAL USA</div>
+                                    <div class="ficha-pilar-desc">Validado en Subasta</div>
+                                </div>
+                                <div class="ficha-pilar-card">
+                                    <div class="ficha-pilar-title" style="color:#38bdf8;"><i class="fas fa-magnifying-glass"></i> AUDITORÍA YARDA</div>
+                                    <div class="ficha-pilar-desc">Inspección de Daños</div>
+                                </div>
+                                <div class="ficha-pilar-card">
+                                    <div class="ficha-pilar-title" style="color:#38bdf8;"><i class="fas fa-ship"></i> LOGÍSTICA MARÍTIMA</div>
+                                    <div class="ficha-pilar-desc">Seguro de Traslado</div>
+                                </div>
+                                <div class="ficha-pilar-card">
+                                    <div class="ficha-pilar-title" style="color:#38bdf8;"><i class="fas fa-truck-fast"></i> PUERTA A PUERTA</div>
+                                    <div class="ficha-pilar-desc">Nacionalización Lista</div>
                                 </div>
                             </div>
 
@@ -5590,6 +5659,89 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             reader.readAsDataURL(file);
         }
 
+        let currentFichaMode = 'stock_local';
+
+        function setFichaTemplateMode(mode) {
+            currentFichaMode = mode;
+            const btnStock = document.getElementById('btnModeStockLocal');
+            const btnSubasta = document.getElementById('btnModeSubasta');
+            const blockStock = document.getElementById('ficha_block_stock_local');
+            const blockSubasta = document.getElementById('ficha_block_subasta');
+            const pilaresStock = document.getElementById('ficha_pilares_stock');
+            const pilaresSubasta = document.getElementById('ficha_pilares_subasta');
+            const apifySec = document.getElementById('ficha_apify_section');
+            const auctionFields = document.getElementById('f_auction_fields_group');
+            const priceGroup = document.getElementById('f_price_group');
+            const badgeTop = document.getElementById('pv_badge_top');
+            const subtitle = document.getElementById('pv_subtitle');
+            const modeBadge = document.getElementById('pv_mode_badge');
+
+            if (mode === 'stock_local') {
+                if (btnStock) {
+                    btnStock.style.background = '#25D366';
+                    btnStock.style.color = '#000';
+                    btnStock.style.boxShadow = '0 0 10px rgba(37,211,102,0.4)';
+                }
+                if (btnSubasta) {
+                    btnSubasta.style.background = 'transparent';
+                    btnSubasta.style.color = '#94a3b8';
+                    btnSubasta.style.boxShadow = 'none';
+                }
+                if (blockStock) blockStock.style.display = 'block';
+                if (blockSubasta) blockSubasta.style.display = 'none';
+                if (pilaresStock) pilaresStock.style.display = 'grid';
+                if (pilaresSubasta) pilaresSubasta.style.display = 'none';
+                if (apifySec) apifySec.style.display = 'none';
+                if (auctionFields) auctionFields.style.display = 'none';
+                if (priceGroup) priceGroup.style.display = 'block';
+
+                if (badgeTop) {
+                    badgeTop.innerHTML = '<i class="fas fa-certificate"></i> Ficha Comercial · Stock Local';
+                    badgeTop.style.color = '#25D366';
+                    badgeTop.style.borderColor = 'rgba(37,211,102,0.4)';
+                    badgeTop.style.background = 'rgba(37,211,102,0.1)';
+                }
+                if (subtitle) subtitle.textContent = 'Informe Técnico Oficial de Unidad en Vitrina · Entrega Inmediata';
+                if (modeBadge) {
+                    modeBadge.textContent = 'SHOWROOM & VITRINA';
+                    modeBadge.style.background = 'rgba(37,211,102,0.2)';
+                    modeBadge.style.color = '#25D366';
+                }
+            } else {
+                if (btnStock) {
+                    btnStock.style.background = 'transparent';
+                    btnStock.style.color = '#94a3b8';
+                    btnStock.style.boxShadow = 'none';
+                }
+                if (btnSubasta) {
+                    btnSubasta.style.background = '#38bdf8';
+                    btnSubasta.style.color = '#000';
+                    btnSubasta.style.boxShadow = '0 0 10px rgba(56,189,248,0.4)';
+                }
+                if (blockStock) blockStock.style.display = 'none';
+                if (blockSubasta) blockSubasta.style.display = 'block';
+                if (pilaresStock) pilaresStock.style.display = 'none';
+                if (pilaresSubasta) pilaresSubasta.style.display = 'grid';
+                if (apifySec) apifySec.style.display = 'block';
+                if (auctionFields) auctionFields.style.display = 'block';
+
+                if (badgeTop) {
+                    badgeTop.innerHTML = '<i class="fas fa-gavel"></i> Auditoría de Subasta · Importación USA';
+                    badgeTop.style.color = '#38bdf8';
+                    badgeTop.style.borderColor = 'rgba(56,189,248,0.4)';
+                    badgeTop.style.background = 'rgba(56,189,248,0.1)';
+                }
+                if (subtitle) subtitle.textContent = 'Auditoría Técnica de Unidad en Yarda USA & Especificaciones de Importación';
+                if (modeBadge) {
+                    modeBadge.textContent = 'SUBASTA USA (BAJO PEDIDO)';
+                    modeBadge.style.background = 'rgba(39,92,234,0.22)';
+                    modeBadge.style.color = '#4d7aef';
+                }
+            }
+
+            updateFichaLive();
+        }
+
         function initFichasModule() {
             // Generate report number & current date
             const rNum = 'SN-FT-' + Math.floor(10000 + Math.random() * 90000);
@@ -5600,6 +5752,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             const dEl = document.getElementById('pv_date');
             if (dEl) dEl.textContent = today;
 
+            setFichaTemplateMode('stock_local');
             populateFichaVehicleSelect();
             updateFichaLive();
         }
@@ -5758,6 +5911,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
 
         function loadFichaFromInventory(vehicleId) {
             if (!vehicleId) return;
+            setFichaTemplateMode('stock_local');
             let v = (vehicles || []).find(item => String(item.id) === String(vehicleId));
             
             // Si no tiene todas las fotos o está en data.js, buscar en vehiclesSeminuevos
@@ -6083,6 +6237,8 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 const info = rawItem.vehicleInfo || rawItem.data || rawItem.details || rawItem;
                 const item = { ...rawItem, ...info };
 
+                setFichaTemplateMode('subasta');
+
                 // Mapear campos desde el dataset de Apify (soportando claves con espacios y caracteres especiales de IAAI)
                 let vin = item["VIN (Status)"] || item["VIN"] || item.vin || item.VIN || item.vinNumber || info.vin || info.VIN || '';
                 if (vin) {
@@ -6217,6 +6373,8 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 showToast('Por favor pega el texto o JSON de la subasta', 'warning');
                 return;
             }
+
+            setFichaTemplateMode('subasta');
 
             // Si el usuario pegó un JSON directo (ej: de Apify o del scraper)
             if (raw.startsWith('{') || raw.startsWith('[')) {
@@ -6443,6 +6601,19 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             setTxt('pv_plant', plant);
             setTxt('pv_body', body);
             setTxt('pv_gvwr', gvwr);
+            
+            const kmDisplayEl = document.getElementById('pv_km_display');
+            if (kmDisplayEl) {
+                if (km && miles > 0) {
+                    kmDisplayEl.textContent = `${km} (${miles.toLocaleString('es-ES')} mi)`;
+                } else if (km) {
+                    kmDisplayEl.textContent = km;
+                } else if (miles > 0) {
+                    kmDisplayEl.textContent = `${miles.toLocaleString('es-ES')} mi`;
+                } else {
+                    kmDisplayEl.textContent = '---';
+                }
+            }
 
             setTxt('pv_engine', engine);
             setTxt('pv_hp', hp);
