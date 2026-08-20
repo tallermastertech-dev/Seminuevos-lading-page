@@ -5741,17 +5741,28 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 const isCopart = url.toLowerCase().includes('copart.com');
                 const isIaai = url.toLowerCase().includes('iaai.com');
                 
-                // Determinar el Actor en Apify según el portal
-                const actorId = isCopart ? 'epctex~copart-scraper' : (isIaai ? 'epctex~iaai-scraper' : 'epctex~copart-scraper');
-                const token = getApifyToken();
+                // Usar los Actor IDs exactos registrados en la cuenta de Apify
+                let actorId = 'yyMRiF5a4sHPCV0q9'; // default IAAI: easyapi/iaai-vehicle-detail-scraper
+                let payload = {};
 
+                if (isIaai) {
+                    actorId = 'yyMRiF5a4sHPCV0q9'; // IAAI Vehicle Detail Scraper
+                    payload = {
+                        detailUrls: [ url ],
+                        proxyConfiguration: { useApifyProxy: false }
+                    };
+                } else if (isCopart) {
+                    actorId = 'gbTCcvLIEYLA86fpJ'; // Copart Public Search Scraper
+                    payload = {
+                        startUrls: [{ url: url }]
+                    };
+                } else {
+                    actorId = 'yyMRiF5a4sHPCV0q9';
+                    payload = { detailUrls: [ url ] };
+                }
+
+                const token = getApifyToken();
                 const apiUrl = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=60`;
-                
-                const payload = {
-                    startUrls: [{ url: url }],
-                    maxItems: 1,
-                    proxy: { useApifyProxy: true }
-                };
 
                 const res = await fetch(apiUrl, {
                     method: 'POST',
@@ -5764,30 +5775,34 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 }
 
                 const items = await res.json();
-                const item = (Array.isArray(items) && items.length > 0) ? items[0] : null;
+                const rawItem = (Array.isArray(items) && items.length > 0) ? items[0] : null;
 
-                if (!item) {
+                if (!rawItem) {
                     throw new Error('No se recibieron datos del lote desde Apify. Verifica que el link sea público.');
                 }
 
+                // Normalizar objeto si viene anidado en vehicleInfo
+                const info = rawItem.vehicleInfo || {};
+                const item = { ...rawItem, ...info };
+
                 // Mapear campos desde el dataset de Apify
-                const vin = item.vin || item.VIN || item.vinNumber || '';
-                const stockNo = item.lotNumber || item.stockNumber || item.itemNumber || item.lotId || '';
-                const branch = item.location || item.branch || item.sellingBranch || item.yardName || '';
-                const odo = item.odometer || item.mileage || item.odometerReading || '';
-                const primDamage = item.primaryDamage || item.damage || item.mainDamage || '';
-                const secDamage = item.secondaryDamage || '';
-                const titleDoc = item.titleType || item.docType || item.titleStatus || item.title || '';
-                const startCode = item.runAndDrive || item.startCode || item.highlights || item.status || '';
-                const keys = item.keys || item.hasKeys || item.keyStatus || '';
-                const airbags = item.airbags || item.airbagStatus || '';
-                const extColor = item.color || item.exteriorColor || '';
+                const vin = item.vin || item.VIN || item.vinNumber || info.vin || '';
+                const stockNo = item.lotNumber || item.stockNumber || item.itemNumber || item.lotId || item.stockNo || info.stockNumber || '';
+                const branch = item.location || item.branch || item.sellingBranch || item.yardName || info.sellingBranch || '';
+                const odo = item.odometer || item.mileage || item.odometerReading || info.odometer || '';
+                const primDamage = item.primaryDamage || item.damage || item.mainDamage || info.primaryDamage || '';
+                const secDamage = item.secondaryDamage || info.secondaryDamage || '';
+                const titleDoc = item.titleType || item.docType || item.titleStatus || item.titleSaleDoc || item.title || info.titleSaleDoc || '';
+                const startCode = item.runAndDrive || item.startCode || item.highlights || item.status || info.startCode || '';
+                const keys = item.keys || item.hasKeys || item.keyStatus || item.key || info.key || '';
+                const airbags = item.airbags || item.airbagStatus || info.airbags || '';
+                const extColor = item.color || item.exteriorColor || item.exteriorInterior || info.exteriorInterior || '';
                 const intColor = item.interiorColor || '';
-                const engine = item.engine || item.engineSize || '';
-                const trans = item.transmission || '';
-                const drive = item.drive || item.drivetrain || '';
-                const fuel = item.fuel || item.fuelType || '';
-                const titleName = item.title || item.vehicle || item.name || `${item.year || ''} ${item.make || ''} ${item.model || ''}`.trim();
+                const engine = item.engine || item.engineSize || info.engine || '';
+                const trans = item.transmission || info.transmission || '';
+                const drive = item.drive || item.drivetrain || item.driveLineType || info.driveLineType || '';
+                const fuel = item.fuel || item.fuelType || info.fuelType || '';
+                const titleName = item.title || item.vehicle || item.name || info.vehicle || `${item.year || ''} ${item.make || ''} ${item.model || ''}`.trim();
 
                 // Manejo de Imágenes HD
                 const images = item.images || item.photos || item.imageUrls || [];
