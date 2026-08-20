@@ -5781,55 +5781,79 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 }
 
                 // Normalizar objeto si viene anidado en vehicleInfo o data
-                const info = rawItem.vehicleInfo || rawItem.data || rawItem.details || {};
+                const info = rawItem.vehicleInfo || rawItem.data || rawItem.details || rawItem;
                 const item = { ...rawItem, ...info };
 
-                // Mapear campos desde el dataset de Apify
-                const vin = item.vin || item.VIN || item.vinNumber || info.vin || info.VIN || '';
-                const stockNo = item.lotNumber || item.stockNumber || item.itemNumber || item.lotId || item.stockNo || info.stockNumber || info.lotNumber || '';
-                const branch = item.location || item.branch || item.sellingBranch || item.yardName || info.sellingBranch || info.location || '';
-                const odo = item.odometer || item.mileage || item.odometerReading || info.odometer || info.mileage || '';
-                const primDamage = item.primaryDamage || item.damage || item.mainDamage || info.primaryDamage || info.damage || '';
-                const secDamage = item.secondaryDamage || info.secondaryDamage || '';
-                const titleDoc = item.titleType || item.docType || item.titleStatus || item.titleSaleDoc || item.title || info.titleSaleDoc || info.titleType || '';
-                const startCode = item.runAndDrive || item.startCode || item.highlights || item.status || info.startCode || info.highlights || '';
-                const keys = item.keys || item.hasKeys || item.keyStatus || item.key || info.key || info.keys || '';
-                const airbags = item.airbags || item.airbagStatus || info.airbags || info.airbagStatus || '';
-                const extColor = item.color || item.exteriorColor || item.exteriorInterior || info.exteriorInterior || info.color || '';
-                const intColor = item.interiorColor || '';
-                const engine = item.engine || item.engineSize || info.engine || '';
-                const trans = item.transmission || info.transmission || '';
-                const drive = item.drive || item.drivetrain || item.driveLineType || info.driveLineType || '';
-                const fuel = item.fuel || item.fuelType || info.fuelType || '';
-                const titleName = item.title || item.vehicle || item.name || info.vehicle || info.title || `${item.year || ''} ${item.make || ''} ${item.model || ''}`.trim();
+                // Mapear campos desde el dataset de Apify (soportando claves con espacios y caracteres especiales de IAAI)
+                let vin = item["VIN (Status)"] || item["VIN"] || item.vin || item.VIN || item.vinNumber || info.vin || info.VIN || '';
+                if (vin) {
+                    vin = vin.replace(/\s*\(OK\)/i, '').replace(/\s*\(.*?\)/g, '').trim();
+                }
 
-                // Manejo de Imágenes HD
-                const images = item.images || item.photos || item.imageUrls || info.images || [];
-                if (images.length > 0) {
-                    const bestImg = typeof images[0] === 'string' ? images[0] : (images[0].full || images[0].url || images[0].src || images[0].highRes);
+                const stockNo = item["Stock #"] || item.stockNumber || item.lotNumber || item.itemNumber || item.lotId || item.stockNo || info["Stock #"] || '';
+                const branch = item["Selling Branch"] || item["Branch"] || item.location || item.branch || item.sellingBranch || item.yardName || info["Selling Branch"] || '';
+                const odo = item["Odometer"] || item.odometer || item.mileage || item.odometerReading || info["Odometer"] || '';
+                const primDamage = item["Primary Damage"] || item.primaryDamage || item.damage || item.mainDamage || info["Primary Damage"] || '';
+                const secDamage = item["Secondary Damage"] || item.secondaryDamage || info["Secondary Damage"] || '';
+                const titleDoc = item["Title/Sale Doc"] || item.titleType || item.docType || item.titleStatus || item.titleSaleDoc || item.title || info["Title/Sale Doc"] || '';
+                const startCode = item["Start Code"] || item.runAndDrive || item.startCode || item.highlights || item.status || info["Start Code"] || '';
+                const keys = item["Key"] || item.keys || item.hasKeys || item.keyStatus || item.key || info["Key"] || '';
+                const airbags = item["Airbags"] || item.airbags || item.airbagStatus || info["Airbags"] || '';
+                const extColor = item["Exterior/Interior"] || item.color || item.exteriorColor || item.exteriorInterior || info["Exterior/Interior"] || '';
+                const intColor = item.interiorColor || '';
+                const engine = item["Engine"] || item.engine || item.engineSize || info["Engine"] || '';
+                const trans = item["Transmission"] || item.transmission || info["Transmission"] || '';
+                const drive = item["Drive Line Type"] || item.drive || item.drivetrain || item.driveLineType || info["Drive Line Type"] || '';
+                const fuel = item["Fuel Type"] || item.fuel || item.fuelType || info["Fuel Type"] || '';
+                const model = item["Model"] || item.model || info["Model"] || '';
+                const series = item["Series"] || item.series || info["Series"] || '';
+                const vehicleClass = item["Vehicle Class"] || item["Body Style"] || item.bodyStyle || '';
+                const mfgIn = item["Manufactured In"] || item.manufacturedIn || info["Manufactured In"] || '';
+                const titleName = item.title || item.vehicle || item.name || (model ? `${model} ${series}`.trim() : '');
+
+                // Manejo de Imágenes HD (soporta hdUrl y thumbUrl devueltos por Apify)
+                let images = item.images || item.photos || item.imageUrls || info.images || [];
+                if (!Array.isArray(images) && Array.isArray(items) && items[0]?.hdUrl) {
+                    images = items; // Si el dataset es una lista de imágenes
+                }
+
+                if (Array.isArray(images) && images.length > 0) {
+                    const firstImg = images[0];
+                    const bestImg = typeof firstImg === 'string' 
+                        ? firstImg 
+                        : (firstImg.hdUrl || firstImg.full || firstImg.url || firstImg.highRes || firstImg.thumbUrl || firstImg.src);
+                    
                     if (bestImg) {
                         const urlIn = document.getElementById('f_image_url');
                         if (urlIn) urlIn.value = bestImg;
                         const imgEl = document.getElementById('pv_vehicle_img');
-                        if (imgEl) imgEl.src = bestImg;
+                        if (imgEl) {
+                            imgEl.src = bestImg;
+                            imgEl.style.opacity = '1';
+                        }
                         const indEl = document.getElementById('f_img_indicator');
                         if (indEl) indEl.textContent = '✓ Foto Apify HD';
                     }
                 }
 
                 // Asignar a inputs
-                if (vin) document.getElementById('fichaVinInput').value = vin.toUpperCase();
+                if (vin && !vin.includes('*')) document.getElementById('fichaVinInput').value = vin.toUpperCase();
                 if (stockNo) document.getElementById('f_stock_no').value = stockNo;
                 if (branch) document.getElementById('f_branch').value = branch;
-                if (titleName && titleName.length > 3) document.getElementById('f_title').value = titleName;
+                if (titleName) document.getElementById('f_title').value = titleName;
                 if (extColor || intColor) document.getElementById('f_colors').value = [extColor, intColor].filter(Boolean).join(' / ');
                 if (engine) document.getElementById('f_engine').value = engine;
                 if (trans) document.getElementById('f_trans').value = normTrans(trans);
                 if (drive) document.getElementById('f_drivetrain').value = formatDriveType(drive);
                 if (fuel) document.getElementById('f_fuel_type').value = formatFuelType(fuel);
                 if (titleDoc) document.getElementById('f_title_type').value = titleDoc;
-                if (primDamage) document.getElementById('f_primary_damage').value = secDamage ? `${primDamage} / ${secDamage}` : primDamage;
-                if (airbags) document.getElementById('f_airbags').value = airbags;
+                if (primDamage) document.getElementById('f_primary_damage').value = (secDamage && secDamage !== 'None') ? `${primDamage} / ${secDamage}` : primDamage;
+                if (airbags) {
+                    const isIntact = airbags.toLowerCase().includes('intact') || airbags.toLowerCase().includes('not') || airbags.toLowerCase().includes('original');
+                    document.getElementById('f_airbags').value = isIntact ? 'Originales de Fábrica (No detonadas)' : airbags;
+                }
+                if (mfgIn) document.getElementById('f_plant').value = mfgIn;
+                if (vehicleClass) document.getElementById('f_body').value = vehicleClass;
                 
                 if (startCode || keys) {
                     const sc = startCode || 'Run & Drive';
@@ -5889,10 +5913,112 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
         }
 
         function parseAuctionRawText() {
-            const raw = document.getElementById('rawAuctionText')?.value || '';
-            if (!raw.trim()) {
-                showToast('Por favor pega el texto de la subasta', 'warning');
+            const raw = (document.getElementById('rawAuctionText')?.value || '').trim();
+            if (!raw) {
+                showToast('Por favor pega el texto o JSON de la subasta', 'warning');
                 return;
+            }
+
+            // Si el usuario pegó un JSON directo (ej: de Apify o del scraper)
+            if (raw.startsWith('{') || raw.startsWith('[')) {
+                try {
+                    const parsed = JSON.parse(raw);
+                    let info = {};
+                    let images = [];
+
+                    if (Array.isArray(parsed)) {
+                        if (parsed.length > 0 && parsed[0].hdUrl) {
+                            images = parsed;
+                        } else if (parsed.length > 0 && parsed[0].vehicleInfo) {
+                            info = parsed[0].vehicleInfo;
+                            images = parsed[0].images || [];
+                        } else {
+                            info = parsed[0];
+                        }
+                    } else if (typeof parsed === 'object') {
+                        info = parsed.vehicleInfo || parsed;
+                        images = parsed.images || [];
+                    }
+
+                    // Extraer foto HD si existe
+                    if (images.length > 0) {
+                        const bestImg = images[0].hdUrl || images[0].full || images[0].url || images[0].thumbUrl;
+                        if (bestImg) {
+                            const urlIn = document.getElementById('f_image_url');
+                            if (urlIn) urlIn.value = bestImg;
+                            const imgEl = document.getElementById('pv_vehicle_img');
+                            if (imgEl) { imgEl.src = bestImg; imgEl.style.opacity = '1'; }
+                            const indEl = document.getElementById('f_img_indicator');
+                            if (indEl) indEl.textContent = '✓ Foto Scraper HD';
+                        }
+                    }
+
+                    // Mapear campos
+                    const stockNo = info["Stock #"] || info.stockNumber || info.stockNo || '';
+                    const branch = info["Selling Branch"] || info["Branch"] || info.branch || '';
+                    let vin = info["VIN (Status)"] || info.vin || info.VIN || '';
+                    if (vin) vin = vin.replace(/\s*\(OK\)/i, '').replace(/\s*\(.*?\)/g, '').trim();
+                    const primDamage = info["Primary Damage"] || info.primaryDamage || '';
+                    const secDamage = info["Secondary Damage"] || info.secondaryDamage || '';
+                    const titleDoc = info["Title/Sale Doc"] || info.titleType || info.docType || '';
+                    const startCode = info["Start Code"] || info.startCode || '';
+                    const key = info["Key"] || info.key || '';
+                    const odometer = info["Odometer"] || info.odometer || '';
+                    const airbags = info["Airbags"] || info.airbags || '';
+                    const extInt = info["Exterior/Interior"] || info.exteriorInterior || '';
+                    const engine = info["Engine"] || info.engine || '';
+                    const transmission = info["Transmission"] || info.transmission || '';
+                    const driveLine = info["Drive Line Type"] || info.driveLineType || '';
+                    const fuelType = info["Fuel Type"] || info.fuelType || '';
+                    const manufacturedIn = info["Manufactured In"] || info.manufacturedIn || '';
+                    const model = info["Model"] || info.model || '';
+                    const series = info["Series"] || info.series || '';
+                    const bodyStyle = info["Vehicle Class"] || info["Body Style"] || info.bodyStyle || '';
+
+                    if (vin && !vin.includes('*')) document.getElementById('fichaVinInput').value = vin.toUpperCase();
+                    if (stockNo) document.getElementById('f_stock_no').value = stockNo;
+                    if (branch) document.getElementById('f_branch').value = branch;
+                    if (model || series) document.getElementById('f_title').value = `${model} ${series}`.trim();
+                    if (series) document.getElementById('f_trim').value = series;
+                    if (extInt) document.getElementById('f_colors').value = extInt;
+                    if (manufacturedIn) document.getElementById('f_plant').value = manufacturedIn;
+                    if (bodyStyle) document.getElementById('f_body').value = formatBody(bodyStyle, '4', '5');
+                    if (engine) document.getElementById('f_engine').value = engine;
+                    if (transmission) document.getElementById('f_trans').value = normTrans(transmission);
+                    if (driveLine) document.getElementById('f_drivetrain').value = formatDriveType(driveLine);
+                    if (fuelType) document.getElementById('f_fuel_type').value = formatFuelType(fuelType);
+                    
+                    if (odometer) {
+                        const milesNum = parseInt(String(odometer).replace(/[^0-9]/g, '')) || 0;
+                        if (milesNum > 0) {
+                            document.getElementById('f_miles').value = milesNum;
+                            onMilesInput(milesNum);
+                        }
+                    }
+
+                    if (titleDoc) document.getElementById('f_title_type').value = titleDoc;
+                    if (primDamage) document.getElementById('f_primary_damage').value = (secDamage && secDamage !== 'None') ? `${primDamage} / ${secDamage}` : primDamage;
+                    if (airbags) {
+                        const isIntact = airbags.toLowerCase().includes('intact') || airbags.toLowerCase().includes('not') || airbags.toLowerCase().includes('original');
+                        document.getElementById('f_airbags').value = isIntact ? 'Originales de Fábrica (No detonadas)' : airbags;
+                    }
+                    if (startCode || key) {
+                        const sc = startCode || 'Run & Drive';
+                        const k = key ? ` (Llaves: ${key})` : '';
+                        document.getElementById('f_start_code').value = `${sc}${k}`;
+                    }
+
+                    if (vin && vin.length === 17 && !vin.includes('*')) {
+                        decodeVinNhtsa(true);
+                    } else {
+                        updateFichaLive();
+                    }
+
+                    showToast('✓ JSON del scraper procesado con éxito', 'success');
+                    return;
+                } catch (e) {
+                    console.log('Not valid JSON, processing as plain text...', e);
+                }
             }
 
             const extract = (pattern) => {
