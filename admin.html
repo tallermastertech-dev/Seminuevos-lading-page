@@ -1972,11 +1972,11 @@
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                 <div class="form-group" style="margin-bottom:6px;">
                                     <label class="form-label" style="font-size:0.7rem;">Color Exterior / Interior</label>
-                                    <input type="text" class="form-input" id="f_colors" placeholder="Ej: Granite Crystal / Cuero Negro" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    <input type="text" class="form-input" id="f_colors" placeholder="Ej: Blanco Perla / Cuero Negro" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
                                 </div>
                                 <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Kilometraje / Odómetro</label>
-                                    <input type="text" class="form-input" id="f_km" placeholder="29,692 KM" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px; font-weight:700; color:#38bdf8;">
+                                    <label class="form-label" style="font-size:0.7rem;">Peso Bruto (GVWR)</label>
+                                    <input type="text" class="form-input" id="f_gvwr" placeholder="6,050 lbs (2,744 kg)" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
                                 </div>
                             </div>
 
@@ -1991,33 +1991,67 @@
                                 </div>
                             </div>
 
+                            <!-- CAMPOS ESPECÍFICOS DE STOCK LOCAL -->
+                            <div id="f_stock_fields_group" style="border-top:1px solid rgba(37,211,102,0.25); padding-top:10px; margin-top:6px;">
+                                <h4 style="font-size:0.85rem; color:#25D366; font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                                    <i class="fas fa-clipboard-check"></i> Auditoría & Condición de Stock Local
+                                </h4>
+
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                    <div class="form-group" style="margin-bottom:6px;">
+                                        <label class="form-label" style="font-size:0.7rem;">Odómetro Entrada (Millas)</label>
+                                        <input type="number" class="form-input" id="f_miles" placeholder="Millas (ej: 18450)" oninput="onMilesInput(this.value)" style="font-size:0.8rem; padding:6px 10px;">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom:6px;">
+                                        <label class="form-label" style="font-size:0.7rem;">Kilometraje Actual (KM)</label>
+                                        <input type="text" class="form-input" id="f_km" placeholder="15,000 KM" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px; font-weight:700; color:#38bdf8;">
+                                    </div>
+                                </div>
+
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                    <div class="form-group" style="margin-bottom:6px;">
+                                        <label class="form-label" style="font-size:0.7rem;">Placa / Identificación</label>
+                                        <input type="text" class="form-input" id="f_plate" placeholder="En Trámite / Asignada" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom:6px;">
+                                        <label class="form-label" style="font-size:0.7rem;">Propietarios / Dueños</label>
+                                        <input type="text" class="form-input" id="f_owners" placeholder="Único Dueño (1 Owner)" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    </div>
+                                </div>
+
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                    <div class="form-group" style="margin-bottom:6px;">
+                                        <label class="form-label" style="font-size:0.7rem;">Tipo de Título / Doc</label>
+                                        <input type="text" class="form-input" id="f_title_type" placeholder="Título Limpio (Clean Title)" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom:6px;">
+                                        <label class="form-label" style="font-size:0.7rem;">Daño en Subasta</label>
+                                        <input type="text" class="form-input" id="f_primary_damage" placeholder="Sin Daño Estructural" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    </div>
+                                </div>
+
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                    <div class="form-group" style="margin-bottom:6px;">
+                                        <label class="form-label" style="font-size:0.7rem;">Llaves de Contacto</label>
+                                        <input type="text" class="form-input" id="f_keys" placeholder="2 Llaves Inteligentes (Presencia)" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom:6px;">
+                                        <label class="form-label" style="font-size:0.7rem;">Bolsas de Aire (Airbags)</label>
+                                        <input type="text" class="form-input" id="f_airbags" placeholder="Originales de Fábrica (100% Intactas)" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    </div>
+                                </div>
+
+                                <div class="form-group" style="margin-bottom:6px;">
+                                    <label class="form-label" style="font-size:0.7rem; color:#25D366; font-weight:700;"><i class="fas fa-plus-circle"></i> Extras / Servicios Realizados (Uno por línea)</label>
+                                    <textarea class="form-input" id="f_extras_services" rows="3" oninput="updateFichaLive()" style="font-size:0.75rem; line-height:1.4;" placeholder="Vehículo Asegurado / Póliza Vigente&#10;Mantenimiento preventivo integral de 150 puntos realizado&#10;Tratamiento cerámico de pintura e higienización interior"></textarea>
+                                </div>
+                            </div>
+
                             <!-- CAMPOS ESPECÍFICOS DE SUBASTA (Se muestran sólo en Modo Subasta) -->
                             <div id="f_auction_fields_group" style="display:none; border-top:1px solid rgba(56,189,248,0.25); padding-top:10px; margin-top:6px;">
                                 <h4 style="font-size:0.85rem; color:#38bdf8; font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
                                     <i class="fas fa-gavel"></i> Datos de Subasta & Daño (USA)
                                 </h4>
-
-                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                                    <div class="form-group" style="margin-bottom:6px;">
-                                        <label class="form-label" style="font-size:0.7rem;">Millaje de Entrada (Yarda)</label>
-                                        <input type="number" class="form-input" id="f_miles" placeholder="Millas (ej: 18450)" oninput="onMilesInput(this.value)" style="font-size:0.8rem; padding:6px 10px;">
-                                    </div>
-                                    <div class="form-group" style="margin-bottom:6px;">
-                                        <label class="form-label" style="font-size:0.7rem;">Tipo de Título</label>
-                                        <input type="text" class="form-input" id="f_title_type" placeholder="Clean / Salvage" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
-                                    </div>
-                                </div>
-
-                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                                    <div class="form-group" style="margin-bottom:6px;">
-                                        <label class="form-label" style="font-size:0.7rem;">Daño Primario</label>
-                                        <input type="text" class="form-input" id="f_primary_damage" placeholder="Daño cosmético / Frontal" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
-                                    </div>
-                                    <div class="form-group" style="margin-bottom:6px;">
-                                        <label class="form-label" style="font-size:0.7rem;">Bolsas de Aire (Airbags)</label>
-                                        <input type="text" class="form-input" id="f_airbags" placeholder="Originales / No detonadas" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
-                                    </div>
-                                </div>
 
                                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                     <div class="form-group" style="margin-bottom:6px;">
@@ -2083,11 +2117,14 @@
                                         <span id="pv_cat_tag" style="color:#25D366; font-weight:700;"><i class="fas fa-check-circle"></i> Ficha Técnica Oficial</span> · <span id="pv_header_spec" style="color:#ffffff;">Especificaciones pendientes por decodificar</span>
                                     </div>
                                     <div style="margin-top:5px; display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
-                                        <span style="background:rgba(39,92,234,0.22); color:#4d7aef; font-size:0.62rem; padding:1px 6px; border-radius:3px; font-weight:700;" id="pv_drivetrain_tag">---</span>
-                                        <span style="background:rgba(37,211,102,0.18); color:#25D366; font-size:0.62rem; padding:1px 6px; border-radius:3px; font-weight:700;"><i class="fas fa-shield-alt"></i> INSPECCIÓN 150 PTS</span>
-                                        <span id="pv_price_tag" style="background:rgba(37,211,102,0.25); color:#25D366; font-size:0.75rem; padding:2px 8px; border-radius:4px; font-weight:800; border:1px solid rgba(37,211,102,0.5); display:none; align-items:center; gap:4px;">
-                                            <i class="fas fa-tag"></i> <span id="pv_price_val">$0</span>
-                                        </span>
+                                        <span style="background:rgba(39,92,234,0.22); color:#4d7aef; font-size:0.62rem; padding:2px 7px; border-radius:4px; font-weight:700;" id="pv_drivetrain_tag">---</span>
+                                        <span style="background:rgba(37,211,102,0.18); color:#25D366; font-size:0.62rem; padding:2px 7px; border-radius:4px; font-weight:700;"><i class="fas fa-shield-alt"></i> INSPECCIÓN 150 PTS</span>
+                                        <span style="background:rgba(39,92,234,0.22); color:#38bdf8; font-size:0.62rem; padding:2px 7px; border-radius:4px; font-weight:700;" id="pv_showroom_badge"><i class="fas fa-store"></i> SHOWROOM & VITRINA</span>
+                                    </div>
+                                    <!-- PRECIO DE VENTA DESTACADO EN CABECERA (20pt+ / 1.55rem+) -->
+                                    <div id="pv_price_tag" style="margin-top:8px; display:flex; align-items:baseline; gap:8px;">
+                                        <span style="font-size:0.72rem; color:#94a3b8; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">PRECIO DE VENTA:</span>
+                                        <span id="pv_price_val" style="font-size:1.6rem; font-weight:900; color:#38bdf8; font-family:'Unbounded',sans-serif; text-shadow:0 0 16px rgba(56,189,248,0.45); line-height:1;">$0</span>
                                     </div>
                                 </div>
                                 <div class="ficha-photo-wrapper" id="pv_vehicle_img_container" style="background:#050811 center/cover no-repeat;">
@@ -2117,7 +2154,7 @@
                                             <span class="ficha-spec-val" id="pv_colors">---</span>
                                         </li>
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">País / Fabricado en:</span>
+                                            <span class="ficha-spec-label">País / Planta Ensamble:</span>
                                             <span class="ficha-spec-val" id="pv_plant">---</span>
                                         </li>
                                         <li class="ficha-spec-item">
@@ -2125,8 +2162,8 @@
                                             <span class="ficha-spec-val" id="pv_body">---</span>
                                         </li>
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Odómetro / Kilometraje:</span>
-                                            <span class="ficha-spec-val highlight" id="pv_km_display">---</span>
+                                            <span class="ficha-spec-label">Peso Bruto Vehicular (GVWR):</span>
+                                            <span class="ficha-spec-val" id="pv_gvwr">---</span>
                                         </li>
                                     </ul>
 
@@ -2172,51 +2209,64 @@
                                 </div>
                             </div>
 
-                            <!-- PLANTILLA 1: CONDICIÓN COMERCIAL & GARANTÍA (STOCK LOCAL) -->
+                            <!-- PLANTILLA 1: AUDITORÍA DE ORIGEN & CONDICIÓN DE STOCK LOCAL -->
                             <div class="ficha-block" id="ficha_block_stock_local" style="margin-bottom:0;">
                                 <div class="ficha-block-title" style="color:#25D366; border-bottom-color:rgba(37,211,102,0.3);">
-                                    <i class="fas fa-award"></i> Certificación Comercial & Garantía de Concesionario
+                                    <i class="fas fa-clipboard-check"></i> Auditoría de Origen & Condición de Stock Local
                                 </div>
                                 <div class="ficha-grid-2">
-                                    <!-- Columna Izquierda: Documentación y Estado -->
+                                    <!-- Columna Izquierda: Historial de Origen & Entrada -->
                                     <ul class="ficha-specs-list">
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Disponibilidad:</span>
-                                            <span class="ficha-spec-val success"><i class="fas fa-check-circle"></i> Entrega Inmediata</span>
+                                            <span class="ficha-spec-label">Odómetro de Entrada:</span>
+                                            <span class="ficha-spec-val" id="pv_stock_miles_entry">18,450 mi (29,692 KM)</span>
                                         </li>
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Documentación Legal:</span>
-                                            <span class="ficha-spec-val success">100% al Día para Traspaso</span>
+                                            <span class="ficha-spec-label">Odómetro / Km Actual:</span>
+                                            <span class="ficha-spec-val highlight" id="pv_stock_km_current">15,000 KM</span>
                                         </li>
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Ubicación Física:</span>
-                                            <span class="ficha-spec-val">Showroom Porlamar, Margarita</span>
+                                            <span class="ficha-spec-label">Placa / Identificación:</span>
+                                            <span class="ficha-spec-val success" id="pv_stock_plate">En Trámite / Asignada</span>
                                         </li>
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Condición Estética:</span>
-                                            <span class="ficha-spec-val success">Excelente / Pintura Impecable</span>
+                                            <span class="ficha-spec-label">Propietarios / Dueños:</span>
+                                            <span class="ficha-spec-val success" id="pv_stock_owners">Único Dueño (1 Owner)</span>
+                                        </li>
+                                        <li class="ficha-spec-item">
+                                            <span class="ficha-spec-label">Tipo de Título / Doc:</span>
+                                            <span class="ficha-spec-val success" id="pv_stock_title_type">Título Limpio (Clean Title)</span>
+                                        </li>
+                                        <li class="ficha-spec-item">
+                                            <span class="ficha-spec-label">Daño en Subasta:</span>
+                                            <span class="ficha-spec-val" id="pv_stock_damage">Sin Daño Estructural</span>
                                         </li>
                                     </ul>
 
-                                    <!-- Columna Derecha: Mecánica y Entrega -->
-                                    <ul class="ficha-specs-list">
-                                        <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Condición Mecánica:</span>
-                                            <span class="ficha-spec-val success">150 Puntos Aprobados</span>
-                                        </li>
-                                        <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Llaves de Contacto:</span>
-                                            <span class="ficha-spec-val success">Llave Original + Duplicado</span>
-                                        </li>
-                                        <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Bolsas de Aire (Airbags):</span>
-                                            <span class="ficha-spec-val success">Originales de Fábrica (Intactas)</span>
-                                        </li>
-                                        <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Modalidad:</span>
-                                            <span class="ficha-spec-val highlight"><i class="fas fa-key"></i> Llave en Mano</span>
-                                        </li>
-                                    </ul>
+                                    <!-- Columna Derecha: Condición Técnica & Extras Comerciales -->
+                                    <div>
+                                        <ul class="ficha-specs-list">
+                                            <li class="ficha-spec-item">
+                                                <span class="ficha-spec-label">Llaves de Contacto:</span>
+                                                <span class="ficha-spec-val success" id="pv_stock_keys">2 Llaves Inteligentes (Presencia)</span>
+                                            </li>
+                                            <li class="ficha-spec-item">
+                                                <span class="ficha-spec-label">Bolsas de Aire (Airbags):</span>
+                                                <span class="ficha-spec-val success" id="pv_stock_airbags">Originales de Fábrica (Intactas)</span>
+                                            </li>
+                                        </ul>
+                                        <!-- Extras / Servicios Realizados -->
+                                        <div style="margin-top:6px; background:rgba(37,211,102,0.06); border:1px solid rgba(37,211,102,0.2); border-radius:6px; padding:6px 8px;">
+                                            <div style="font-size:0.68rem; font-weight:700; color:#25D366; margin-bottom:4px; display:flex; align-items:center; gap:4px;">
+                                                <i class="fas fa-plus-circle"></i> Extras / Servicios Realizados:
+                                            </div>
+                                            <div id="pv_stock_extras_list" style="font-size:0.68rem; color:#e2e8f0; line-height:1.4; display:flex; flex-direction:column; gap:3px;">
+                                                <div>• Mantenimiento preventivo integral de 150 puntos realizado.</div>
+                                                <div>• Documentación y papeles 100% al día para traspaso inmediato.</div>
+                                                <div>• Tratamiento de protección de pintura e higienización interior.</div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -2268,43 +2318,23 @@
                                 </div>
                             </div>
 
-                            <!-- 4 Pilares de Control de Calidad (Stock Local) -->
-                            <div class="ficha-pilares-grid" id="ficha_pilares_stock">
+                            <!-- 4 Pilares de Control de Calidad -->
+                            <div class="ficha-pilares-grid">
                                 <div class="ficha-pilar-card">
-                                    <div class="ficha-pilar-title"><i class="fas fa-file-shield"></i> HISTORIAL LIMPIO</div>
-                                    <div class="ficha-pilar-desc">Unidad 100% Verificada</div>
+                                    <div class="ficha-pilar-title"><i class="fas fa-file-shield"></i> HISTORIAL DE ORIGEN</div>
+                                    <div class="ficha-pilar-desc">Validado en Subasta USA</div>
                                 </div>
                                 <div class="ficha-pilar-card">
                                     <div class="ficha-pilar-title"><i class="fas fa-wrench"></i> INSPECCIÓN MECÁNICA</div>
                                     <div class="ficha-pilar-desc">150 Puntos Aprobados</div>
                                 </div>
                                 <div class="ficha-pilar-card">
-                                    <div class="ficha-pilar-title"><i class="fas fa-stamp"></i> PAPELES AL DÍA</div>
-                                    <div class="ficha-pilar-desc">Listo para Traspaso</div>
+                                    <div class="ficha-pilar-title"><i class="fas fa-stamp"></i> DOCUMENTACIÓN</div>
+                                    <div class="ficha-pilar-desc">Verificada al 100%</div>
                                 </div>
                                 <div class="ficha-pilar-card">
                                     <div class="ficha-pilar-title"><i class="fas fa-award"></i> GARANTÍA CONCESIONARIO</div>
-                                    <div class="ficha-pilar-desc">Certificada SemiNuevos</div>
-                                </div>
-                            </div>
-
-                            <!-- 4 Pilares de Control de Calidad (Subasta USA) -->
-                            <div class="ficha-pilares-grid" id="ficha_pilares_subasta" style="display:none;">
-                                <div class="ficha-pilar-card">
-                                    <div class="ficha-pilar-title" style="color:#38bdf8;"><i class="fas fa-file-shield"></i> HISTORIAL USA</div>
-                                    <div class="ficha-pilar-desc">Validado en Subasta</div>
-                                </div>
-                                <div class="ficha-pilar-card">
-                                    <div class="ficha-pilar-title" style="color:#38bdf8;"><i class="fas fa-magnifying-glass"></i> AUDITORÍA YARDA</div>
-                                    <div class="ficha-pilar-desc">Inspección de Daños</div>
-                                </div>
-                                <div class="ficha-pilar-card">
-                                    <div class="ficha-pilar-title" style="color:#38bdf8;"><i class="fas fa-ship"></i> LOGÍSTICA MARÍTIMA</div>
-                                    <div class="ficha-pilar-desc">Seguro de Traslado</div>
-                                </div>
-                                <div class="ficha-pilar-card">
-                                    <div class="ficha-pilar-title" style="color:#38bdf8;"><i class="fas fa-truck-fast"></i> PUERTA A PUERTA</div>
-                                    <div class="ficha-pilar-desc">Nacionalización Lista</div>
+                                    <div class="ficha-pilar-desc">Certificada por SemiNuevos</div>
                                 </div>
                             </div>
 
@@ -5995,6 +6025,27 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 if (priceInput) priceInput.value = '';
             }
 
+            // Metadatos de Stock Local
+            const colorEl = document.getElementById('f_colors');
+            if (colorEl && (!colorEl.value || colorEl.value === '---')) {
+                colorEl.value = v.color || 'Blanco Perla / Cuero Negro';
+            }
+            if (document.getElementById('f_plate')) document.getElementById('f_plate').value = 'En Trámite / Asignada';
+            if (document.getElementById('f_owners')) document.getElementById('f_owners').value = 'Único Dueño (1 Owner)';
+            if (document.getElementById('f_title_type')) document.getElementById('f_title_type').value = 'Título Limpio (Clean Title)';
+            if (document.getElementById('f_primary_damage')) document.getElementById('f_primary_damage').value = 'Sin Daño Estructural';
+            if (document.getElementById('f_keys')) document.getElementById('f_keys').value = '2 Llaves Inteligentes (Presencia)';
+            if (document.getElementById('f_airbags')) document.getElementById('f_airbags').value = 'Originales de Fábrica (100% Intactas)';
+            
+            const extrasEl = document.getElementById('f_extras_services');
+            if (extrasEl) {
+                extrasEl.value = [
+                    "Mantenimiento preventivo integral de 150 puntos realizado.",
+                    "Documentación y papeles 100% al día para traspaso inmediato.",
+                    "Tratamiento cerámico de pintura e higienización interior profunda."
+                ].join('\n');
+            }
+
             document.getElementById('f_features_text').value = generateAdaptiveFeatures(v.make || '', v.title, v.body_type || v.bodyType, v.trim || '');
 
             if (vin && vin.length === 17) {
@@ -6589,6 +6640,10 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             const airbags = document.getElementById('f_airbags')?.value || '---';
             const startCode = document.getElementById('f_start_code')?.value || '---';
 
+            const plate = document.getElementById('f_plate')?.value || 'En Trámite / Asignada';
+            const owners = document.getElementById('f_owners')?.value || 'Único Dueño (1 Owner)';
+            const keys = document.getElementById('f_keys')?.value || '2 Llaves Inteligentes (Presencia)';
+
             // Update Sheet Elements
             const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
 
@@ -6597,24 +6652,11 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             setTxt('pv_header_spec', (engine !== '---' || trans !== '---') ? `${engine} · ${trans}` : 'Especificaciones pendientes por decodificar');
             setTxt('pv_year_make', year ? `${year} ${title.split(' ')[1] || ''}`.trim() : (title !== 'Selecciona un vehículo o ingresa un VIN / Lote' ? title : '---'));
             setTxt('pv_model_trim', trim ? `${title.replace(year, '').trim()} (${trim})` : (title !== 'Selecciona un vehículo o ingresa un VIN / Lote' ? title : '---'));
-            setTxt('pv_colors', colors);
+            setTxt('pv_colors', colors || 'Blanco Perla / Cuero Negro');
             setTxt('pv_plant', plant);
             setTxt('pv_body', body);
             setTxt('pv_gvwr', gvwr);
             
-            const kmDisplayEl = document.getElementById('pv_km_display');
-            if (kmDisplayEl) {
-                if (km && miles > 0) {
-                    kmDisplayEl.textContent = `${km} (${miles.toLocaleString('es-ES')} mi)`;
-                } else if (km) {
-                    kmDisplayEl.textContent = km;
-                } else if (miles > 0) {
-                    kmDisplayEl.textContent = `${miles.toLocaleString('es-ES')} mi`;
-                } else {
-                    kmDisplayEl.textContent = '---';
-                }
-            }
-
             setTxt('pv_engine', engine);
             setTxt('pv_hp', hp);
             setTxt('pv_trans', trans);
@@ -6622,6 +6664,36 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             setTxt('pv_fuel', fuelType);
             setTxt('pv_brakes', brakes);
 
+            // Stock Local Specific Fields
+            const entryKm = miles > 0 ? Math.round(miles * 1.60934).toLocaleString('es-ES') + ' KM' : '';
+            const milesEntryStr = (miles > 0 && entryKm) ? `${miles.toLocaleString('es-ES')} mi (${entryKm})` : (miles > 0 ? `${miles.toLocaleString('es-ES')} mi` : '18,450 mi (29,692 KM)');
+            
+            setTxt('pv_stock_miles_entry', milesEntryStr);
+            setTxt('pv_stock_km_current', km || '15,000 KM');
+            setTxt('pv_stock_plate', plate);
+            setTxt('pv_stock_owners', owners);
+            setTxt('pv_stock_title_type', titleType || 'Título Limpio (Clean Title)');
+            setTxt('pv_stock_damage', primaryDamage || 'Sin Daño Estructural');
+            setTxt('pv_stock_keys', keys);
+            setTxt('pv_stock_airbags', airbags || 'Originales de Fábrica (100% Intactas)');
+
+            // Extras / Servicios Realizados List
+            const extrasRaw = document.getElementById('f_extras_services')?.value || '';
+            const extrasListEl = document.getElementById('pv_stock_extras_list');
+            if (extrasListEl) {
+                const lines = extrasRaw.split('\n').map(l => l.trim()).filter(Boolean);
+                if (lines.length > 0) {
+                    extrasListEl.innerHTML = lines.map(line => `<div>• ${line}</div>`).join('');
+                } else {
+                    extrasListEl.innerHTML = `
+                        <div>• Mantenimiento preventivo integral de 150 puntos realizado.</div>
+                        <div>• Documentación y papeles 100% al día para traspaso inmediato.</div>
+                        <div>• Tratamiento de protección de pintura e higienización interior.</div>
+                    `;
+                }
+            }
+
+            // Subasta Mode Fields
             const milesEl = document.getElementById('pv_miles');
             if (milesEl) {
                 if (miles > 0 && km) {
@@ -6650,22 +6722,16 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 }
             }
 
-            // Manejo de Precio de Venta (Solo si existe en Inventario)
+            // Manejo de Precio de Venta (Destacado en Cabecera)
             const price = (document.getElementById('f_price')?.value || '').trim();
             const priceTag = document.getElementById('pv_price_tag');
             const priceVal = document.getElementById('pv_price_val');
-            const modLabel = document.getElementById('pv_modality_label');
-            const modVal = document.getElementById('pv_modality_val');
 
             if (price) {
-                if (priceTag) priceTag.style.display = 'inline-flex';
+                if (priceTag) priceTag.style.display = 'flex';
                 if (priceVal) priceVal.textContent = price;
-                if (modLabel) modLabel.textContent = 'Precio de Venta:';
-                if (modVal) modVal.innerHTML = `<strong style="color:#25D366; font-size:0.85rem;"><i class="fas fa-tag"></i> ${price}</strong>`;
             } else {
                 if (priceTag) priceTag.style.display = 'none';
-                if (modLabel) modLabel.textContent = 'Modalidad Comercial:';
-                if (modVal) modVal.innerHTML = `<i class="fas fa-truck-ramp-box"></i> Importación Bajo Pedido`;
             }
 
             const customImgUrl = (document.getElementById('f_image_url')?.value || '').trim();
