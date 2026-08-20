@@ -2044,8 +2044,8 @@
                     <div class="ficha-preview-wrapper">
                         <!-- ACTIONS -->
                         <div class="ficha-actions-bar">
-                            <button type="button" class="btn btn-primary" onclick="downloadFichaPDF()" style="display:flex; align-items:center; gap:8px; padding:10px 24px; font-weight:700; font-size:0.9rem; border-radius:8px;">
-                                <i class="fas fa-file-pdf"></i> Descargar PDF (1 Pág)
+                            <button type="button" class="btn btn-primary" id="btnDownloadPdf" onclick="downloadFichaPDF()" style="display:flex; align-items:center; gap:8px; padding:10px 24px; font-weight:700; font-size:0.9rem; border-radius:8px;">
+                                <i class="fas fa-file-pdf"></i> Descargar PDF Oficial
                             </button>
                         </div>
 
@@ -2219,24 +2219,23 @@
                                 </div>
                             </div>
 
-                                <!-- 4 Pilares de Control de Calidad -->
-                                <div class="ficha-pilares-grid">
-                                    <div class="ficha-pilar-card">
-                                        <div class="ficha-pilar-title"><i class="fas fa-file-shield"></i> HISTORIAL DE ORIGEN</div>
-                                        <div class="ficha-pilar-desc">Validado en Subasta USA</div>
-                                    </div>
-                                    <div class="ficha-pilar-card">
-                                        <div class="ficha-pilar-title"><i class="fas fa-wrench"></i> INSPECCIÓN MECÁNICA</div>
-                                        <div class="ficha-pilar-desc">150 Puntos Aprobados</div>
-                                    </div>
-                                    <div class="ficha-pilar-card">
-                                        <div class="ficha-pilar-title"><i class="fas fa-stamp"></i> DOCUMENTACIÓN</div>
-                                        <div class="ficha-pilar-desc">Verificada al 100%</div>
-                                    </div>
-                                    <div class="ficha-pilar-card">
-                                        <div class="ficha-pilar-title"><i class="fas fa-award"></i> GARANTÍA CONCESIONARIO</div>
-                                        <div class="ficha-pilar-desc">Certificada por SemiNuevos</div>
-                                    </div>
+                            <!-- 4 Pilares de Control de Calidad -->
+                            <div class="ficha-pilares-grid">
+                                <div class="ficha-pilar-card">
+                                    <div class="ficha-pilar-title"><i class="fas fa-file-shield"></i> HISTORIAL DE ORIGEN</div>
+                                    <div class="ficha-pilar-desc">Validado en Subasta USA</div>
+                                </div>
+                                <div class="ficha-pilar-card">
+                                    <div class="ficha-pilar-title"><i class="fas fa-wrench"></i> INSPECCIÓN MECÁNICA</div>
+                                    <div class="ficha-pilar-desc">150 Puntos Aprobados</div>
+                                </div>
+                                <div class="ficha-pilar-card">
+                                    <div class="ficha-pilar-title"><i class="fas fa-stamp"></i> DOCUMENTACIÓN</div>
+                                    <div class="ficha-pilar-desc">Verificada al 100%</div>
+                                </div>
+                                <div class="ficha-pilar-card">
+                                    <div class="ficha-pilar-title"><i class="fas fa-award"></i> GARANTÍA CONCESIONARIO</div>
+                                    <div class="ficha-pilar-desc">Certificada por SemiNuevos</div>
                                 </div>
                             </div>
 
@@ -2250,6 +2249,9 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- CONTENEDOR DE PÁGINAS DE ANEXO FOTOGRÁFICO HD (PÁGS 2+) -->
+                        <div id="fichaGallerySheetsContainer"></div>
                     </div>
                 </div>
             </div>
@@ -5510,6 +5512,87 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             }).join('');
         }
 
+        function renderFichaGalleryPages(images) {
+            const container = document.getElementById('fichaGallerySheetsContainer');
+            if (!container) return;
+
+            const allImgs = (images && images.length > 0) ? images : (window._currentFichaImages || []);
+            const btnPdf = document.getElementById('btnDownloadPdf');
+
+            if (!allImgs || allImgs.length <= 1) {
+                container.innerHTML = '';
+                if (btnPdf) btnPdf.innerHTML = '<i class="fas fa-file-pdf"></i> Descargar PDF (1 Pág)';
+                return;
+            }
+
+            const rawTitle = document.getElementById('f_title')?.value || 'Vehículo Seminuevo';
+            const vin = (document.getElementById('fichaVinInput')?.value || '').trim() || '---';
+            const reportNo = document.getElementById('pv_report_no')?.textContent || 'SN-FT-00000';
+
+            const totalGalleryPages = Math.ceil(allImgs.length / 6);
+            const totalPages = 1 + totalGalleryPages;
+
+            if (btnPdf) {
+                btnPdf.innerHTML = `<i class="fas fa-file-pdf"></i> Descargar PDF Oficial (${totalPages} Págs - ${allImgs.length} Fotos HD)`;
+            }
+
+            let html = '';
+            for (let p = 0; p < totalGalleryPages; p++) {
+                const pagePhotos = allImgs.slice(p * 6, (p + 1) * 6);
+                const pageNum = p + 2;
+
+                html += `
+                    <div class="ficha-sheet ficha-gallery-page" style="min-height:1010px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 15px 40px rgba(0,0,0,0.6);">
+                        <!-- ENCABEZADO ANEXO FOTOGRÁFICO -->
+                        <div class="ficha-header" style="border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:10px;">
+                            <div class="ficha-brand-col">
+                                <div class="ficha-brand-logo-row">
+                                    <img src="images/logo-white.png" alt="SemiNuevos Logo" class="ficha-brand-img" onerror="this.style.display='none'">
+                                    <div class="ficha-badge-top" style="color:#38bdf8; border-color:rgba(56,189,248,0.4); background:rgba(56,189,248,0.1);">
+                                        <i class="fas fa-images"></i> ANEXO FOTOGRÁFICO & INSPECCIÓN VISUAL
+                                    </div>
+                                </div>
+                                <div class="ficha-subtitle" style="color:#e2e8f0; font-weight:600; font-size:0.8rem; margin-top:4px;">
+                                    ${rawTitle} · <span style="color:#38bdf8;">VIN: ${vin}</span>
+                                </div>
+                            </div>
+                            <div class="ficha-meta-col" style="text-align:right;">
+                                <div><strong>REPORTE:</strong> <span style="color:#38bdf8;">${reportNo}</span></div>
+                                <div style="margin-top:3px;"><span style="background:rgba(37,211,102,0.18); color:#25D366; padding:2px 8px; border-radius:4px; font-size:0.68rem; font-family:'Unbounded',sans-serif; font-weight:800;">PÁGINA ${pageNum} DE ${totalPages}</span></div>
+                            </div>
+                        </div>
+
+                        <!-- GRID DE FOTOS EN ALTA RESOLUCIÓN (6 POR PÁGINA) -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr; grid-template-rows:repeat(${Math.ceil(pagePhotos.length / 2)}, 1fr); gap:14px; flex:1; margin:16px 0; min-height:760px;">
+                            ${pagePhotos.map((photoUrl, idx) => {
+                                const photoNum = (p * 6) + idx + 1;
+                                return `
+                                <div style="border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.15); background:#000; position:relative; box-shadow:0 4px 14px rgba(0,0,0,0.5); min-height:220px;">
+                                    <img src="${photoUrl}" crossorigin="anonymous" alt="Foto ${photoNum}" style="width:100%; height:100%; object-fit:cover; display:block;">
+                                    <div style="position:absolute; bottom:8px; left:10px; background:rgba(9,13,22,0.85); border:1px solid rgba(255,255,255,0.25); color:#fff; font-size:0.68rem; padding:3px 10px; border-radius:4px; font-weight:700; backdrop-filter:blur(4px);">
+                                        <i class="fas fa-camera" style="color:#38bdf8;"></i> Foto ${photoNum} de ${allImgs.length}
+                                    </div>
+                                </div>
+                                `;
+                            }).join('')}
+                        </div>
+
+                        <!-- PIE DE PÁGINA OFICIAL -->
+                        <div class="ficha-footer" style="border-top:1px solid rgba(255,255,255,0.12); padding-top:8px;">
+                            <div class="ficha-footer-brand">
+                                <i class="fas fa-certificate" style="color:#38bdf8;"></i> Registro Fotográfico Oficial de Unidad · SemiNuevos Agency
+                            </div>
+                            <div>
+                                Asesoría Comercial: <strong>+58 424-870-0438</strong> · seminuevosagency.com
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
         function selectFichaGalleryPhoto(imgUrl) {
             const urlInput = document.getElementById('f_image_url');
             if (urlInput) urlInput.value = imgUrl;
@@ -5539,7 +5622,18 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
 
         function loadFichaFromInventory(vehicleId) {
             if (!vehicleId) return;
-            const v = (vehicles || []).find(item => String(item.id) === String(vehicleId));
+            let v = (vehicles || []).find(item => String(item.id) === String(vehicleId));
+            
+            // Si no tiene todas las fotos o está en data.js, buscar en vehiclesSeminuevos
+            const staticList = (typeof vehiclesSeminuevos !== 'undefined') ? vehiclesSeminuevos : [];
+            const vStatic = staticList.find(item => String(item.id) === String(vehicleId) || (item.title && v && item.title.toLowerCase().trim() === v.title.toLowerCase().trim()));
+            
+            if (vStatic) {
+                if (!v) v = vStatic;
+                if ((!v.images || v.images.length === 0) && Array.isArray(vStatic.images)) {
+                    v.images = vStatic.images;
+                }
+            }
             if (!v) return;
 
             let vin = v.vin || '';
@@ -5576,8 +5670,10 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 const indEl = document.getElementById('f_img_indicator');
                 if (indEl) indEl.textContent = `✓ ${allImgs.length} Fotos HD`;
                 renderFichaGalleryThumbnails(allImgs, primaryImg);
+                renderFichaGalleryPages(allImgs);
             } else {
                 renderFichaGalleryThumbnails([], '');
+                renderFichaGalleryPages([]);
             }
 
             // Extract miles / km
@@ -5612,7 +5708,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 decodeVinNhtsa(true);
             } else {
                 updateFichaLive();
-                showToast(`Vehículo cargado: ${v.title}`, 'info');
+                showToast(`Vehículo cargado: ${v.title} (${allImgs.length} Fotos HD)`, 'info');
             }
         }
 
@@ -6292,6 +6388,11 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                     `;
                 }
             }
+
+            // Sync Galería de Fotos en caso de existir imágenes cargadas
+            if (window._currentFichaImages && window._currentFichaImages.length > 1) {
+                renderFichaGalleryPages(window._currentFichaImages);
+            }
         }
 
         async function downloadFichaPDF() {
@@ -6299,34 +6400,18 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             if (!sheet) return;
             const vin = (document.getElementById('fichaVinInput')?.value || '').trim() || 'Seminuevos';
             const title = (document.getElementById('f_title')?.value || 'Vehiculo').replace(/[^a-zA-Z0-9]/g, '-');
-            const rawTitle = document.getElementById('f_title')?.value || 'Vehículo Seminuevo';
-            const reportNo = document.getElementById('pv_report_no')?.textContent || 'SN-FT-00000';
             const filename = `Ficha-Tecnica-${title}-${vin}.pdf`;
 
-            const galleryImgs = (window._currentFichaImages && window._currentFichaImages.length > 0)
-                ? window._currentFichaImages
-                : [];
+            const gallerySheets = Array.from(document.querySelectorAll('.ficha-gallery-page'));
+            const totalPages = 1 + gallerySheets.length;
 
-            const totalGalleryPages = galleryImgs.length > 1 ? Math.ceil(galleryImgs.length / 6) : 0;
-            const totalPages = 1 + totalGalleryPages;
-
-            showToast(totalGalleryPages > 0 
-                ? `Generando PDF Oficial (${totalPages} Páginas con Galería HD Completa)...` 
-                : 'Generando PDF Oficial (Tamaño Carta 100%)...', 'info');
+            showToast(`Generando PDF Oficial (${totalPages} Página${totalPages > 1 ? 's' : ''} con Galería HD)...`, 'info');
 
             try {
-                // 1. Renderizar Portada / Ficha Técnica (Página 1)
-                const canvas = await html2canvas(sheet, { 
-                    scale: 2.5, 
-                    useCORS: true, 
-                    backgroundColor: '#090d16',
-                    logging: false,
-                    scrollY: 0,
-                    scrollX: 0
-                });
+                // Ensure images in sheet 1 are loaded
+                const imgs1 = Array.from(sheet.querySelectorAll('img'));
+                await Promise.all(imgs1.map(img => img.complete ? Promise.resolve() : (img.decode ? img.decode().catch(()=>{}) : Promise.resolve())));
 
-                const imgData = canvas.toDataURL('image/jpeg', 0.98);
-                
                 let pdfDoc;
                 if (window.jspdf && window.jspdf.jsPDF) {
                     pdfDoc = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
@@ -6336,102 +6421,44 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
 
                 if (!pdfDoc) throw new Error('Biblioteca jsPDF no disponible');
 
-                // Agregar Página 1 (Ficha Técnica)
+                // Renderizar Página 1 (Ficha Técnica Principal)
+                const canvas = await html2canvas(sheet, { 
+                    scale: 2.2, 
+                    useCORS: true, 
+                    backgroundColor: '#090d16',
+                    logging: false,
+                    scrollY: 0,
+                    scrollX: 0
+                });
+
+                const imgData = canvas.toDataURL('image/jpeg', 0.96);
                 pdfDoc.addImage(imgData, 'JPEG', 0, 0, 215.9, 279.4, undefined, 'FAST');
 
-                // 2. Si el vehículo tiene galería de fotos, crear páginas de Anexo Fotográfico HD
-                if (totalGalleryPages > 0) {
-                    const tempContainer = document.createElement('div');
-                    tempContainer.style.position = 'fixed';
-                    tempContainer.style.left = '-9999px';
-                    tempContainer.style.top = '0';
-                    tempContainer.style.zIndex = '-1000';
-                    document.body.appendChild(tempContainer);
+                // Renderizar Páginas de Galería (Anexo Fotográfico)
+                for (let i = 0; i < gallerySheets.length; i++) {
+                    const gSheet = gallerySheets[i];
+                    const gImgs = Array.from(gSheet.querySelectorAll('img'));
+                    await Promise.all(gImgs.map(img => img.complete ? Promise.resolve() : (img.decode ? img.decode().catch(()=>{}) : Promise.resolve())));
 
-                    for (let p = 0; p < totalGalleryPages; p++) {
-                        const pagePhotos = galleryImgs.slice(p * 6, (p + 1) * 6);
-                        const pageNum = p + 2;
+                    const gCanvas = await html2canvas(gSheet, {
+                        scale: 2.2,
+                        useCORS: true,
+                        backgroundColor: '#090d16',
+                        logging: false,
+                        scrollY: 0,
+                        scrollX: 0
+                    });
 
-                        const galleryPageEl = document.createElement('div');
-                        galleryPageEl.style.width = '780px';
-                        galleryPageEl.style.height = '1010px';
-                        galleryPageEl.style.boxSizing = 'border-box';
-                        galleryPageEl.style.background = '#090d16';
-                        galleryPageEl.style.padding = '20px 24px';
-                        galleryPageEl.style.color = '#ffffff';
-                        galleryPageEl.style.fontFamily = "'Inter', sans-serif";
-                        galleryPageEl.style.display = 'flex';
-                        galleryPageEl.style.flexDirection = 'column';
-                        galleryPageEl.style.justifyContent = 'space-between';
-
-                        galleryPageEl.innerHTML = `
-                            <!-- ENCABEZADO ANEXO FOTOGRÁFICO -->
-                            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:10px;">
-                                <div style="display:flex; align-items:center; gap:12px;">
-                                    <img src="images/logo-white.png" style="height:32px; object-fit:contain;" onerror="this.style.display='none'">
-                                    <div>
-                                        <div style="font-family:'Unbounded',sans-serif; font-size:0.9rem; font-weight:800; color:#38bdf8; letter-spacing:0.5px;">
-                                            ANEXO FOTOGRÁFICO & INSPECCIÓN VISUAL
-                                        </div>
-                                        <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">
-                                            ${rawTitle} · <strong style="color:#ffffff;">VIN: ${vin}</strong>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style="text-align:right; font-size:0.68rem; color:#94a3b8; font-family:monospace;">
-                                    <div>REPORTE: <strong style="color:#38bdf8;">${reportNo}</strong></div>
-                                    <div style="color:#25D366; font-weight:700; margin-top:2px;">PÁGINA ${pageNum} DE ${totalPages}</div>
-                                </div>
-                            </div>
-
-                            <!-- GRID DE FOTOS EN ALTA RESOLUCIÓN (6 POR PÁGINA) -->
-                            <div style="display:grid; grid-template-columns:1fr 1fr; grid-template-rows:repeat(${Math.ceil(pagePhotos.length / 2)}, 1fr); gap:12px; flex:1; margin:14px 0;">
-                                ${pagePhotos.map((photoUrl, idx) => `
-                                    <div style="border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.15); background:#000; position:relative; box-shadow:0 4px 12px rgba(0,0,0,0.5);">
-                                        <img src="${photoUrl}" crossorigin="anonymous" style="width:100%; height:100%; object-fit:cover; display:block;">
-                                        <div style="position:absolute; bottom:6px; left:8px; background:rgba(9,13,22,0.8); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:0.62rem; padding:2px 8px; border-radius:4px; font-weight:700;">
-                                            Foto ${(p * 6) + idx + 1} de ${galleryImgs.length}
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-
-                            <!-- PIE DE PÁGINA OFICIAL -->
-                            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.12); padding-top:8px; font-size:0.68rem; color:#94a3b8;">
-                                <div style="display:flex; align-items:center; gap:6px;">
-                                    <i class="fas fa-certificate" style="color:#38bdf8;"></i> Registro Fotográfico Oficial de Unidad · SemiNuevos Agency
-                                </div>
-                                <div>
-                                    Asesoría Comercial: <strong style="color:#ffffff;">+58 424-870-0438</strong> · seminuevosagency.com
-                                </div>
-                            </div>
-                        `;
-
-                        tempContainer.appendChild(galleryPageEl);
-
-                        // Renderizar página a canvas
-                        const gCanvas = await html2canvas(galleryPageEl, {
-                            scale: 2.2,
-                            useCORS: true,
-                            backgroundColor: '#090d16',
-                            logging: false,
-                            scrollY: 0,
-                            scrollX: 0
-                        });
-
-                        const gImgData = gCanvas.toDataURL('image/jpeg', 0.95);
-                        pdfDoc.addPage('letter', 'portrait');
-                        pdfDoc.addImage(gImgData, 'JPEG', 0, 0, 215.9, 279.4, undefined, 'FAST');
-                    }
-
-                    document.body.removeChild(tempContainer);
+                    const gImgData = gCanvas.toDataURL('image/jpeg', 0.95);
+                    pdfDoc.addPage('letter', 'portrait');
+                    pdfDoc.addImage(gImgData, 'JPEG', 0, 0, 215.9, 279.4, undefined, 'FAST');
                 }
 
                 pdfDoc.save(filename);
-                showToast(`✓ PDF descargado exitosamente (${totalPages} ${totalPages > 1 ? 'Páginas con Fotos HD' : 'Página'})`, 'success');
+                showToast(`✓ PDF descargado exitosamente (${totalPages} ${totalPages > 1 ? 'Páginas con Galería Completa' : 'Página'})`, 'success');
             } catch (err) {
                 console.error('PDF error:', err);
-                showToast('Error al generar PDF. Asegúrate de tener conexión.', 'warning');
+                showToast('Error al generar PDF: ' + err.message, 'warning');
             }
         }
 
