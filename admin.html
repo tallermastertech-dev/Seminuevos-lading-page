@@ -2089,8 +2089,8 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="ficha-photo-wrapper">
-                                    <img id="pv_vehicle_img" src="images/favicon.png" alt="Foto Vehículo" class="ficha-photo-img" style="opacity:0.35;" onerror="this.src='images/favicon.png';">
+                                <div class="ficha-photo-wrapper" id="pv_vehicle_img_container" style="background:#050811 center/cover no-repeat;">
+                                    <img id="pv_vehicle_img" src="images/favicon.png" alt="Foto Vehículo" class="ficha-photo-img" style="display:none;" onerror="this.src='images/favicon.png';">
                                     <div class="ficha-photo-badge"><i class="fas fa-camera"></i> UNIDAD REF</div>
                                 </div>
                             </div>
@@ -5431,9 +5431,15 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
         function onFichaImageUrlChange() {
             const url = (document.getElementById('f_image_url')?.value || '').trim();
             const imgEl = document.getElementById('pv_vehicle_img');
+            const contEl = document.getElementById('pv_vehicle_img_container') || (imgEl ? imgEl.parentElement : null);
             const indEl = document.getElementById('f_img_indicator');
-            if (imgEl && url) {
-                imgEl.src = url;
+            if (url) {
+                if (imgEl) imgEl.src = url;
+                if (contEl) {
+                    contEl.style.backgroundImage = `url("${url}")`;
+                    contEl.style.backgroundSize = 'cover';
+                    contEl.style.backgroundPosition = 'center';
+                }
                 if (indEl) indEl.textContent = '✓ URL Activa';
             }
         }
@@ -5445,9 +5451,15 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             reader.onload = function(e) {
                 const base64 = e.target.result;
                 const imgEl = document.getElementById('pv_vehicle_img');
+                const contEl = document.getElementById('pv_vehicle_img_container') || (imgEl ? imgEl.parentElement : null);
                 const urlInput = document.getElementById('f_image_url');
                 const indEl = document.getElementById('f_img_indicator');
                 if (imgEl) imgEl.src = base64;
+                if (contEl) {
+                    contEl.style.backgroundImage = `url("${base64}")`;
+                    contEl.style.backgroundSize = 'cover';
+                    contEl.style.backgroundPosition = 'center';
+                }
                 if (urlInput) urlInput.value = '';
                 if (indEl) indEl.textContent = '✓ Foto Subida';
                 showToast('✓ Foto de referencia cargada', 'success');
@@ -5504,8 +5516,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 const isSelected = (imgUrl === selectedImgUrl) || (idx === 0 && !selectedImgUrl);
                 return `
                     <div onclick="selectFichaGalleryPhoto('${imgUrl.replace(/'/g, "\\'")}')" 
-                         style="width:54px; height:40px; min-width:54px; border-radius:6px; overflow:hidden; cursor:pointer; border:2px solid ${isSelected ? '#38bdf8' : 'rgba(255,255,255,0.18)'}; box-shadow:${isSelected ? '0 0 8px rgba(56,189,248,0.6)' : 'none'}; position:relative; background:#000; transition:all 0.2s ease;">
-                        <img src="${imgUrl}" alt="Foto ${idx+1}" style="width:100%; height:100%; object-fit:cover;">
+                         style="width:54px; height:40px; min-width:54px; border-radius:6px; overflow:hidden; cursor:pointer; border:2px solid ${isSelected ? '#38bdf8' : 'rgba(255,255,255,0.18)'}; box-shadow:${isSelected ? '0 0 8px rgba(56,189,248,0.6)' : 'none'}; position:relative; background:#000 url('${imgUrl}') center/cover no-repeat; transition:all 0.2s ease;">
                         ${isSelected ? '<span style="position:absolute; top:2px; right:2px; background:#38bdf8; color:#000; font-size:8px; border-radius:50%; width:12px; height:12px; display:flex; align-items:center; justify-content:center; font-weight:900;">✓</span>' : ''}
                     </div>
                 `;
@@ -5562,13 +5573,13 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                             </div>
                         </div>
 
-                        <!-- GRID DE FOTOS EN FORMATO AUTOMOTRIZ (PROPORCIÓN PERFECTA 16:10 / 4:3) -->
+                        <!-- GRID DE FOTOS EN FORMATO AUTOMOTRIZ (PROPORCIÓN PERFECTA SIN APLASTAR) -->
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:16px 0; align-content:start;">
                             ${pagePhotos.map((photoUrl, idx) => {
                                 const photoNum = (p * 6) + idx + 1;
                                 return `
-                                <div style="height:250px; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.15); background:#050811; position:relative; box-shadow:0 4px 14px rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center;">
-                                    <img src="${photoUrl}" crossorigin="anonymous" alt="Foto ${photoNum}" style="width:100%; height:100%; object-fit:cover; object-position:center; display:block;">
+                                <div style="height:250px; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.15); background:#050811 url('${photoUrl}') center center / cover no-repeat; position:relative; box-shadow:0 4px 14px rgba(0,0,0,0.5);">
+                                    <img src="${photoUrl}" crossorigin="anonymous" style="display:none;">
                                     <div style="position:absolute; bottom:8px; left:10px; background:rgba(9,13,22,0.88); border:1px solid rgba(255,255,255,0.25); color:#fff; font-size:0.68rem; padding:3px 10px; border-radius:4px; font-weight:700; backdrop-filter:blur(4px); box-shadow:0 2px 6px rgba(0,0,0,0.4);">
                                         <i class="fas fa-camera" style="color:#38bdf8;"></i> Foto ${photoNum} de ${allImgs.length}
                                     </div>
@@ -5597,9 +5608,12 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             const urlInput = document.getElementById('f_image_url');
             if (urlInput) urlInput.value = imgUrl;
             const imgEl = document.getElementById('pv_vehicle_img');
-            if (imgEl) {
-                imgEl.src = imgUrl;
-                imgEl.style.opacity = '1';
+            const contEl = document.getElementById('pv_vehicle_img_container') || (imgEl ? imgEl.parentElement : null);
+            if (imgEl) imgEl.src = imgUrl;
+            if (contEl) {
+                contEl.style.backgroundImage = `url("${imgUrl}")`;
+                contEl.style.backgroundSize = 'cover';
+                contEl.style.backgroundPosition = 'center';
             }
             const indEl = document.getElementById('f_img_indicator');
             if (indEl) indEl.textContent = '✓ Portada HD Actualizada';
@@ -5607,8 +5621,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             // Actualizar estado visual de miniaturas
             const thumbs = document.querySelectorAll('#ficha_gallery_grid > div');
             thumbs.forEach(t => {
-                const img = t.querySelector('img');
-                if (img && img.src === imgUrl) {
+                if (t.style.backgroundImage && t.style.backgroundImage.includes(imgUrl)) {
                     t.style.border = '2px solid #38bdf8';
                     t.style.boxShadow = '0 0 8px rgba(56,189,248,0.6)';
                 } else {
@@ -5663,9 +5676,12 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 const urlInput = document.getElementById('f_image_url');
                 if (urlInput) urlInput.value = primaryImg;
                 const imgEl = document.getElementById('pv_vehicle_img');
-                if (imgEl) {
-                    imgEl.src = primaryImg;
-                    imgEl.style.opacity = '1';
+                const contEl = document.getElementById('pv_vehicle_img_container') || (imgEl ? imgEl.parentElement : null);
+                if (imgEl) imgEl.src = primaryImg;
+                if (contEl) {
+                    contEl.style.backgroundImage = `url("${primaryImg}")`;
+                    contEl.style.backgroundSize = 'cover';
+                    contEl.style.backgroundPosition = 'center';
                 }
                 const indEl = document.getElementById('f_img_indicator');
                 if (indEl) indEl.textContent = `✓ ${allImgs.length} Fotos HD`;
