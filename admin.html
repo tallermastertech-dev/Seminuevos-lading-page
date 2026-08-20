@@ -1988,17 +1988,6 @@
 
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                 <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Stock # / Lote Subasta</label>
-                                    <input type="text" class="form-input" id="f_stock_no" placeholder="Ej: 38492011" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
-                                </div>
-                                <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Sucursal / Selling Branch</label>
-                                    <input type="text" class="form-input" id="f_branch" placeholder="Ej: Orlando North, FL" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
-                                </div>
-                            </div>
-
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                                <div class="form-group" style="margin-bottom:6px;">
                                     <label class="form-label" style="font-size:0.7rem;">Millaje de Entrada</label>
                                     <input type="number" class="form-input" id="f_miles" placeholder="Millas (ej: 18450)" oninput="onMilesInput(this.value)" style="font-size:0.8rem; padding:6px 10px;">
                                 </div>
@@ -2185,19 +2174,11 @@
                                     <i class="fas fa-clipboard-check"></i> Auditoría de Origen & Condición de Subasta
                                 </div>
                                 <div class="ficha-grid-2">
-                                    <!-- Datos de Lote de Subasta -->
+                                    <!-- Columna Izquierda: Documentación y Daños -->
                                     <ul class="ficha-specs-list">
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Odómetro de Entrada:</span>
                                             <span class="ficha-spec-val" id="pv_miles"><span style="color:#94a3b8;">Por verificar en lote</span></span>
-                                        </li>
-                                        <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Stock # / Lote Subasta:</span>
-                                            <span class="ficha-spec-val highlight" id="pv_stock_no">---</span>
-                                        </li>
-                                        <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Sucursal / Ubicación:</span>
-                                            <span class="ficha-spec-val" id="pv_branch">---</span>
                                         </li>
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Tipo de Documento / Título:</span>
@@ -2207,9 +2188,13 @@
                                             <span class="ficha-spec-label">Daño Declarado en Subasta:</span>
                                             <span class="ficha-spec-val" id="pv_damage_desc">---</span>
                                         </li>
+                                        <li class="ficha-spec-item">
+                                            <span class="ficha-spec-label">Chasis & Estructura:</span>
+                                            <span class="ficha-spec-val success" id="pv_chassis_desc">---</span>
+                                        </li>
                                     </ul>
 
-                                    <!-- Condición Reportada en Lote -->
+                                    <!-- Columna Derecha: Operatividad y Llaves -->
                                     <ul class="ficha-specs-list">
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Operatividad / Start Code:</span>
@@ -2222,10 +2207,6 @@
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Bolsas de Aire (Airbags):</span>
                                             <span class="ficha-spec-val success" id="pv_airbags_desc">---</span>
-                                        </li>
-                                        <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Chasis & Estructura:</span>
-                                            <span class="ficha-spec-val success" id="pv_chassis_desc">---</span>
                                         </li>
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Modalidad Comercial:</span>
@@ -5714,66 +5695,64 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
 
             try {
                 let cleanUrl = url;
-                const isCopart = cleanUrl.toLowerCase().includes('copart.com');
-                const isIaai = cleanUrl.toLowerCase().includes('iaai.com');
-                
-                // Normalizar URL de IAAI si viene con itemid
-                if (isIaai) {
-                    const itemMatch = cleanUrl.match(/itemid=([0-9]+)/i) || cleanUrl.match(/VehicleDetail\/([0-9]+)/i);
-                    if (itemMatch) {
-                        cleanUrl = `https://www.iaai.com/VehicleDetail/${itemMatch[1]}~US`;
-                    }
-                }
-
-                // Usar los Actor IDs exactos registrados en la cuenta de Apify
-                let actorId = 'yyMRiF5a4sHPCV0q9'; // IAAI: easyapi/iaai-vehicle-detail-scraper
-                let payload = {};
-
-                if (isIaai) {
-                    actorId = 'yyMRiF5a4sHPCV0q9';
-                    payload = {
-                        detailUrls: [ cleanUrl ],
-                        proxyConfiguration: { useApifyProxy: true }
-                    };
-                } else if (isCopart) {
-                    actorId = 'gbTCcvLIEYLA86fpJ'; // Copart Public Search Scraper
-                    payload = {
-                        startUrls: [{ url: cleanUrl }],
-                        proxyConfiguration: { useApifyProxy: true }
-                    };
-                } else {
-                    actorId = 'yyMRiF5a4sHPCV0q9';
-                    payload = { detailUrls: [ cleanUrl ], proxyConfiguration: { useApifyProxy: true } };
-                }
-
                 const token = getApifyToken();
-                const apiUrl = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=90`;
+                let items = null;
 
-                // Contador de progreso visual
-                let seconds = 0;
-                const timer = setInterval(() => {
-                    seconds += 2;
-                    if (statusEl && btn && btn.disabled) {
-                        statusEl.innerHTML = `🤖 Apify Scraper procesando lote en la nube... (${seconds}s)`;
+                // Caso 1: Pegó un JSON directo
+                if (cleanUrl.startsWith('{') || cleanUrl.startsWith('[')) {
+                    const parsed = JSON.parse(cleanUrl);
+                    items = Array.isArray(parsed) ? parsed : [parsed];
+                }
+                // Caso 2: Pegó una URL de dataset de Apify (ej: api.apify.com/v2/datasets/.../items)
+                else if (cleanUrl.includes('api.apify.com')) {
+                    let fetchUrl = cleanUrl;
+                    if (!fetchUrl.includes('token=')) {
+                        fetchUrl += (fetchUrl.includes('?') ? '&' : '?') + `token=${token}`;
                     }
-                }, 2000);
-
-                let res;
-                try {
-                    res = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                } finally {
-                    clearInterval(timer);
+                    const res = await fetch(fetchUrl);
+                    if (!res.ok) throw new Error(`Apify Dataset error: ${res.status}`);
+                    const jsonRes = await res.json();
+                    items = Array.isArray(jsonRes) ? jsonRes : (jsonRes.data?.items || [jsonRes]);
                 }
+                // Caso 3: URL normal de Copart o IAAI
+                else {
+                    const isCopart = cleanUrl.toLowerCase().includes('copart.com');
+                    const isIaai = cleanUrl.toLowerCase().includes('iaai.com');
+                    
+                    if (isIaai) {
+                        const itemMatch = cleanUrl.match(/itemid=([0-9]+)/i) || cleanUrl.match(/VehicleDetail\/([0-9]+)/i);
+                        if (itemMatch) cleanUrl = `https://www.iaai.com/VehicleDetail/${itemMatch[1]}~US`;
+                    }
 
-                if (!res.ok) {
-                    throw new Error(`Apify respondió con código ${res.status}`);
+                    let actorId = isCopart ? 'gbTCcvLIEYLA86fpJ' : 'yyMRiF5a4sHPCV0q9';
+                    let payload = isCopart 
+                        ? { startUrls: [{ url: cleanUrl }], proxyConfiguration: { useApifyProxy: true } }
+                        : { detailUrls: [ cleanUrl ], proxyConfiguration: { useApifyProxy: true } };
+
+                    const apiUrl = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=90`;
+
+                    let seconds = 0;
+                    const timer = setInterval(() => {
+                        seconds += 2;
+                        if (statusEl && btn && btn.disabled) {
+                            statusEl.innerHTML = `🤖 Apify Scraper procesando lote en la nube... (${seconds}s)`;
+                        }
+                    }, 2000);
+
+                    let res;
+                    try {
+                        res = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                    } finally {
+                        clearInterval(timer);
+                    }
+
+                    if (!res.ok) throw new Error(`Apify respondió con código ${res.status}`);
+                    items = await res.json();
                 }
-
-                const items = await res.json();
                 const rawItem = (Array.isArray(items) && items.length > 0) ? items[0] : null;
 
                 if (!rawItem) {
