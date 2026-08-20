@@ -5738,76 +5738,100 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             }
 
             try {
-                const isCopart = url.toLowerCase().includes('copart.com');
-                const isIaai = url.toLowerCase().includes('iaai.com');
+                let cleanUrl = url;
+                const isCopart = cleanUrl.toLowerCase().includes('copart.com');
+                const isIaai = cleanUrl.toLowerCase().includes('iaai.com');
                 
+                // Normalizar URL de IAAI si viene con itemid
+                if (isIaai) {
+                    const itemMatch = cleanUrl.match(/itemid=([0-9]+)/i) || cleanUrl.match(/VehicleDetail\/([0-9]+)/i);
+                    if (itemMatch) {
+                        cleanUrl = `https://www.iaai.com/VehicleDetail/${itemMatch[1]}~US`;
+                    }
+                }
+
                 // Usar los Actor IDs exactos registrados en la cuenta de Apify
-                let actorId = 'yyMRiF5a4sHPCV0q9'; // default IAAI: easyapi/iaai-vehicle-detail-scraper
+                let actorId = 'yyMRiF5a4sHPCV0q9'; // IAAI: easyapi/iaai-vehicle-detail-scraper
                 let payload = {};
 
                 if (isIaai) {
-                    actorId = 'yyMRiF5a4sHPCV0q9'; // IAAI Vehicle Detail Scraper
+                    actorId = 'yyMRiF5a4sHPCV0q9';
                     payload = {
-                        detailUrls: [ url ],
-                        proxyConfiguration: { useApifyProxy: false }
+                        detailUrls: [ cleanUrl ],
+                        proxyConfiguration: { useApifyProxy: true }
                     };
                 } else if (isCopart) {
                     actorId = 'gbTCcvLIEYLA86fpJ'; // Copart Public Search Scraper
                     payload = {
-                        startUrls: [{ url: url }]
+                        startUrls: [{ url: cleanUrl }],
+                        proxyConfiguration: { useApifyProxy: true }
                     };
                 } else {
                     actorId = 'yyMRiF5a4sHPCV0q9';
-                    payload = { detailUrls: [ url ] };
+                    payload = { detailUrls: [ cleanUrl ], proxyConfiguration: { useApifyProxy: true } };
                 }
 
                 const token = getApifyToken();
-                const apiUrl = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=60`;
+                const apiUrl = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=90`;
 
-                const res = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                // Contador de progreso visual
+                let seconds = 0;
+                const timer = setInterval(() => {
+                    seconds += 2;
+                    if (statusEl && btn && btn.disabled) {
+                        statusEl.innerHTML = `🤖 Apify Scraper procesando lote en la nube... (${seconds}s)`;
+                    }
+                }, 2000);
+
+                let res;
+                try {
+                    res = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                } finally {
+                    clearInterval(timer);
+                }
 
                 if (!res.ok) {
-                    throw new Error(`Error en Apify (${res.status}): ${res.statusText}`);
+                    throw new Error(`Apify respondió con código ${res.status}`);
                 }
 
                 const items = await res.json();
                 const rawItem = (Array.isArray(items) && items.length > 0) ? items[0] : null;
 
                 if (!rawItem) {
-                    throw new Error('No se recibieron datos del lote desde Apify. Verifica que el link sea público.');
+                    throw new Error('El scraper no devolvió información. El lote puede requerir autenticación en subasta.');
                 }
 
-                // Normalizar objeto si viene anidado en vehicleInfo
-                const info = rawItem.vehicleInfo || {};
+                // Normalizar objeto si viene anidado en vehicleInfo o data
+                const info = rawItem.vehicleInfo || rawItem.data || rawItem.details || {};
                 const item = { ...rawItem, ...info };
 
                 // Mapear campos desde el dataset de Apify
-                const vin = item.vin || item.VIN || item.vinNumber || info.vin || '';
-                const stockNo = item.lotNumber || item.stockNumber || item.itemNumber || item.lotId || item.stockNo || info.stockNumber || '';
-                const branch = item.location || item.branch || item.sellingBranch || item.yardName || info.sellingBranch || '';
-                const odo = item.odometer || item.mileage || item.odometerReading || info.odometer || '';
-                const primDamage = item.primaryDamage || item.damage || item.mainDamage || info.primaryDamage || '';
+                const vin = item.vin || item.VIN || item.vinNumber || info.vin || info.VIN || '';
+                const stockNo = item.lotNumber || item.stockNumber || item.itemNumber || item.lotId || item.stockNo || info.stockNumber || info.lotNumber || '';
+                const branch = item.location || item.branch || item.sellingBranch || item.yardName || info.sellingBranch || info.location || '';
+                const odo = item.odometer || item.mileage || item.odometerReading || info.odometer || info.mileage || '';
+                const primDamage = item.primaryDamage || item.damage || item.mainDamage || info.primaryDamage || info.damage || '';
                 const secDamage = item.secondaryDamage || info.secondaryDamage || '';
-                const titleDoc = item.titleType || item.docType || item.titleStatus || item.titleSaleDoc || item.title || info.titleSaleDoc || '';
-                const startCode = item.runAndDrive || item.startCode || item.highlights || item.status || info.startCode || '';
-                const keys = item.keys || item.hasKeys || item.keyStatus || item.key || info.key || '';
-                const airbags = item.airbags || item.airbagStatus || info.airbags || '';
-                const extColor = item.color || item.exteriorColor || item.exteriorInterior || info.exteriorInterior || '';
+                const titleDoc = item.titleType || item.docType || item.titleStatus || item.titleSaleDoc || item.title || info.titleSaleDoc || info.titleType || '';
+                const startCode = item.runAndDrive || item.startCode || item.highlights || item.status || info.startCode || info.highlights || '';
+                const keys = item.keys || item.hasKeys || item.keyStatus || item.key || info.key || info.keys || '';
+                const airbags = item.airbags || item.airbagStatus || info.airbags || info.airbagStatus || '';
+                const extColor = item.color || item.exteriorColor || item.exteriorInterior || info.exteriorInterior || info.color || '';
                 const intColor = item.interiorColor || '';
                 const engine = item.engine || item.engineSize || info.engine || '';
                 const trans = item.transmission || info.transmission || '';
                 const drive = item.drive || item.drivetrain || item.driveLineType || info.driveLineType || '';
                 const fuel = item.fuel || item.fuelType || info.fuelType || '';
-                const titleName = item.title || item.vehicle || item.name || info.vehicle || `${item.year || ''} ${item.make || ''} ${item.model || ''}`.trim();
+                const titleName = item.title || item.vehicle || item.name || info.vehicle || info.title || `${item.year || ''} ${item.make || ''} ${item.model || ''}`.trim();
 
                 // Manejo de Imágenes HD
-                const images = item.images || item.photos || item.imageUrls || [];
+                const images = item.images || item.photos || item.imageUrls || info.images || [];
                 if (images.length > 0) {
-                    const bestImg = typeof images[0] === 'string' ? images[0] : (images[0].full || images[0].url || images[0].src);
+                    const bestImg = typeof images[0] === 'string' ? images[0] : (images[0].full || images[0].url || images[0].src || images[0].highRes);
                     if (bestImg) {
                         const urlIn = document.getElementById('f_image_url');
                         if (urlIn) urlIn.value = bestImg;
@@ -5822,7 +5846,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 if (vin) document.getElementById('fichaVinInput').value = vin.toUpperCase();
                 if (stockNo) document.getElementById('f_stock_no').value = stockNo;
                 if (branch) document.getElementById('f_branch').value = branch;
-                if (titleName) document.getElementById('f_title').value = titleName;
+                if (titleName && titleName.length > 3) document.getElementById('f_title').value = titleName;
                 if (extColor || intColor) document.getElementById('f_colors').value = [extColor, intColor].filter(Boolean).join(' / ');
                 if (engine) document.getElementById('f_engine').value = engine;
                 if (trans) document.getElementById('f_trans').value = normTrans(trans);
@@ -5847,14 +5871,14 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 }
 
                 if (vin && vin.length === 17) {
-                    if (statusEl) statusEl.innerHTML = '⚡ Datos de subasta extraídos. Decodificando motor con NHTSA...';
+                    if (statusEl) statusEl.innerHTML = '⚡ Datos extraídos. Decodificando especificaciones con NHTSA...';
                     await decodeVinNhtsa(true);
                 } else {
                     updateFichaLive();
                 }
 
                 if (statusEl) {
-                    statusEl.innerHTML = `✅ <strong>Lote importado con Apify:</strong> ${titleName || vin} (Fotos HD y datos listos)`;
+                    statusEl.innerHTML = `✅ <strong>Lote importado con Apify:</strong> ${titleName || vin || 'Completado'} (Fotos HD y datos listos)`;
                     statusEl.style.color = '#25D366';
                 }
                 showToast('✓ Lote importado con éxito desde Apify', 'success');
@@ -5862,10 +5886,10 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             } catch (err) {
                 console.error('Apify Scraper error:', err);
                 if (statusEl) {
-                    statusEl.innerHTML = `⚠️ Apify: ${err.message}. Recuerda que también puedes usar la opción de Pegado Rápido abajo.`;
+                    statusEl.innerHTML = `⚠️ <strong>Apify:</strong> ${err.message}.<br><span style="color:#94a3b8; font-size:0.68rem;">💡 Tip: También puedes usar la opción instantánea <strong>"📋 Pegar Lote IAAI / Copart"</strong> de abajo.</span>`;
                     statusEl.style.color = '#f59e0b';
                 }
-                showToast(`Info Apify: ${err.message}`, 'info');
+                showToast(`Apify: ${err.message}`, 'info');
             } finally {
                 if (btn) {
                     btn.disabled = false;
