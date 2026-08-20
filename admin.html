@@ -1850,6 +1850,22 @@
                             <div id="fichaVinStatus" style="font-size:0.75rem; margin-top:4px; display:none;"></div>
                         </div>
 
+                        <!-- LECTOR RÁPIDO DE SUBASTA (IAAI / COPART) -->
+                        <div style="background:rgba(39,92,234,0.08); border:1px solid rgba(39,92,234,0.3); border-radius:8px; padding:10px; margin-bottom:10px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleAuctionParser()">
+                                <span style="font-size:0.75rem; font-weight:700; color:#38bdf8; display:flex; align-items:center; gap:6px;">
+                                    <i class="fas fa-magic"></i> Pegar Lote IAAI / Copart (Auto-Rellenado)
+                                </span>
+                                <i class="fas fa-chevron-down" id="parserChevron" style="font-size:0.7rem; color:#94a3b8;"></i>
+                            </div>
+                            <div id="auctionParserBox" style="display:none; margin-top:8px;">
+                                <textarea class="form-input" id="rawAuctionText" rows="4" placeholder="Copia y pega aquí todo el bloque de texto de la subasta (Stock #, VIN, Selling Branch, Primary Damage, Airbags, Odometer, Exterior/Interior, Restraint System, etc.)..." style="font-size:0.72rem; line-height:1.4; margin-bottom:6px;"></textarea>
+                                <button type="button" class="btn btn-primary" onclick="parseAuctionRawText()" style="width:100%; padding:6px 10px; font-size:0.75rem; font-weight:700;">
+                                    <i class="fas fa-wand-magic-sparkles"></i> Procesar y Rellenar Ficha Automáticamente
+                                </button>
+                            </div>
+                        </div>
+
                         <!-- PARAMETERS ACCORDION -->
                         <div style="border-top:1px solid var(--border-accent); padding-top:12px; display:flex; flex-direction:column; gap:10px;">
                             <h4 style="font-size:0.85rem; color:#fff; font-weight:700; display:flex; align-items:center; gap:6px;">
@@ -1921,19 +1937,19 @@
 
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                 <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Peso Bruto (GVWR)</label>
-                                    <input type="text" class="form-input" id="f_gvwr" placeholder="6,050 lbs (2,744 kg)" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    <label class="form-label" style="font-size:0.7rem;">Color Exterior / Interior</label>
+                                    <input type="text" class="form-input" id="f_colors" placeholder="Ej: Granite Crystal / Cuero Negro" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
                                 </div>
                                 <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Tanque Combustible</label>
-                                    <input type="text" class="form-input" id="f_fuel_cap" placeholder="23.0 Gal (87.0 L)" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    <label class="form-label" style="font-size:0.7rem;">Peso Bruto (GVWR)</label>
+                                    <input type="text" class="form-input" id="f_gvwr" placeholder="6,050 lbs (2,744 kg)" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
                                 </div>
                             </div>
 
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                 <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Sistema de Frenos</label>
-                                    <input type="text" class="form-input" id="f_brakes" placeholder="Disco x4 + ABS + EBD" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    <label class="form-label" style="font-size:0.7rem;">Tanque Combustible</label>
+                                    <input type="text" class="form-input" id="f_fuel_cap" placeholder="23.0 Gal (87.0 L)" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
                                 </div>
                                 <div class="form-group" style="margin-bottom:6px;">
                                     <label class="form-label" style="font-size:0.7rem;">Combustible</label>
@@ -1941,10 +1957,26 @@
                                 </div>
                             </div>
 
+                            <div class="form-group" style="margin-bottom:6px;">
+                                <label class="form-label" style="font-size:0.7rem;">Sistema de Frenos</label>
+                                <input type="text" class="form-input" id="f_brakes" placeholder="Disco x4 + ABS + EBD" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                            </div>
+
                             <!-- Auditoria Subasta -->
                             <h4 style="font-size:0.85rem; color:#fff; font-weight:700; margin-top:8px; display:flex; align-items:center; gap:6px;">
-                                <i class="fas fa-clipboard-check" style="color:#4ade80;"></i> Auditoría & Subasta
+                                <i class="fas fa-clipboard-check" style="color:#4ade80;"></i> Auditoría & Datos de Subasta
                             </h4>
+
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                <div class="form-group" style="margin-bottom:6px;">
+                                    <label class="form-label" style="font-size:0.7rem;">Stock # / Lote Subasta</label>
+                                    <input type="text" class="form-input" id="f_stock_no" placeholder="Ej: 38492011" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                </div>
+                                <div class="form-group" style="margin-bottom:6px;">
+                                    <label class="form-label" style="font-size:0.7rem;">Sucursal / Selling Branch</label>
+                                    <input type="text" class="form-input" id="f_branch" placeholder="Ej: Orlando North, FL" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                </div>
+                            </div>
 
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                 <div class="form-group" style="margin-bottom:6px;">
@@ -1970,12 +2002,23 @@
 
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                 <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Causa de Declaración</label>
-                                    <input type="text" class="form-input" id="f_damage_cause" placeholder="Daño cosmético menor" oninput="updateFichaLive()" value="Daño cosmético superficial (Chasis intacto)" style="font-size:0.8rem; padding:6px 10px;">
+                                    <label class="form-label" style="font-size:0.7rem;">Daño Primario / Motivo</label>
+                                    <input type="text" class="form-input" id="f_primary_damage" placeholder="Daño cosmético superficial" oninput="updateFichaLive()" value="Daño cosmético superficial (Chasis intacto)" style="font-size:0.8rem; padding:6px 10px;">
                                 </div>
                                 <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Llaves & Operatividad</label>
-                                    <input type="text" class="form-input" id="f_keys" placeholder="Disponibles / Run & Drive" oninput="updateFichaLive()" value="Llaves Disponibles (Run & Drive)" style="font-size:0.8rem; padding:6px 10px;">
+                                    <label class="form-label" style="font-size:0.7rem;">Daño Secundario / Desgaste</label>
+                                    <input type="text" class="form-input" id="f_secondary_damage" placeholder="Desgaste normal / Ninguno" oninput="updateFichaLive()" value="Desgaste normal / Ninguno" style="font-size:0.8rem; padding:6px 10px;">
+                                </div>
+                            </div>
+
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                <div class="form-group" style="margin-bottom:6px;">
+                                    <label class="form-label" style="font-size:0.7rem;">Bolsas de Aire (Airbags)</label>
+                                    <input type="text" class="form-input" id="f_airbags" placeholder="Originales / No detonadas" oninput="updateFichaLive()" value="Originales de Fábrica (No detonadas)" style="font-size:0.8rem; padding:6px 10px;">
+                                </div>
+                                <div class="form-group" style="margin-bottom:6px;">
+                                    <label class="form-label" style="font-size:0.7rem;">Start Code / Llaves</label>
+                                    <input type="text" class="form-input" id="f_start_code" placeholder="Run & Drive / Llaves Sí" oninput="updateFichaLive()" value="Run & Drive (Llaves Disponibles)" style="font-size:0.8rem; padding:6px 10px;">
                                 </div>
                             </div>
 
@@ -2060,35 +2103,39 @@
                                     <ul class="ficha-specs-list">
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Año / Fabricante:</span>
-                                            <span class="ficha-spec-val" id="pv_year_make">2023 Jeep</span>
+                                            <span class="ficha-spec-val" id="pv_year_make">2023 Dodge</span>
                                         </li>
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Modelo & Versión:</span>
-                                            <span class="ficha-spec-val highlight" id="pv_model_trim">Grand Cherokee (Altitude X)</span>
+                                            <span class="ficha-spec-val highlight" id="pv_model_trim">Charger SXT</span>
                                         </li>
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">País / Planta Ensamble:</span>
+                                            <span class="ficha-spec-label">Color Ext. / Interior:</span>
+                                            <span class="ficha-spec-val" id="pv_colors">Granite Pearl / Cuero Negro</span>
+                                        </li>
+                                        <li class="ficha-spec-item">
+                                            <span class="ficha-spec-label">País / Fabricado en:</span>
                                             <span class="ficha-spec-val" id="pv_plant">Detroit, EE. UU.</span>
                                         </li>
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Carrocería / Puertas:</span>
-                                            <span class="ficha-spec-val" id="pv_body">SUV 5 Puertas / 5 Pasajeros</span>
+                                            <span class="ficha-spec-label">Carrocería & Puertas:</span>
+                                            <span class="ficha-spec-val" id="pv_body">Sedán 4 Puertas / 5 Pasajeros</span>
                                         </li>
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Peso Bruto Vehicular (GVWR):</span>
-                                            <span class="ficha-spec-val" id="pv_gvwr">6,050 lbs (2,744 kg)</span>
+                                            <span class="ficha-spec-val" id="pv_gvwr">6,000 lbs (2,722 kg)</span>
                                         </li>
                                     </ul>
 
                                     <!-- Columna Derecha: Tren Motriz -->
                                     <ul class="ficha-specs-list">
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Motorización / Cilindrada:</span>
+                                            <span class="ficha-spec-label">Motorización / Cilindros:</span>
                                             <span class="ficha-spec-val highlight" id="pv_engine">3.6L V6 24V DOHC</span>
                                         </li>
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Potencia Estimada:</span>
-                                            <span class="ficha-spec-val" id="pv_hp">293 HP @ 6,400 RPM</span>
+                                            <span class="ficha-spec-val" id="pv_hp">292 HP @ 6,350 RPM</span>
                                         </li>
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Transmisión:</span>
@@ -2096,15 +2143,15 @@
                                         </li>
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Tracción / Drivetrain:</span>
-                                            <span class="ficha-spec-val highlight" id="pv_drivetrain">4WD / Quadra-Trac I</span>
+                                            <span class="ficha-spec-val highlight" id="pv_drivetrain">Tracción Trasera (RWD)</span>
                                         </li>
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Combustible / Tanque:</span>
-                                            <span class="ficha-spec-val" id="pv_fuel">Gasolina · 23.0 Gal (87.0 L)</span>
+                                            <span class="ficha-spec-label">Combustible & Tanque:</span>
+                                            <span class="ficha-spec-val" id="pv_fuel">Gasolina · 18.5 Gal (70.0 L)</span>
                                         </li>
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Sistema de Frenos & ABS:</span>
-                                            <span class="ficha-spec-val" id="pv_brakes">Disco ventilado x4 + ABS + EBD</span>
+                                            <span class="ficha-spec-val" id="pv_brakes">Discos x4 + ABS + EBD</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -2137,23 +2184,27 @@
                                     <ul class="ficha-specs-list">
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Millaje de Entrada:</span>
-                                            <span class="ficha-spec-val" id="pv_miles">18,450 mi (<strong style="color:#38bdf8;" id="pv_km">29,692 KM</strong>)</span>
+                                            <span class="ficha-spec-val" id="pv_miles">18,450 mi (<strong style="color:#4d7aef;" id="pv_km">29,692 KM</strong>)</span>
                                         </li>
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Origen / Lote:</span>
-                                            <span class="ficha-spec-val" id="pv_origin">Subasta EE. UU. (Certificada)</span>
+                                            <span class="ficha-spec-label">Stock # / Lote Subasta:</span>
+                                            <span class="ficha-spec-val highlight" id="pv_stock_no">38492011</span>
+                                        </li>
+                                        <li class="ficha-spec-item">
+                                            <span class="ficha-spec-label">Sucursal / Ubicación:</span>
+                                            <span class="ficha-spec-val" id="pv_branch">Orlando North, FL (EE. UU.)</span>
                                         </li>
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Tipo de Título:</span>
                                             <span class="ficha-spec-val success" id="pv_title_type">Rebuilt / Certificado</span>
                                         </li>
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Causa de Declaración:</span>
-                                            <span class="ficha-spec-val" id="pv_damage_cause">Daño cosmético superficial (Chasis intacto)</span>
+                                            <span class="ficha-spec-label">Daño Declarado / Motivo:</span>
+                                            <span class="ficha-spec-val" id="pv_damage_desc">Cosmético superficial (Chasis intacto)</span>
                                         </li>
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Estado de Llaves:</span>
-                                            <span class="ficha-spec-val success" id="pv_keys">Disponibles (Run & Drive)</span>
+                                            <span class="ficha-spec-label">Operatividad / Start Code:</span>
+                                            <span class="ficha-spec-val success" id="pv_start_code_desc"><i class="fas fa-key"></i> Run & Drive (Llaves Sí)</span>
                                         </li>
                                     </ul>
 
@@ -2165,7 +2216,7 @@
                                         </li>
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Bolsas de Aire (Airbags):</span>
-                                            <span class="ficha-spec-val success"><i class="fas fa-check-circle"></i> Originales de Fábrica (No detonadas)</span>
+                                            <span class="ficha-spec-val success" id="pv_airbags_desc"><i class="fas fa-shield-alt"></i> Originales (No detonadas)</span>
                                         </li>
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Tren Delantero & Suspensión:</span>
@@ -5662,6 +5713,98 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             }
         }
 
+        function toggleAuctionParser() {
+            const box = document.getElementById('auctionParserBox');
+            const chev = document.getElementById('parserChevron');
+            if (box) {
+                const isHidden = box.style.display === 'none';
+                box.style.display = isHidden ? 'block' : 'none';
+                if (chev) chev.className = isHidden ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+            }
+        }
+
+        function parseAuctionRawText() {
+            const raw = document.getElementById('rawAuctionText')?.value || '';
+            if (!raw.trim()) {
+                showToast('Por favor pega el texto de la subasta', 'warning');
+                return;
+            }
+
+            const extract = (pattern) => {
+                const match = raw.match(pattern);
+                return match ? match[1].trim() : '';
+            };
+
+            const vin = extract(/VIN\s*(?:\(Status\))?:\s*([A-HJ-NPR-Z0-9]{17})/i) || extract(/\b([A-HJ-NPR-Z0-9]{17})\b/i);
+            const stockNo = extract(/Stock\s*#:\s*([^\r\n]+)/i);
+            const branch = extract(/Selling\s*Branch:\s*([^\r\n]+)/i);
+            const loss = extract(/Loss:\s*([^\r\n]+)/i);
+            const primDamage = extract(/Primary\s*Damage:\s*([^\r\n]+)/i);
+            const secDamage = extract(/Secondary\s*Damage:\s*([^\r\n]+)/i);
+            const titleDoc = extract(/Title(?:\/Sale\s*Doc)?:\s*([^\r\n]+)/i);
+            const startCode = extract(/Start\s*Code:\s*([^\r\n]+)/i);
+            const key = extract(/Key:\s*([^\r\n]+)/i);
+            const odometer = extract(/Odometer:\s*([\d,]+)/i);
+            const airbags = extract(/Airbags?:\s*([^\r\n]+)/i);
+            const extInt = extract(/Exterior\/Interior:\s*([^\r\n]+)/i);
+            const vehicle = extract(/Vehicle:\s*([^\r\n]+)/i);
+            const bodyStyle = extract(/Body\s*Style:\s*([^\r\n]+)/i);
+            const engine = extract(/Engine:\s*([^\r\n]+)/i);
+            const transmission = extract(/Transmission:\s*([^\r\n]+)/i);
+            const driveLine = extract(/Drive\s*Line\s*Type:\s*([^\r\n]+)/i);
+            const fuelType = extract(/Fuel\s*Type:\s*([^\r\n]+)/i);
+            const manufacturedIn = extract(/Manufactured\s*In:\s*([^\r\n]+)/i);
+            const series = extract(/Series:\s*([^\r\n]+)/i);
+
+            // Populate form fields
+            if (vin) document.getElementById('fichaVinInput').value = vin.toUpperCase();
+            if (stockNo) document.getElementById('f_stock_no').value = stockNo;
+            if (branch) document.getElementById('f_branch').value = branch;
+            if (vehicle) document.getElementById('f_title').value = vehicle;
+            if (series) document.getElementById('f_trim').value = series;
+            if (extInt) document.getElementById('f_colors').value = extInt;
+            if (manufacturedIn) document.getElementById('f_plant').value = manufacturedIn;
+            if (bodyStyle) document.getElementById('f_body').value = formatBody(bodyStyle, '4', '5');
+            if (engine) document.getElementById('f_engine').value = engine;
+            if (transmission) document.getElementById('f_trans').value = normTrans(transmission);
+            if (driveLine) document.getElementById('f_drivetrain').value = formatDriveType(driveLine);
+            if (fuelType) document.getElementById('f_fuel_type').value = formatFuelType(fuelType);
+            
+            if (odometer) {
+                const milesNum = parseInt(odometer.replace(/,/g, '')) || 0;
+                if (milesNum > 0) {
+                    document.getElementById('f_miles').value = milesNum;
+                    onMilesInput(milesNum);
+                }
+            }
+
+            if (titleDoc) document.getElementById('f_title_type').value = titleDoc;
+            
+            if (primDamage) {
+                const fullDamage = secDamage && secDamage !== 'None' ? `${primDamage} / ${secDamage}` : primDamage;
+                document.getElementById('f_primary_damage').value = fullDamage;
+            }
+            
+            if (airbags) {
+                const isIntact = airbags.toLowerCase().includes('intact') || airbags.toLowerCase().includes('not') || airbags.toLowerCase().includes('original');
+                document.getElementById('f_airbags').value = isIntact ? 'Originales de Fábrica (No detonadas)' : airbags;
+            }
+            
+            if (startCode || key) {
+                const sc = startCode || 'Run & Drive';
+                const k = key ? ` (Llaves: ${key})` : ' (Llaves Sí)';
+                document.getElementById('f_start_code').value = `${sc}${k}`;
+            }
+
+            if (vin && vin.length === 17) {
+                decodeVinNhtsa(true);
+            } else {
+                updateFichaLive();
+            }
+
+            showToast('✓ Lote de subasta procesado y rellenado con éxito', 'success');
+        }
+
         function onMilesInput(milesVal) {
             const miles = parseInt(String(milesVal).replace(/[^0-9]/g, '')) || 0;
             const km = Math.round(miles * 1.60934);
@@ -5683,26 +5826,30 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             const drivetrain = document.getElementById('f_drivetrain')?.value || 'Tracción Trasera (RWD)';
             const plant = document.getElementById('f_plant')?.value || 'Detroit, EE. UU.';
             const body = document.getElementById('f_body')?.value || 'Sedán 4 Puertas / 5 Pasajeros';
+            const colors = document.getElementById('f_colors')?.value || 'Granite Pearl / Cuero Negro';
             const gvwr = document.getElementById('f_gvwr')?.value || '6,000 lbs (2,722 kg)';
             const fuelCap = document.getElementById('f_fuel_cap')?.value || '18.5 Gal (70.0 L)';
             const fuelType = document.getElementById('f_fuel_type')?.value || 'Gasolina';
-            const brakes = document.getElementById('f_brakes')?.value || 'Discos ventilados x4 + ABS + EBD + Control de Tracción';
+            const brakes = document.getElementById('f_brakes')?.value || 'Discos x4 + ABS + EBD';
 
             const miles = parseInt(document.getElementById('f_miles')?.value) || 18450;
             const km = document.getElementById('f_km')?.value || '29,692 KM';
-            const origin = document.getElementById('f_origin')?.value || 'Subasta EE. UU. (Certificada)';
+            const stockNo = document.getElementById('f_stock_no')?.value || '38492011';
+            const branch = document.getElementById('f_branch')?.value || 'Orlando North, FL (EE. UU.)';
             const titleType = document.getElementById('f_title_type')?.value || 'Rebuilt / Certificado';
-            const damageCause = document.getElementById('f_damage_cause')?.value || 'Daño cosmético superficial (Chasis intacto)';
-            const keys = document.getElementById('f_keys')?.value || 'Disponibles (Run & Drive)';
+            const primaryDamage = document.getElementById('f_primary_damage')?.value || 'Cosmético superficial (Chasis intacto)';
+            const airbags = document.getElementById('f_airbags')?.value || 'Originales de Fábrica (No detonadas)';
+            const startCode = document.getElementById('f_start_code')?.value || 'Run & Drive (Llaves Disponibles)';
 
             // Update Sheet Elements
             const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
 
             setTxt('pv_vin', vin);
             setTxt('pv_title', title);
-            setTxt('pv_header_spec', `${engine} · ${trans} · ${drivetrain}`);
+            setTxt('pv_header_spec', `${engine} · ${trans}`);
             setTxt('pv_year_make', `${year} ${title.split(' ')[1] || ''}`.trim());
             setTxt('pv_model_trim', trim ? `${title.replace(year, '').trim()} (${trim})` : title);
+            setTxt('pv_colors', colors);
             setTxt('pv_plant', plant);
             setTxt('pv_body', body);
             setTxt('pv_gvwr', gvwr);
@@ -5715,10 +5862,12 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             setTxt('pv_brakes', brakes);
 
             setTxt('pv_miles', `${miles.toLocaleString('es-ES')} mi (${km})`);
-            setTxt('pv_origin', origin);
+            setTxt('pv_stock_no', stockNo);
+            setTxt('pv_branch', branch);
             setTxt('pv_title_type', titleType);
-            setTxt('pv_damage_cause', damageCause);
-            setTxt('pv_keys', keys);
+            setTxt('pv_damage_desc', primaryDamage);
+            setTxt('pv_airbags_desc', airbags);
+            setTxt('pv_start_code_desc', startCode);
 
             const dtTag = document.getElementById('pv_drivetrain_tag');
             if (dtTag) {
