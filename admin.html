@@ -1881,15 +1881,25 @@
                                 <i class="fas fa-sliders" style="color:var(--accent);"></i> Parámetros de la Ficha
                             </h4>
 
-                            <!-- Foto de Referencia -->
-                            <div class="form-group" style="margin-bottom:6px; background:rgba(39,92,234,0.08); padding:8px; border-radius:6px; border:1px solid rgba(39,92,234,0.25);">
-                                <label class="form-label" style="font-size:0.7rem; color:#4d7aef; display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                                    <span><i class="fas fa-camera"></i> Foto de Referencia (Vehículo)</span>
+                            <!-- Foto de Referencia y Galería HD -->
+                            <div class="form-group" style="margin-bottom:6px; background:rgba(39,92,234,0.08); padding:10px; border-radius:8px; border:1px solid rgba(39,92,234,0.25);">
+                                <label class="form-label" style="font-size:0.75rem; color:#4d7aef; display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                    <span><i class="fas fa-camera"></i> Foto de Portada (Ficha Técnica)</span>
                                     <span id="f_img_indicator" style="color:#25D366; font-size:0.65rem; font-weight:600;">✓ Activa</span>
                                 </label>
-                                <input type="text" class="form-input" id="f_image_url" placeholder="URL de imagen (IAAI/Copart/Web)" oninput="onFichaImageUrlChange()" style="font-size:0.75rem; padding:5px 8px; margin-bottom:5px;">
+                                <input type="text" class="form-input" id="f_image_url" placeholder="URL de imagen en alta resolución" oninput="onFichaImageUrlChange()" style="font-size:0.75rem; padding:6px 8px; margin-bottom:6px;">
+                                
+                                <!-- Carrusel de Miniaturas HD del Vehículo Seleccionado -->
+                                <div id="ficha_gallery_section" style="display:none; margin-bottom:8px;">
+                                    <div style="font-size:0.68rem; color:#94a3b8; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;">
+                                        <span>📸 <strong>Fotos HD cargadas (<span id="ficha_gallery_count" style="color:#38bdf8;">0</span>):</strong></span>
+                                        <span style="color:#38bdf8; font-size:0.65rem;">Clic para cambiar portada</span>
+                                    </div>
+                                    <div id="ficha_gallery_grid" style="display:flex; gap:6px; overflow-x:auto; padding-bottom:6px; scrollbar-width:thin;"></div>
+                                </div>
+
                                 <input type="file" id="f_image_file" accept="image/*" onchange="onFichaImageUpload(event)" style="display:none;">
-                                <button type="button" class="btn btn-secondary" onclick="document.getElementById('f_image_file').click()" style="width:100%; padding:5px 8px; font-size:0.72rem; display:flex; align-items:center; justify-content:center; gap:6px;">
+                                <button type="button" class="btn btn-secondary" onclick="document.getElementById('f_image_file').click()" style="width:100%; padding:6px 8px; font-size:0.75rem; display:flex; align-items:center; justify-content:center; gap:6px;">
                                     <i class="fas fa-upload"></i> Subir Foto desde Galería / Dispositivo
                                 </button>
                             </div>
@@ -5460,6 +5470,60 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             if (currentVal) sel.value = currentVal;
         }
 
+        function renderFichaGalleryThumbnails(images, selectedImgUrl) {
+            const sec = document.getElementById('ficha_gallery_section');
+            const grid = document.getElementById('ficha_gallery_grid');
+            const count = document.getElementById('ficha_gallery_count');
+            if (!sec || !grid) return;
+
+            if (!images || images.length === 0) {
+                sec.style.display = 'none';
+                grid.innerHTML = '';
+                return;
+            }
+
+            sec.style.display = 'block';
+            if (count) count.textContent = images.length;
+
+            grid.innerHTML = images.map((imgUrl, idx) => {
+                const isSelected = (imgUrl === selectedImgUrl) || (idx === 0 && !selectedImgUrl);
+                return `
+                    <div onclick="selectFichaGalleryPhoto('${imgUrl.replace(/'/g, "\\'")}')" 
+                         style="width:54px; height:40px; min-width:54px; border-radius:6px; overflow:hidden; cursor:pointer; border:2px solid ${isSelected ? '#38bdf8' : 'rgba(255,255,255,0.18)'}; box-shadow:${isSelected ? '0 0 8px rgba(56,189,248,0.6)' : 'none'}; position:relative; background:#000; transition:all 0.2s ease;">
+                        <img src="${imgUrl}" alt="Foto ${idx+1}" style="width:100%; height:100%; object-fit:cover;">
+                        ${isSelected ? '<span style="position:absolute; top:2px; right:2px; background:#38bdf8; color:#000; font-size:8px; border-radius:50%; width:12px; height:12px; display:flex; align-items:center; justify-content:center; font-weight:900;">✓</span>' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectFichaGalleryPhoto(imgUrl) {
+            const urlInput = document.getElementById('f_image_url');
+            if (urlInput) urlInput.value = imgUrl;
+            const imgEl = document.getElementById('pv_vehicle_img');
+            if (imgEl) {
+                imgEl.src = imgUrl;
+                imgEl.style.opacity = '1';
+            }
+            const indEl = document.getElementById('f_img_indicator');
+            if (indEl) indEl.textContent = '✓ Portada HD Actualizada';
+
+            // Actualizar estado visual de miniaturas
+            const thumbs = document.querySelectorAll('#ficha_gallery_grid > div');
+            thumbs.forEach(t => {
+                const img = t.querySelector('img');
+                if (img && img.src === imgUrl) {
+                    t.style.border = '2px solid #38bdf8';
+                    t.style.boxShadow = '0 0 8px rgba(56,189,248,0.6)';
+                } else {
+                    t.style.border = '2px solid rgba(255,255,255,0.18)';
+                    t.style.boxShadow = 'none';
+                }
+            });
+
+            showToast('✓ Foto de portada de la Ficha Técnica cambiada', 'info');
+        }
+
         function loadFichaFromInventory(vehicleId) {
             if (!vehicleId) return;
             const v = (vehicles || []).find(item => String(item.id) === String(vehicleId));
@@ -5471,24 +5535,34 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 if (vinMatch) vin = vinMatch[1].toUpperCase();
             }
 
-            document.getElementById('fichaVinInput').value = vin || '1C4RJFLG8PC542891';
+            document.getElementById('fichaVinInput').value = vin || '';
             document.getElementById('f_title').value = v.title || '';
             document.getElementById('f_year').value = v.year || '';
-            document.getElementById('f_engine').value = v.engine || '3.6L V6 24V DOHC';
+            document.getElementById('f_engine').value = v.engine || '';
             document.getElementById('f_trans').value = normTrans(v.transmission);
             document.getElementById('f_fuel_type').value = normFuel(v.fuel) || 'Gasolina';
             document.getElementById('f_body').value = formatBody(v.body_type || v.bodyType, '4', '5');
             document.getElementById('f_brakes').value = 'Frenos de Disco con ABS';
 
-            // Set Vehicle Image
-            const img = (v.images && v.images.length > 0) ? v.images[0] : (v.image || '');
-            if (img) {
+            // Cargar TODAS las imágenes del vehículo en alta resolución
+            const allImgs = Array.isArray(v.images) && v.images.length > 0 
+                ? v.images 
+                : (Array.isArray(v.gallery) && v.gallery.length > 0 ? v.gallery : (v.image ? [v.image] : []));
+            
+            if (allImgs.length > 0) {
+                const primaryImg = allImgs[0];
                 const urlInput = document.getElementById('f_image_url');
-                if (urlInput) urlInput.value = img;
+                if (urlInput) urlInput.value = primaryImg;
                 const imgEl = document.getElementById('pv_vehicle_img');
-                if (imgEl) imgEl.src = img;
+                if (imgEl) {
+                    imgEl.src = primaryImg;
+                    imgEl.style.opacity = '1';
+                }
                 const indEl = document.getElementById('f_img_indicator');
-                if (indEl) indEl.textContent = '✓ Foto Inventario';
+                if (indEl) indEl.textContent = `✓ ${allImgs.length} Fotos HD`;
+                renderFichaGalleryThumbnails(allImgs, primaryImg);
+            } else {
+                renderFichaGalleryThumbnails([], '');
             }
 
             // Extract miles / km
