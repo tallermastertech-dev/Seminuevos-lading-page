@@ -1948,18 +1948,13 @@
 
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                 <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Tanque Combustible</label>
-                                    <input type="text" class="form-input" id="f_fuel_cap" placeholder="23.0 Gal (87.0 L)" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    <label class="form-label" style="font-size:0.7rem;">Tipo de Combustible</label>
+                                    <input type="text" class="form-input" id="f_fuel_type" placeholder="Gasolina / Híbrido" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
                                 </div>
                                 <div class="form-group" style="margin-bottom:6px;">
-                                    <label class="form-label" style="font-size:0.7rem;">Combustible</label>
-                                    <input type="text" class="form-input" id="f_fuel_type" placeholder="Gasolina" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
+                                    <label class="form-label" style="font-size:0.7rem;">Sistema de Frenos</label>
+                                    <input type="text" class="form-input" id="f_brakes" placeholder="Frenos de Disco con ABS" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
                                 </div>
-                            </div>
-
-                            <div class="form-group" style="margin-bottom:6px;">
-                                <label class="form-label" style="font-size:0.7rem;">Sistema de Frenos</label>
-                                <input type="text" class="form-input" id="f_brakes" placeholder="Disco x4 + ABS + EBD" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
                             </div>
 
                             <!-- Auditoria Subasta -->
@@ -2146,12 +2141,12 @@
                                             <span class="ficha-spec-val highlight" id="pv_drivetrain">Tracción Trasera (RWD)</span>
                                         </li>
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Combustible & Tanque:</span>
-                                            <span class="ficha-spec-val" id="pv_fuel">Gasolina · 18.5 Gal (70.0 L)</span>
+                                            <span class="ficha-spec-label">Combustible:</span>
+                                            <span class="ficha-spec-val" id="pv_fuel">Gasolina</span>
                                         </li>
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Sistema de Frenos & ABS:</span>
-                                            <span class="ficha-spec-val" id="pv_brakes">Discos x4 + ABS + EBD</span>
+                                            <span class="ficha-spec-label">Sistema de Frenos:</span>
+                                            <span class="ficha-spec-val" id="pv_brakes">Frenos de Disco con ABS</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -2174,16 +2169,16 @@
                                 </div>
                             </div>
 
-                            <!-- BLOQUE 03: AUDITORÍA DE ORIGEN, SUBASTA & CONDICIÓN TÉCNICA -->
+                            <!-- BLOQUE 03: AUDITORÍA DE ORIGEN & CONDICIÓN DE SUBASTA -->
                             <div class="ficha-block" style="margin-bottom:0;">
                                 <div class="ficha-block-title">
-                                    <i class="fas fa-clipboard-check"></i> Bloque 03: Auditoría de Origen, Subasta & Condición Técnica
+                                    <i class="fas fa-clipboard-check"></i> Bloque 03: Auditoría de Origen & Condición de Subasta
                                 </div>
                                 <div class="ficha-grid-2">
-                                    <!-- Registro de Ingreso -->
+                                    <!-- Datos de Lote de Subasta -->
                                     <ul class="ficha-specs-list">
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Millaje de Entrada:</span>
+                                            <span class="ficha-spec-label">Odómetro de Entrada:</span>
                                             <span class="ficha-spec-val" id="pv_miles">18,450 mi (<strong style="color:#4d7aef;" id="pv_km">29,692 KM</strong>)</span>
                                         </li>
                                         <li class="ficha-spec-item">
@@ -2195,40 +2190,36 @@
                                             <span class="ficha-spec-val" id="pv_branch">Orlando North, FL (EE. UU.)</span>
                                         </li>
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Tipo de Título:</span>
+                                            <span class="ficha-spec-label">Tipo de Documento / Título:</span>
                                             <span class="ficha-spec-val success" id="pv_title_type">Rebuilt / Certificado</span>
                                         </li>
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Daño Declarado / Motivo:</span>
-                                            <span class="ficha-spec-val" id="pv_damage_desc">Cosmético superficial (Chasis intacto)</span>
-                                        </li>
-                                        <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Operatividad / Start Code:</span>
-                                            <span class="ficha-spec-val success" id="pv_start_code_desc"><i class="fas fa-key"></i> Run & Drive (Llaves Sí)</span>
+                                            <span class="ficha-spec-label">Daño Declarado en Subasta:</span>
+                                            <span class="ficha-spec-val" id="pv_damage_desc">Cosmético superficial</span>
                                         </li>
                                     </ul>
 
-                                    <!-- Verificación Técnica -->
+                                    <!-- Condición Reportada en Lote -->
                                     <ul class="ficha-specs-list">
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Estructura / Chasis:</span>
-                                            <span class="ficha-spec-val success"><i class="fas fa-check-circle"></i> 100% Íntegro / Sin daño estructural</span>
+                                            <span class="ficha-spec-label">Operatividad / Start Code:</span>
+                                            <span class="ficha-spec-val success" id="pv_start_code_desc"><i class="fas fa-key"></i> Run & Drive (Enciende y Rueda)</span>
+                                        </li>
+                                        <li class="ficha-spec-item">
+                                            <span class="ficha-spec-label">Llaves de Contacto:</span>
+                                            <span class="ficha-spec-val success" id="pv_keys_desc"><i class="fas fa-check-circle"></i> Disponibles</span>
                                         </li>
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Bolsas de Aire (Airbags):</span>
                                             <span class="ficha-spec-val success" id="pv_airbags_desc"><i class="fas fa-shield-alt"></i> Originales (No detonadas)</span>
                                         </li>
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Tren Delantero & Suspensión:</span>
-                                            <span class="ficha-spec-val success"><i class="fas fa-check-circle"></i> Alineado y en estado óptimo</span>
+                                            <span class="ficha-spec-label">Chasis & Estructura:</span>
+                                            <span class="ficha-spec-val success" id="pv_chassis_desc"><i class="fas fa-check-circle"></i> Sin daño estructural reportado</span>
                                         </li>
                                         <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Mecánica & Escaneo OBD-II:</span>
-                                            <span class="ficha-spec-val success"><i class="fas fa-check-circle"></i> 0 Códigos de fallo activos</span>
-                                        </li>
-                                        <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Prueba de Manejo (Test Drive):</span>
-                                            <span class="ficha-spec-val highlight"><i class="fas fa-road"></i> Disponible en Showroom</span>
+                                            <span class="ficha-spec-label">Modalidad Comercial:</span>
+                                            <span class="ficha-spec-val highlight"><i class="fas fa-truck-ramp-box"></i> Importación Bajo Pedido</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -5472,16 +5463,11 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             const dEl = document.getElementById('pv_date');
             if (dEl) dEl.textContent = today;
 
-            // Default values
-            if (!document.getElementById('f_miles')?.value) {
-                document.getElementById('f_miles').value = 18450;
-                onMilesInput(18450);
-            }
-            if (!document.getElementById('f_fuel_cap')?.value) {
-                document.getElementById('f_fuel_cap').value = '18.5 Gal (70.0 L)';
+            if (!document.getElementById('f_fuel_type')?.value) {
+                document.getElementById('f_fuel_type').value = 'Gasolina';
             }
             if (!document.getElementById('f_brakes')?.value) {
-                document.getElementById('f_brakes').value = 'Discos ventilados x4 + ABS + EBD + Control de Tracción';
+                document.getElementById('f_brakes').value = 'Frenos de Disco con ABS';
             }
 
             const fArea = document.getElementById('f_features_text');
@@ -5525,10 +5511,9 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             document.getElementById('f_year').value = v.year || '';
             document.getElementById('f_engine').value = v.engine || '3.6L V6 24V DOHC';
             document.getElementById('f_trans').value = normTrans(v.transmission);
-            document.getElementById('f_fuel_type').value = normFuel(v.fuel);
+            document.getElementById('f_fuel_type').value = normFuel(v.fuel) || 'Gasolina';
             document.getElementById('f_body').value = formatBody(v.body_type || v.bodyType, '4', '5');
-            document.getElementById('f_fuel_cap').value = estimateFuelTank(v.body_type || v.bodyType, 6);
-            document.getElementById('f_brakes').value = formatBrakes('disc');
+            document.getElementById('f_brakes').value = 'Frenos de Disco con ABS';
 
             // Set Vehicle Image
             const img = (v.images && v.images.length > 0) ? v.images[0] : (v.image || '');
@@ -5544,7 +5529,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             // Extract miles / km
             const rawKm = String(v.km || '');
             const numKm = parseInt(rawKm.replace(/[^0-9]/g, '')) || 0;
-            if (rawKm.toLowerCase().includes('mi')) {
+            if (rawKm.toLowerCase().includes('mi') && numKm > 0) {
                 document.getElementById('f_miles').value = numKm;
                 onMilesInput(numKm);
             } else if (numKm > 0) {
@@ -5552,8 +5537,8 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 document.getElementById('f_miles').value = estMiles;
                 document.getElementById('f_km').value = numKm.toLocaleString('es-ES') + ' KM';
             } else {
-                document.getElementById('f_miles').value = 18450;
-                onMilesInput(18450);
+                document.getElementById('f_miles').value = '';
+                document.getElementById('f_km').value = '';
             }
 
             document.getElementById('f_features_text').value = generateAdaptiveFeatures('', v.title, v.body_type || v.bodyType);
@@ -5607,45 +5592,41 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             }
 
             try {
-                const res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${encodeURIComponent(vin)}?format=json`, {
-                    signal: AbortSignal.timeout(12000)
-                });
+                const res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`);
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
-                const results = data?.Results || [];
+                const results = data.Results || [];
 
                 const getVal = (varName) => {
-                    const found = results.find(r => r.Variable === varName || r.VariableId === varName);
-                    const v = found?.Value;
-                    return (v && v !== 'Not Applicable' && v !== 'N/A' && v !== 'null') ? v.trim() : '';
+                    const item = results.find(r => r.Variable && r.Variable.toLowerCase() === varName.toLowerCase());
+                    return (item && item.Value && item.Value !== 'Not Applicable' && item.Value !== 'null') ? item.Value.trim() : '';
                 };
 
-                const year = getVal('Model Year') || getVal('ModelYear') || document.getElementById('f_year').value || '2023';
-                const make = getVal('Make') || 'DODGE';
-                const model = getVal('Model') || 'Charger';
-                const series = getVal('Series') || getVal('Trim') || getVal('Series2') || '';
-                const bodyClass = getVal('Body Class') || getVal('BodyClass') || 'Sedan';
-                const doors = getVal('Doors') || '4';
-                const plantCountry = getVal('Plant Country') || 'EE. UU.';
-                const plantCity = getVal('Plant City') || '';
-                const plantState = getVal('Plant State') || '';
-                const displacementL = getVal('Displacement (L)') || '3.6';
-                const cylinders = getVal('Engine Number of Cylinders') || '6';
-                const engineConfig = getVal('Engine Configuration') || 'V';
-                const engineHp = getVal('Engine Brake (hp) From') || getVal('Engine Power (kW)') || '292';
-                const transStyle = getVal('Transmission Style') || 'Automática';
-                const transSpeeds = getVal('Transmission Speeds') || '8';
-                const driveTypeRaw = getVal('Drive Type') || 'RWD';
-                const fuelPrimary = getVal('Fuel Type - Primary') || 'Gasoline';
-                const brakeType = getVal('Brake System Type') || 'Hydraulic';
-                const gvwrRaw = getVal('Gross Vehicle Weight Rating From') || '6000';
+                const make = getVal('Make');
+                const model = getVal('Model');
+                const year = getVal('Model Year');
+                const series = getVal('Series') || getVal('Trim');
+                const bodyClass = getVal('Body Class');
+                const doors = getVal('Doors');
+                const displacementL = getVal('Displacement (L)');
+                const cylinders = getVal('Engine Number of Cylinders');
+                const engineConfig = getVal('Engine Configuration');
+                const engineHp = getVal('Engine Brake (hp) From') || getVal('Engine Brake (hp) To');
+                const fuelPrimary = getVal('Fuel Type - Primary');
+                const driveTypeRaw = getVal('Drive Type');
+                const transStyle = getVal('Transmission Style');
+                const transSpeeds = getVal('Transmission Speeds');
+                const plantCity = getVal('Plant City');
+                const plantState = getVal('Plant State');
+                const plantCountry = getVal('Plant Country');
+                const gvwrRaw = getVal('Gross Vehicle Weight Rating From');
+                const brakeType = getVal('Brake System Type');
 
-                // Conversions
                 let gvwrStr = '';
                 if (gvwrRaw) {
-                    const matchLbs = gvwrRaw.match(/(\d[\d,\.]+)/);
-                    if (matchLbs) {
-                        const lbs = parseInt(matchLbs[1].replace(/,/g, ''));
+                    const match = gvwrRaw.match(/([\d,]+)\s*(?:to\s*([\d,]+))?\s*lb/i);
+                    if (match) {
+                        const lbs = parseInt((match[2] || match[1]).replace(/,/g, ''));
                         const kg = Math.round(lbs * 0.453592);
                         gvwrStr = `${lbs.toLocaleString('es-ES')} lbs (${kg.toLocaleString('es-ES')} kg)`;
                     } else {
@@ -5659,11 +5640,10 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 const hpStr = engineHp ? `${parseInt(engineHp)} HP` : '292 HP @ 6,350 RPM';
                 const plantLoc = [plantCity, plantState, plantCountry].filter(Boolean).join(', ') || 'Detroit, EE. UU.';
                 const bodyStr = formatBody(bodyClass, doors, '5');
-                const transStr = `${transStyle.includes('Auto') ? 'Automática' : transStyle} ${transSpeeds ? transSpeeds + ' Velocidades' : ''}`.trim();
+                const transStr = `${transStyle.includes('Auto') ? 'Automática' : (transStyle || 'Automática')} ${transSpeeds ? transSpeeds + ' Vel.' : ''}`.trim();
                 const driveStr = formatDriveType(driveTypeRaw);
                 const fuelStr = formatFuelType(fuelPrimary);
-                const tankStr = estimateFuelTank(bodyClass, cylinders);
-                const brakeStr = formatBrakes(brakeType);
+                const brakeStr = 'Frenos de Disco con ABS';
 
                 // Set values to form
                 if (year) document.getElementById('f_year').value = year;
@@ -5681,13 +5661,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 document.getElementById('f_body').value = bodyStr;
                 document.getElementById('f_gvwr').value = gvwrStr;
                 document.getElementById('f_fuel_type').value = fuelStr;
-                document.getElementById('f_fuel_cap').value = tankStr;
                 document.getElementById('f_brakes').value = brakeStr;
-
-                if (!document.getElementById('f_miles')?.value) {
-                    document.getElementById('f_miles').value = 18450;
-                    onMilesInput(18450);
-                }
 
                 document.getElementById('f_features_text').value = generateAdaptiveFeatures(make, model, bodyClass);
 
@@ -5810,7 +5784,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             const km = Math.round(miles * 1.60934);
             const kmEl = document.getElementById('f_km');
             if (kmEl) {
-                kmEl.value = miles > 0 ? `${km.toLocaleString('es-ES')} KM` : '0 KM';
+                kmEl.value = miles > 0 ? `${km.toLocaleString('es-ES')} KM` : '';
             }
             updateFichaLive();
         }
@@ -5828,18 +5802,18 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             const body = document.getElementById('f_body')?.value || 'Sedán 4 Puertas / 5 Pasajeros';
             const colors = document.getElementById('f_colors')?.value || 'Granite Pearl / Cuero Negro';
             const gvwr = document.getElementById('f_gvwr')?.value || '6,000 lbs (2,722 kg)';
-            const fuelCap = document.getElementById('f_fuel_cap')?.value || '18.5 Gal (70.0 L)';
             const fuelType = document.getElementById('f_fuel_type')?.value || 'Gasolina';
-            const brakes = document.getElementById('f_brakes')?.value || 'Discos x4 + ABS + EBD';
+            const brakes = document.getElementById('f_brakes')?.value || 'Frenos de Disco con ABS';
 
-            const miles = parseInt(document.getElementById('f_miles')?.value) || 18450;
-            const km = document.getElementById('f_km')?.value || '29,692 KM';
+            const milesVal = document.getElementById('f_miles')?.value;
+            const miles = parseInt(milesVal) || 0;
+            const km = document.getElementById('f_km')?.value || '';
             const stockNo = document.getElementById('f_stock_no')?.value || '38492011';
             const branch = document.getElementById('f_branch')?.value || 'Orlando North, FL (EE. UU.)';
             const titleType = document.getElementById('f_title_type')?.value || 'Rebuilt / Certificado';
-            const primaryDamage = document.getElementById('f_primary_damage')?.value || 'Cosmético superficial (Chasis intacto)';
+            const primaryDamage = document.getElementById('f_primary_damage')?.value || 'Cosmético superficial';
             const airbags = document.getElementById('f_airbags')?.value || 'Originales de Fábrica (No detonadas)';
-            const startCode = document.getElementById('f_start_code')?.value || 'Run & Drive (Llaves Disponibles)';
+            const startCode = document.getElementById('f_start_code')?.value || 'Run & Drive (Enciende y Rueda)';
 
             // Update Sheet Elements
             const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
@@ -5858,10 +5832,20 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             setTxt('pv_hp', hp);
             setTxt('pv_trans', trans);
             setTxt('pv_drivetrain', drivetrain);
-            setTxt('pv_fuel', `${fuelType} · ${fuelCap}`);
+            setTxt('pv_fuel', fuelType);
             setTxt('pv_brakes', brakes);
 
-            setTxt('pv_miles', `${miles.toLocaleString('es-ES')} mi (${km})`);
+            const milesEl = document.getElementById('pv_miles');
+            if (milesEl) {
+                if (miles > 0 && km) {
+                    milesEl.innerHTML = `${miles.toLocaleString('es-ES')} mi (<strong style="color:#4d7aef;" id="pv_km">${km}</strong>)`;
+                } else if (km) {
+                    milesEl.innerHTML = `<strong style="color:#4d7aef;" id="pv_km">${km}</strong>`;
+                } else {
+                    milesEl.innerHTML = `<span style="color:#94a3b8;">Por verificar en lote</span>`;
+                }
+            }
+
             setTxt('pv_stock_no', stockNo);
             setTxt('pv_branch', branch);
             setTxt('pv_title_type', titleType);
@@ -5965,35 +5949,41 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             const trans = document.getElementById('f_trans')?.value || '';
             const drivetrain = document.getElementById('f_drivetrain')?.value || '';
             const fuel = document.getElementById('f_fuel_type')?.value || 'Gasolina';
-            const miles = document.getElementById('f_miles')?.value || '0';
-            const km = document.getElementById('f_km')?.value || '0 KM';
+            const miles = parseInt(document.getElementById('f_miles')?.value) || 0;
+            const km = document.getElementById('f_km')?.value || '';
+            const stockNo = document.getElementById('f_stock_no')?.value || '';
+            const branch = document.getElementById('f_branch')?.value || 'EE. UU.';
             const titleType = document.getElementById('f_title_type')?.value || 'Certificado';
-            const origin = document.getElementById('f_origin')?.value || 'Subasta USA';
+            const primaryDamage = document.getElementById('f_primary_damage')?.value || 'Cosmético superficial';
+            const startCode = document.getElementById('f_start_code')?.value || 'Run & Drive';
+            const airbags = document.getElementById('f_airbags')?.value || 'Originales de fábrica';
             
             const featuresText = document.getElementById('f_features_text')?.value || '';
             const featuresList = featuresText.split('\n').map(s => s.trim()).filter(Boolean).map(f => `  ✓ ${f}`).join('\n');
 
+            const odoText = miles > 0 && km ? `${miles.toLocaleString('es-ES')} mi (${km})` : (km ? km : 'Por verificar en lote');
+
             const waText = 
-`🚗 *FICHA TÉCNICA & COMERCIAL - SEMINUEVOS* 📋
+`🚗 *FICHA TÉCNICA COMERCIAL - SEMINUEVOS* 📋
 ━━━━━━━━━━━━━━━━━━━━
 📌 *UNIDAD:* ${title}
 🔑 *VIN:* \`${vin}\`
-🛣️ *RECORRIDO:* ${parseInt(miles).toLocaleString('es-ES')} mi (${km})
+${stockNo ? `🏷️ *STOCK / LOTE:* ${stockNo}\n` : ''}🛣️ *ODÓMETRO:* ${odoText}
 ⚙️ *MOTOR:* ${engine} | ${trans}
 🕹️ *TRACCIÓN:* ${drivetrain}
 ⛽ *COMBUSTIBLE:* ${fuel}
 ━━━━━━━━━━━━━━━━━━━━
-🛡️ *AUDITORÍA & CONDICIÓN TÉCNICA:*
-✓ Chasis / Estructura: 100% Íntegro (Sin daño estructural)
-✓ Airbags: Originales de fábrica (No detonados)
-✓ Llaves: Disponibles (Run & Drive)
-✓ Inspección Técnica: 150 Puntos Aprobados
-✓ Título & Origen: ${titleType} · ${origin}
+🛡️ *DATOS DE ORIGEN & SUBASTA:*
+📍 *Ubicación / Branch:* ${branch}
+📄 *Documento / Título:* ${titleType}
+💥 *Daño Declarado:* ${primaryDamage}
+🔑 *Start Code & Llaves:* ${startCode}
+🛡️ *Bolsas de Aire:* ${airbags}
 ━━━━━━━━━━━━━━━━━━━━
 ✨ *EQUIPAMIENTO DESTACADO:*
 ${featuresList || '  ✓ Paquete de confort y conectividad completa'}
 ━━━━━━━━━━━━━━━━━━━━
-📲 *Más información, fotos y citas de prueba:*
+📲 *Más información, fotos y cotización de importación:*
 📞 WhatsApp: +58 424-870-0438
 📍 *Showroom:* Porlamar, Isla de Margarita`;
 
