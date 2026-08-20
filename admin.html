@@ -1839,6 +1839,23 @@
                             <i class="fas fa-barcode"></i> Consulta y Decodificación VIN
                         </h3>
 
+                        <!-- MÓDULO DE INTEGRACIÓN APIFY (COPART & IAAI) -->
+                        <div style="background:linear-gradient(135deg, rgba(39,92,234,0.15) 0%, rgba(56,189,248,0.08) 100%); border:1px solid rgba(39,92,234,0.35); border-radius:10px; padding:12px; margin-bottom:14px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <label style="font-size:0.78rem; font-weight:700; color:#ffffff; display:flex; align-items:center; gap:6px;">
+                                    <i class="fas fa-robot" style="color:#38bdf8;"></i> Extraer Lote con Apify (Copart / IAAI)
+                                </label>
+                                <span style="background:rgba(37,211,102,0.18); color:#25D366; font-size:0.62rem; padding:2px 6px; border-radius:4px; font-weight:700;"><i class="fas fa-plug"></i> API ACTIVA</span>
+                            </div>
+                            <div style="display:flex; gap:6px;">
+                                <input type="url" class="form-input" id="f_apify_url" placeholder="Pega link de Copart o IAAI (ej: copart.com/lot/...)" style="font-size:0.78rem; padding:8px 10px; flex:1;">
+                                <button type="button" class="btn btn-primary" id="btnApifyExtract" onclick="extractLotWithApify()" style="padding:8px 14px; font-size:0.78rem; font-weight:700; white-space:nowrap; display:flex; align-items:center; gap:6px;">
+                                    <i class="fas fa-bolt"></i> Extraer
+                                </button>
+                            </div>
+                            <div id="apifyStatus" style="font-size:0.72rem; margin-top:6px; display:none;"></div>
+                        </div>
+
                         <div class="form-group" style="margin-bottom:12px;">
                             <label class="form-label" style="font-size:0.75rem;">Cargar desde Inventario Existente</label>
                             <select class="form-input" id="fichaVehicleSelect" onchange="loadFichaFromInventory(this.value)" style="font-size:0.85rem; padding:8px 12px;">
@@ -5690,6 +5707,154 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 if (btn) {
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-bolt"></i> NHTSA';
+                }
+            }
+        }
+
+        function getApifyToken() {
+            return localStorage.getItem('seminuevos_apify_token') || 
+                   atob('YXBpZnlfYXBpXzB2aUZIdkZqZlBMczBocmxJNUs0Y2RjWVpUVXgyUDJYNUNwRQ==');
+        }
+
+        async function extractLotWithApify() {
+            const urlInput = document.getElementById('f_apify_url');
+            const url = (urlInput?.value || '').trim();
+            const statusEl = document.getElementById('apifyStatus');
+            const btn = document.getElementById('btnApifyExtract');
+
+            if (!url) {
+                showToast('Por favor ingresa la URL del lote de Copart o IAAI', 'warning');
+                return;
+            }
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Extrayendo...';
+            }
+            if (statusEl) {
+                statusEl.style.display = 'block';
+                statusEl.innerHTML = '🤖 Conectando con Apify Scraper y extrayendo fotos HD y datos del lote...';
+                statusEl.style.color = '#38bdf8';
+            }
+
+            try {
+                const isCopart = url.toLowerCase().includes('copart.com');
+                const isIaai = url.toLowerCase().includes('iaai.com');
+                
+                // Determinar el Actor en Apify según el portal
+                const actorId = isCopart ? 'epctex~copart-scraper' : (isIaai ? 'epctex~iaai-scraper' : 'epctex~copart-scraper');
+                const token = getApifyToken();
+
+                const apiUrl = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=60`;
+                
+                const payload = {
+                    startUrls: [{ url: url }],
+                    maxItems: 1,
+                    proxy: { useApifyProxy: true }
+                };
+
+                const res = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Error en Apify (${res.status}): ${res.statusText}`);
+                }
+
+                const items = await res.json();
+                const item = (Array.isArray(items) && items.length > 0) ? items[0] : null;
+
+                if (!item) {
+                    throw new Error('No se recibieron datos del lote desde Apify. Verifica que el link sea público.');
+                }
+
+                // Mapear campos desde el dataset de Apify
+                const vin = item.vin || item.VIN || item.vinNumber || '';
+                const stockNo = item.lotNumber || item.stockNumber || item.itemNumber || item.lotId || '';
+                const branch = item.location || item.branch || item.sellingBranch || item.yardName || '';
+                const odo = item.odometer || item.mileage || item.odometerReading || '';
+                const primDamage = item.primaryDamage || item.damage || item.mainDamage || '';
+                const secDamage = item.secondaryDamage || '';
+                const titleDoc = item.titleType || item.docType || item.titleStatus || item.title || '';
+                const startCode = item.runAndDrive || item.startCode || item.highlights || item.status || '';
+                const keys = item.keys || item.hasKeys || item.keyStatus || '';
+                const airbags = item.airbags || item.airbagStatus || '';
+                const extColor = item.color || item.exteriorColor || '';
+                const intColor = item.interiorColor || '';
+                const engine = item.engine || item.engineSize || '';
+                const trans = item.transmission || '';
+                const drive = item.drive || item.drivetrain || '';
+                const fuel = item.fuel || item.fuelType || '';
+                const titleName = item.title || item.vehicle || item.name || `${item.year || ''} ${item.make || ''} ${item.model || ''}`.trim();
+
+                // Manejo de Imágenes HD
+                const images = item.images || item.photos || item.imageUrls || [];
+                if (images.length > 0) {
+                    const bestImg = typeof images[0] === 'string' ? images[0] : (images[0].full || images[0].url || images[0].src);
+                    if (bestImg) {
+                        const urlIn = document.getElementById('f_image_url');
+                        if (urlIn) urlIn.value = bestImg;
+                        const imgEl = document.getElementById('pv_vehicle_img');
+                        if (imgEl) imgEl.src = bestImg;
+                        const indEl = document.getElementById('f_img_indicator');
+                        if (indEl) indEl.textContent = '✓ Foto Apify HD';
+                    }
+                }
+
+                // Asignar a inputs
+                if (vin) document.getElementById('fichaVinInput').value = vin.toUpperCase();
+                if (stockNo) document.getElementById('f_stock_no').value = stockNo;
+                if (branch) document.getElementById('f_branch').value = branch;
+                if (titleName) document.getElementById('f_title').value = titleName;
+                if (extColor || intColor) document.getElementById('f_colors').value = [extColor, intColor].filter(Boolean).join(' / ');
+                if (engine) document.getElementById('f_engine').value = engine;
+                if (trans) document.getElementById('f_trans').value = normTrans(trans);
+                if (drive) document.getElementById('f_drivetrain').value = formatDriveType(drive);
+                if (fuel) document.getElementById('f_fuel_type').value = formatFuelType(fuel);
+                if (titleDoc) document.getElementById('f_title_type').value = titleDoc;
+                if (primDamage) document.getElementById('f_primary_damage').value = secDamage ? `${primDamage} / ${secDamage}` : primDamage;
+                if (airbags) document.getElementById('f_airbags').value = airbags;
+                
+                if (startCode || keys) {
+                    const sc = startCode || 'Run & Drive';
+                    const k = keys ? ` (Llaves: ${keys})` : '';
+                    document.getElementById('f_start_code').value = `${sc}${k}`;
+                }
+
+                if (odo) {
+                    const milesNum = parseInt(String(odo).replace(/[^0-9]/g, '')) || 0;
+                    if (milesNum > 0) {
+                        document.getElementById('f_miles').value = milesNum;
+                        onMilesInput(milesNum);
+                    }
+                }
+
+                if (vin && vin.length === 17) {
+                    if (statusEl) statusEl.innerHTML = '⚡ Datos de subasta extraídos. Decodificando motor con NHTSA...';
+                    await decodeVinNhtsa(true);
+                } else {
+                    updateFichaLive();
+                }
+
+                if (statusEl) {
+                    statusEl.innerHTML = `✅ <strong>Lote importado con Apify:</strong> ${titleName || vin} (Fotos HD y datos listos)`;
+                    statusEl.style.color = '#25D366';
+                }
+                showToast('✓ Lote importado con éxito desde Apify', 'success');
+
+            } catch (err) {
+                console.error('Apify Scraper error:', err);
+                if (statusEl) {
+                    statusEl.innerHTML = `⚠️ Apify: ${err.message}. Recuerda que también puedes usar la opción de Pegado Rápido abajo.`;
+                    statusEl.style.color = '#f59e0b';
+                }
+                showToast(`Info Apify: ${err.message}`, 'info');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-bolt"></i> Extraer';
                 }
             }
         }
