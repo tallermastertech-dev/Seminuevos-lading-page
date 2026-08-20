@@ -1477,6 +1477,52 @@
             font-size: 0.80rem;
         }
 
+        /* --- SHOWCASE ROW WITH PHOTO --- */
+        .ficha-showcase-row {
+            display: grid;
+            grid-template-columns: 1fr 190px;
+            gap: 12px;
+            background: linear-gradient(90deg, rgba(39, 92, 234, 0.18) 0%, rgba(6, 10, 18, 0.7) 100%);
+            border-left: 4px solid #275CEA;
+            border-radius: 0 8px 8px 0;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .ficha-photo-wrapper {
+            position: relative;
+            width: 100%;
+            height: 90px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid rgba(39, 92, 234, 0.4);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+            background: #000000;
+        }
+
+        .ficha-photo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .ficha-photo-badge {
+            position: absolute;
+            bottom: 3px;
+            right: 3px;
+            background: rgba(0, 0, 0, 0.75);
+            color: #4d7aef;
+            font-size: 0.55rem;
+            font-family: 'Unbounded', sans-serif;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 3px;
+            border: 1px solid rgba(39, 92, 234, 0.3);
+            letter-spacing: 0.3px;
+        }
+
         /* --- BLOCKS --- */
         .ficha-block {
             margin-bottom: 8px;
@@ -1810,6 +1856,19 @@
                                 <i class="fas fa-sliders" style="color:var(--accent);"></i> Parámetros de la Ficha
                             </h4>
 
+                            <!-- Foto de Referencia -->
+                            <div class="form-group" style="margin-bottom:6px; background:rgba(39,92,234,0.08); padding:8px; border-radius:6px; border:1px solid rgba(39,92,234,0.25);">
+                                <label class="form-label" style="font-size:0.7rem; color:#4d7aef; display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                    <span><i class="fas fa-camera"></i> Foto de Referencia (Vehículo)</span>
+                                    <span id="f_img_indicator" style="color:#25D366; font-size:0.65rem; font-weight:600;">✓ Activa</span>
+                                </label>
+                                <input type="text" class="form-input" id="f_image_url" placeholder="URL de imagen (IAAI/Copart/Web)" oninput="onFichaImageUrlChange()" style="font-size:0.75rem; padding:5px 8px; margin-bottom:5px;">
+                                <input type="file" id="f_image_file" accept="image/*" onchange="onFichaImageUpload(event)" style="display:none;">
+                                <button type="button" class="btn btn-secondary" onclick="document.getElementById('f_image_file').click()" style="width:100%; padding:5px 8px; font-size:0.72rem; display:flex; align-items:center; justify-content:center; gap:6px;">
+                                    <i class="fas fa-upload"></i> Subir Foto desde Galería / Dispositivo
+                                </button>
+                            </div>
+
                             <!-- Fabricacion -->
                             <div class="form-group" style="margin-bottom:6px;">
                                 <label class="form-label" style="font-size:0.7rem;">Título Comercial / Versión</label>
@@ -1971,13 +2030,23 @@
                                 </div>
                             </div>
 
-                            <!-- TITULO VEHICULO PRINCIPAL -->
-                            <div style="background:linear-gradient(90deg, rgba(39,92,234,0.18) 0%, rgba(6,10,18,0.6) 100%); border-left:4px solid #275CEA; padding:10px 14px; margin-bottom:12px; border-radius:0 8px 8px 0;">
-                                <div style="font-family:'Unbounded',sans-serif; font-size:1.2rem; font-weight:800; color:#ffffff;" id="pv_title">
-                                    2023 Dodge Charger SXT
+                            <!-- TITULO VEHICULO PRINCIPAL & FOTO DE REFERENCIA -->
+                            <div class="ficha-showcase-row">
+                                <div>
+                                    <div style="font-family:'Unbounded',sans-serif; font-size:1.15rem; font-weight:800; color:#ffffff; line-height:1.2; margin-bottom:3px;" id="pv_title">
+                                        2023 Dodge Charger SXT
+                                    </div>
+                                    <div style="font-size:0.72rem; color:var(--text2); margin-top:2px;">
+                                        <span id="pv_cat_tag" style="color:#25D366; font-weight:700;"><i class="fas fa-check-circle"></i> SemiNuevo Certificado</span> · <span id="pv_header_spec" style="color:#ffffff;">3.6L V6 24V DOHC · Automática 8 Vel.</span>
+                                    </div>
+                                    <div style="margin-top:5px; display:flex; gap:6px; flex-wrap:wrap;">
+                                        <span style="background:rgba(39,92,234,0.22); color:#4d7aef; font-size:0.62rem; padding:1px 6px; border-radius:3px; font-weight:700;" id="pv_drivetrain_tag">RWD</span>
+                                        <span style="background:rgba(37,211,102,0.18); color:#25D366; font-size:0.62rem; padding:1px 6px; border-radius:3px; font-weight:700;"><i class="fas fa-shield-alt"></i> INSPECCIÓN 150 PTS</span>
+                                    </div>
                                 </div>
-                                <div style="font-size:0.75rem; color:var(--text2); margin-top:3px;">
-                                    <span id="pv_cat_tag" style="color:#25D366; font-weight:700;"><i class="fas fa-check-circle"></i> SemiNuevo Certificado</span> · <span id="pv_header_spec" style="color:#ffffff;">3.6L V6 24V DOHC · Automática 8 Vel. · Tracción Trasera (RWD)</span>
+                                <div class="ficha-photo-wrapper">
+                                    <img id="pv_vehicle_img" src="images/gallery/dodge-charger-1.jpg" alt="Foto Vehículo" class="ficha-photo-img" onerror="this.src='images/favicon.png'; this.style.opacity='0.4';">
+                                    <div class="ficha-photo-badge"><i class="fas fa-camera"></i> UNIDAD REF</div>
                                 </div>
                             </div>
 
@@ -5315,6 +5384,33 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             }
         }
 
+        function onFichaImageUrlChange() {
+            const url = (document.getElementById('f_image_url')?.value || '').trim();
+            const imgEl = document.getElementById('pv_vehicle_img');
+            const indEl = document.getElementById('f_img_indicator');
+            if (imgEl && url) {
+                imgEl.src = url;
+                if (indEl) indEl.textContent = '✓ URL Activa';
+            }
+        }
+
+        function onFichaImageUpload(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64 = e.target.result;
+                const imgEl = document.getElementById('pv_vehicle_img');
+                const urlInput = document.getElementById('f_image_url');
+                const indEl = document.getElementById('f_img_indicator');
+                if (imgEl) imgEl.src = base64;
+                if (urlInput) urlInput.value = '';
+                if (indEl) indEl.textContent = '✓ Foto Subida';
+                showToast('✓ Foto de referencia cargada', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+
         function initFichasModule() {
             // Generate report number & current date
             const rNum = 'SN-FT-' + Math.floor(10000 + Math.random() * 90000);
@@ -5382,6 +5478,17 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             document.getElementById('f_body').value = formatBody(v.body_type || v.bodyType, '4', '5');
             document.getElementById('f_fuel_cap').value = estimateFuelTank(v.body_type || v.bodyType, 6);
             document.getElementById('f_brakes').value = formatBrakes('disc');
+
+            // Set Vehicle Image
+            const img = (v.images && v.images.length > 0) ? v.images[0] : (v.image || '');
+            if (img) {
+                const urlInput = document.getElementById('f_image_url');
+                if (urlInput) urlInput.value = img;
+                const imgEl = document.getElementById('pv_vehicle_img');
+                if (imgEl) imgEl.src = img;
+                const indEl = document.getElementById('f_img_indicator');
+                if (indEl) indEl.textContent = '✓ Foto Inventario';
+            }
 
             // Extract miles / km
             const rawKm = String(v.km || '');
@@ -5612,6 +5719,18 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             setTxt('pv_title_type', titleType);
             setTxt('pv_damage_cause', damageCause);
             setTxt('pv_keys', keys);
+
+            const dtTag = document.getElementById('pv_drivetrain_tag');
+            if (dtTag) {
+                const s = (drivetrain || '').toUpperCase();
+                dtTag.textContent = s.includes('4WD') || s.includes('4X4') ? '4WD / 4X4' : (s.includes('AWD') ? 'AWD INTEGRAL' : (s.includes('FWD') ? 'FWD DELANTERA' : 'RWD TRASERA'));
+            }
+
+            const customImgUrl = (document.getElementById('f_image_url')?.value || '').trim();
+            if (customImgUrl) {
+                const imgEl = document.getElementById('pv_vehicle_img');
+                if (imgEl && imgEl.src !== customImgUrl) imgEl.src = customImgUrl;
+            }
 
             // Update Features Checklist
             const featuresRaw = document.getElementById('f_features_text')?.value || '';
