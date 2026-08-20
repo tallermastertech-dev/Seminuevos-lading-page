@@ -2928,6 +2928,11 @@
                 // Clear any stale local blacklist that might hide stock local vehicles
                 localStorage.removeItem('sn_deleted_vehicles');
 
+                // Eliminar permanentemente todos los vehículos "Por Pedido" / "0KM" de Supabase
+                try {
+                    await supabaseClient.from('vehicles').delete().or('availability.eq.por_pedido,catalog.eq.importados,catalog.eq.0km');
+                } catch(e) {}
+
                 const staticSemi = (typeof vehiclesSeminuevos !== 'undefined') ? vehiclesSeminuevos : [];
                 if (!staticSemi.length) return;
 
