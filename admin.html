@@ -1910,6 +1910,11 @@
                                 <input type="text" class="form-input" id="f_title" placeholder="Año Marca Modelo Trim" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px;">
                             </div>
 
+                            <div class="form-group" id="f_price_group" style="margin-bottom:6px; display:none;">
+                                <label class="form-label" style="font-size:0.7rem; color:#25D366; font-weight:700;"><i class="fas fa-tag"></i> Precio de Venta (Inventario)</label>
+                                <input type="text" class="form-input" id="f_price" placeholder="Ej: $24,500 USD" oninput="updateFichaLive()" style="font-size:0.8rem; padding:6px 10px; font-weight:700; color:#25D366;">
+                            </div>
+
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                                 <div class="form-group" style="margin-bottom:6px;">
                                     <label class="form-label" style="font-size:0.7rem;">Año</label>
@@ -2076,9 +2081,12 @@
                                     <div style="font-size:0.72rem; color:var(--text2); margin-top:2px;">
                                         <span id="pv_cat_tag" style="color:#25D366; font-weight:700;"><i class="fas fa-check-circle"></i> Ficha Técnica Oficial</span> · <span id="pv_header_spec" style="color:#ffffff;">Especificaciones pendientes por decodificar</span>
                                     </div>
-                                    <div style="margin-top:5px; display:flex; gap:6px; flex-wrap:wrap;">
+                                    <div style="margin-top:5px; display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
                                         <span style="background:rgba(39,92,234,0.22); color:#4d7aef; font-size:0.62rem; padding:1px 6px; border-radius:3px; font-weight:700;" id="pv_drivetrain_tag">---</span>
                                         <span style="background:rgba(37,211,102,0.18); color:#25D366; font-size:0.62rem; padding:1px 6px; border-radius:3px; font-weight:700;"><i class="fas fa-shield-alt"></i> INSPECCIÓN 150 PTS</span>
+                                        <span id="pv_price_tag" style="background:rgba(37,211,102,0.25); color:#25D366; font-size:0.75rem; padding:2px 8px; border-radius:4px; font-weight:800; border:1px solid rgba(37,211,102,0.5); display:none; align-items:center; gap:4px;">
+                                            <i class="fas fa-tag"></i> <span id="pv_price_val">$0</span>
+                                        </span>
                                     </div>
                                 </div>
                                 <div class="ficha-photo-wrapper">
@@ -2203,9 +2211,9 @@
                                             <span class="ficha-spec-label">Bolsas de Aire (Airbags):</span>
                                             <span class="ficha-spec-val success" id="pv_airbags_desc">---</span>
                                         </li>
-                                        <li class="ficha-spec-item">
-                                            <span class="ficha-spec-label">Modalidad Comercial:</span>
-                                            <span class="ficha-spec-val highlight"><i class="fas fa-truck-ramp-box"></i> Importación Bajo Pedido</span>
+                                        <li class="ficha-spec-item" id="pv_modality_item">
+                                            <span class="ficha-spec-label" id="pv_modality_label">Modalidad Comercial:</span>
+                                            <span class="ficha-spec-val highlight" id="pv_modality_val"><i class="fas fa-truck-ramp-box"></i> Importación Bajo Pedido</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -5580,6 +5588,17 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 document.getElementById('f_km').value = '';
             }
 
+            // Manejo de Precio de Inventario
+            const priceGroup = document.getElementById('f_price_group');
+            const priceInput = document.getElementById('f_price');
+            if (v.price && String(v.price).trim()) {
+                if (priceGroup) priceGroup.style.display = 'block';
+                if (priceInput) priceInput.value = v.price;
+            } else {
+                if (priceGroup) priceGroup.style.display = 'none';
+                if (priceInput) priceInput.value = '';
+            }
+
             document.getElementById('f_features_text').value = generateAdaptiveFeatures('', v.title, v.body_type || v.bodyType);
 
             if (vin && vin.length === 17) {
@@ -6216,6 +6235,24 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 } else {
                     dtTag.textContent = s.includes('4WD') || s.includes('4X4') ? '4WD / 4X4' : (s.includes('AWD') ? 'AWD INTEGRAL' : (s.includes('FWD') ? 'FWD DELANTERA' : 'RWD TRASERA'));
                 }
+            }
+
+            // Manejo de Precio de Venta (Solo si existe en Inventario)
+            const price = (document.getElementById('f_price')?.value || '').trim();
+            const priceTag = document.getElementById('pv_price_tag');
+            const priceVal = document.getElementById('pv_price_val');
+            const modLabel = document.getElementById('pv_modality_label');
+            const modVal = document.getElementById('pv_modality_val');
+
+            if (price) {
+                if (priceTag) priceTag.style.display = 'inline-flex';
+                if (priceVal) priceVal.textContent = price;
+                if (modLabel) modLabel.textContent = 'Precio de Venta:';
+                if (modVal) modVal.innerHTML = `<strong style="color:#25D366; font-size:0.85rem;"><i class="fas fa-tag"></i> ${price}</strong>`;
+            } else {
+                if (priceTag) priceTag.style.display = 'none';
+                if (modLabel) modLabel.textContent = 'Modalidad Comercial:';
+                if (modVal) modVal.innerHTML = `<i class="fas fa-truck-ramp-box"></i> Importación Bajo Pedido`;
             }
 
             const customImgUrl = (document.getElementById('f_image_url')?.value || '').trim();
