@@ -3106,38 +3106,52 @@
         const adminPanel = document.getElementById('adminPanel');
 
         async function checkAuth() {
-            // FIREWALL CHECK
+            // FIREWALL CHECK (con timeout de 1.5s para no bloquear la carga)
             try {
                 let ip = 'Unknown';
                 try {
-                    const res = await fetch('https://api.ipify.org?format=json');
+                    const res = await fetch('https://api.ipify.org?format=json', { signal: AbortSignal.timeout(1500) });
                     const json = await res.json();
                     ip = json.ip;
                 } catch(e) {}
 
-                const { data: isBlocked } = await supabaseClient.from('ip_blacklist').select('*').eq('ip', ip).maybeSingle();
-                if (isBlocked) {
-                    document.body.innerHTML = `<div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#000; color:#ff5252; text-align:center;"><h1>IP BLOQUEADA</h1><p>Tu acceso ha sido revocado por razones de seguridad.</p></div>`;
-                    return false;
+                if (ip !== 'Unknown') {
+                    const { data: isBlocked } = await supabaseClient.from('ip_blacklist').select('*').eq('ip', ip).maybeSingle();
+                    if (isBlocked) {
+                        document.body.innerHTML = `<div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#000; color:#ff5252; text-align:center;"><h1>IP BLOQUEADA</h1><p>Tu acceso ha sido revocado por razones de seguridad.</p></div>`;
+                        return false;
+                    }
                 }
             } catch(e) {}
 
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (window.location.hash.includes('access_token=') || window.location.hash.includes('type=recovery')) {
-                document.getElementById('resetPasswordModal').style.display = 'flex';
-                authScreen.style.display = 'none';
-                return true;
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (window.location.hash.includes('access_token=') || window.location.hash.includes('type=recovery')) {
+                    document.getElementById('resetPasswordModal').style.display = 'flex';
+                    if (authScreen) authScreen.style.display = 'none';
+                    return true;
+                }
+                if (session && session.user) {
+                    showAdmin(session.user);
+                    return true;
+                }
+            } catch(err) {
+                console.warn('Session check notice:', err.message);
             }
-            if (session) { showAdmin(session.user); return true; }
-            authScreen.style.display = 'flex';
-            adminPanel.style.display = 'none';
+
+            if (authScreen) authScreen.style.display = 'flex';
+            if (adminPanel) adminPanel.style.display = 'none';
             return false;
         }
 
         function showAdmin(user) {
-            authScreen.style.display = 'none';
-            adminPanel.style.display = 'flex';
-            document.getElementById('userName').textContent = user.email?.split('@')[0] || 'Admin';
+            if (authScreen) authScreen.style.display = 'none';
+            if (adminPanel) adminPanel.style.display = 'flex';
+            const nameEl = document.getElementById('userName');
+            if (nameEl) nameEl.textContent = user?.email?.split('@')[0] || 'Admin';
+            
+            // Load all dashboard components
+            loadDashboard();
             loadSettings();
             // Automatically restore and sync Stock Local inventory to database
             autoSyncStockLocal();
@@ -3254,22 +3268,62 @@
             }
         }
 
-        document.getElementById('authLogin').addEventListener('click', async () => {
-            const email = document.getElementById('authEmail').value;
-            const password = document.getElementById('authPassword').value;
+        async function performLogin() {
+            const emailInput = document.getElementById('authEmail');
+            const passwordInput = document.getElementById('authPassword');
+            const email = (emailInput?.value || '').trim();
+            const password = (passwordInput?.value || '').trim();
             const errEl = document.getElementById('authError');
-            if (!email || !password) { errEl.textContent = 'Completa todos los campos'; errEl.style.display = 'block'; return; }
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) {
-                console.error("Supabase Login Error:", error);
-                errEl.textContent = 'Credenciales incorrectas: ' + error.message;
-                errEl.style.display = 'block';
-                logSecurityEvent('AUTH_FAILURE', 'warning', `Fallo de login para: ${email}`, { error: error.message });
+            const btn = document.getElementById('authLogin');
+
+            if (errEl) errEl.style.display = 'none';
+
+            if (!email || !password) {
+                if (errEl) {
+                    errEl.textContent = 'Completa todos los campos';
+                    errEl.style.display = 'block';
+                }
                 return;
             }
-            logSecurityEvent('AUTH_SUCCESS', 'info', `Login exitoso: ${data.user.email}`);
-            showAdmin(data.user);
-            loadDashboard();
+
+            const origHtml = btn ? btn.innerHTML : 'Iniciar Sesión';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando...';
+            }
+
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) {
+                    console.error("Supabase Login Error:", error);
+                    if (errEl) {
+                        errEl.textContent = 'Credenciales incorrectas: ' + error.message;
+                        errEl.style.display = 'block';
+                    }
+                    logSecurityEvent('AUTH_FAILURE', 'warning', `Fallo de login para: ${email}`, { error: error.message });
+                    return;
+                }
+                logSecurityEvent('AUTH_SUCCESS', 'info', `Login exitoso: ${data.user.email}`);
+                showAdmin(data.user);
+            } catch(err) {
+                if (errEl) {
+                    errEl.textContent = 'Error de conexión: ' + err.message;
+                    errEl.style.display = 'block';
+                }
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = origHtml;
+                }
+            }
+        }
+
+        document.getElementById('authLogin')?.addEventListener('click', performLogin);
+        document.getElementById('authPassword')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performLogin();
+        });
+        document.getElementById('authEmail')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performLogin();
         });
 
         document.getElementById('authResetBtn').addEventListener('click', async () => {
@@ -7271,12 +7325,19 @@ ${featuresList || '  ✓ Paquete de confort y conectividad completa'}
             window.print();
         }
 
-        // Init when DOM loads or when switching to fichas tab
-        document.addEventListener('DOMContentLoaded', () => {
+        // Init when DOM loads or immediately if already loaded
+        function initApp() {
+            checkAuth();
             document.querySelectorAll('.sidebar-link[data-tab="fichas"]').forEach(btn => {
                 btn.addEventListener('click', () => initFichasModule());
             });
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
     </script>
 </body>
 
