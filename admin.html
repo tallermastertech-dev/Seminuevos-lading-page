@@ -1772,13 +1772,17 @@
             </div>
             <h1>Panel de Administración</h1>
             <p>Ingresa con tu cuenta para gestionar el inventario</p>
-            <div class="auth-error" id="authError"></div>
+            <div class="auth-error" id="authError" style="display:none; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#fca5a5; padding:12px; border-radius:var(--radius); margin-bottom:16px; font-size:0.85rem; text-align:left;"></div>
             <div id="authSuccess" style="display:none; background: rgba(37,211,102,0.15); border:1px solid #25D366; color:#25D366; padding:12px; border-radius:var(--radius); margin-bottom:16px; font-size:0.9rem;"></div>
-            <input type="email" class="auth-input" id="authEmail" placeholder="Email">
-            <input type="password" class="auth-input" id="authPassword" placeholder="Contraseña">
-            <button class="btn btn-primary btn-block" id="authLogin" style="padding:14px;font-size:1rem">
-                <i class="fas fa-lock"></i> Iniciar Sesión
-            </button>
+            
+            <form id="authLoginForm" onsubmit="event.preventDefault(); performLogin();" style="display:flex; flex-direction:column; gap:0;">
+                <input type="email" class="auth-input" id="authEmail" placeholder="Email (ej: jvaask16@gmail.com)" required autocomplete="username">
+                <input type="password" class="auth-input" id="authPassword" placeholder="Contraseña" required autocomplete="current-password">
+                <button type="submit" class="btn btn-primary btn-block" id="authLogin" style="padding:14px; font-size:1rem; width:100%; justify-content:center;">
+                    <i class="fas fa-lock"></i> Iniciar Sesión
+                </button>
+            </form>
+
             <button type="button" id="authResetBtn" style="background:none; border:none; color:var(--text-muted); margin-top:16px; cursor:pointer; font-size:0.85rem; text-decoration:underline;">
                 ¿Olvidaste tu contraseña?
             </button>
@@ -3296,20 +3300,30 @@
                 const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
                 if (error) {
                     console.error("Supabase Login Error:", error);
+                    let userMsg = error.message;
+                    if (userMsg.toLowerCase().includes('invalid login credentials')) {
+                        userMsg = 'Correo o contraseña incorrectos. Verifica tus datos o usa el botón de recuperación abajo.';
+                    } else if (userMsg.toLowerCase().includes('email not confirmed')) {
+                        userMsg = 'El correo electrónico no ha sido confirmado en Supabase.';
+                    }
                     if (errEl) {
-                        errEl.textContent = 'Credenciales incorrectas: ' + error.message;
+                        errEl.innerHTML = `<i class="fas fa-exclamation-triangle" style="margin-right:6px;"></i> ${userMsg}`;
                         errEl.style.display = 'block';
                     }
+                    showToast(userMsg, 'error');
                     logSecurityEvent('AUTH_FAILURE', 'warning', `Fallo de login para: ${email}`, { error: error.message });
                     return;
                 }
                 logSecurityEvent('AUTH_SUCCESS', 'info', `Login exitoso: ${data.user.email}`);
+                showToast(`¡Bienvenido, ${data.user.email}!`, 'success');
                 showAdmin(data.user);
             } catch(err) {
+                console.error("Login System Error:", err);
                 if (errEl) {
-                    errEl.textContent = 'Error de conexión: ' + err.message;
+                    errEl.innerHTML = `<i class="fas fa-wifi" style="margin-right:6px;"></i> Error de conexión: ${err.message}`;
                     errEl.style.display = 'block';
                 }
+                showToast('Error de conexión con el servidor', 'error');
             } finally {
                 if (btn) {
                     btn.disabled = false;
@@ -3318,34 +3332,35 @@
             }
         }
 
-        document.getElementById('authLogin')?.addEventListener('click', performLogin);
-        document.getElementById('authPassword')?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') performLogin();
-        });
-        document.getElementById('authEmail')?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') performLogin();
-        });
-
-        document.getElementById('authResetBtn').addEventListener('click', async () => {
+        document.getElementById('authResetBtn')?.addEventListener('click', async () => {
             const email = document.getElementById('authEmail').value.trim();
             const errEl = document.getElementById('authError');
             const succEl = document.getElementById('authSuccess');
-            errEl.style.display = 'none';
-            succEl.style.display = 'none';
+            const btnReset = document.getElementById('authResetBtn');
+            if (errEl) errEl.style.display = 'none';
+            if (succEl) succEl.style.display = 'none';
             if (!email) {
-                errEl.textContent = 'Por favor ingresa tu correo electrónico en la casilla para enviarte el enlace de recuperación.';
-                errEl.style.display = 'block';
+                if (errEl) {
+                    errEl.innerHTML = '<i class="fas fa-info-circle"></i> Ingresa tu correo electrónico en la casilla de arriba para enviarte el enlace de recuperación.';
+                    errEl.style.display = 'block';
+                }
                 return;
             }
+            if (btnReset) btnReset.textContent = 'Enviando correo...';
             const redirectUrl = window.location.origin + '/admin';
             const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: redirectUrl });
+            if (btnReset) btnReset.textContent = '¿Olvidaste tu contraseña?';
             if (error) {
-                errEl.textContent = 'Error al enviar enlace: ' + error.message;
-                errEl.style.display = 'block';
+                if (errEl) {
+                    errEl.innerHTML = '<i class="fas fa-times-circle"></i> Error al enviar enlace: ' + error.message;
+                    errEl.style.display = 'block';
+                }
             } else {
-                succEl.textContent = '¡Enlace enviado! Revisa tu bandeja de entrada o correo no deseado (Spam).';
-                succEl.style.display = 'block';
-            }
+                if (succEl) {
+                    succEl.innerHTML = '✅ <strong>¡Enlace enviado!</strong> Revisa tu bandeja de entrada o la carpeta de Spam para restablecer tu contraseña.';
+                    succEl.style.display = 'block';
+                }
+                showToast('Enlace de recuperación enviado', 'success');
         });
 
         // Detect password recovery token from URL hash or Supabase event
