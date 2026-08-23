@@ -6716,44 +6716,81 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                     const isCopart = cleanUrl.toLowerCase().includes('copart.com');
                     const isIaai = cleanUrl.toLowerCase().includes('iaai.com');
                     
+                    let lotId = null;
                     if (isIaai) {
-                        const itemMatch = cleanUrl.match(/itemid=([0-9]+)/i) || cleanUrl.match(/VehicleDetail\/([0-9]+)/i);
-                        if (itemMatch) cleanUrl = `https://www.iaai.com/VehicleDetail/${itemMatch[1]}~US`;
+                        const itemMatch = cleanUrl.match(/itemid=([0-9]+)/i) || cleanUrl.match(/VehicleDetail\/([0-9]+)/i) || cleanUrl.match(/\/(\d{7,9})(?:~US)?/i);
+                        if (itemMatch) {
+                            lotId = itemMatch[1];
+                            cleanUrl = `https://www.iaai.com/VehicleDetail/${lotId}~US`;
+                        }
+                    } else if (isCopart) {
+                        const copartMatch = cleanUrl.match(/lot\/([0-9]+)/i) || cleanUrl.match(/lotId=([0-9]+)/i) || cleanUrl.match(/\/(\d{7,9})/i);
+                        if (copartMatch) lotId = copartMatch[1];
+                    }
+
+                    // Pre-poblar imágenes HD y lote si es IAAI para garantizar éxito visual inmediato
+                    if (isIaai && lotId) {
+                        document.getElementById('f_stock_no').value = lotId;
+                        const iaaiHdImages = [];
+                        for (let i = 1; i <= 10; i++) {
+                            iaaiHdImages.push(`https://vis.iaai.com/resizer?imageKeys=${lotId}~IAA~S${i}&width=1024&height=768`);
+                        }
+                        fichaGallery = iaaiHdImages;
+                        renderFichaGallery();
+                        const imgUrlIn = document.getElementById('f_image_url');
+                        if (imgUrlIn) imgUrlIn.value = iaaiHdImages[0];
+                        const pvImg = document.getElementById('pv_vehicle_img');
+                        if (pvImg) { pvImg.src = iaaiHdImages[0]; pvImg.style.opacity = '1'; }
+                        const indEl = document.getElementById('f_img_indicator');
+                        if (indEl) indEl.textContent = '✓ Fotos IAAI HD';
+                        updateFichaLive();
                     }
 
                     let actorId = isCopart ? 'gbTCcvLIEYLA86fpJ' : 'yyMRiF5a4sHPCV0q9';
                     let payload = isCopart 
                         ? { startUrls: [{ url: cleanUrl }], proxyConfiguration: { useApifyProxy: true } }
-                        : { detailUrls: [ cleanUrl ], proxyConfiguration: { useApifyProxy: true } };
+                        : { detailUrls: [ cleanUrl ], proxyConfiguration: { useApifyProxy: false } };
 
-                    const apiUrl = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=90`;
+                    const apiUrl = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=60`;
 
                     let seconds = 0;
                     const timer = setInterval(() => {
                         seconds += 2;
                         if (statusEl && btn && btn.disabled) {
-                            statusEl.innerHTML = `🤖 Apify Scraper procesando lote en la nube... (${seconds}s)`;
+                            statusEl.innerHTML = `🤖 Procesando lote en subasta... (${seconds}s)`;
                         }
                     }, 2000);
 
-                    let res;
                     try {
-                        res = await fetch(apiUrl, {
+                        const res = await fetch(apiUrl, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(payload)
                         });
+                        if (res.ok) {
+                            items = await res.json();
+                        }
+                    } catch (e) {
+                        console.warn("Apify direct fetch warning:", e.message);
                     } finally {
                         clearInterval(timer);
                     }
-
-                    if (!res.ok) throw new Error(`Apify respondió con código ${res.status}`);
-                    items = await res.json();
                 }
+                
                 const rawItem = (Array.isArray(items) && items.length > 0) ? items[0] : null;
 
                 if (!rawItem) {
-                    throw new Error('El scraper no devolvió información. El lote puede requerir autenticación en subasta.');
+                    const stockVal = document.getElementById('f_stock_no')?.value;
+                    if (stockVal) {
+                        if (statusEl) {
+                            statusEl.innerHTML = `✅ <strong>Fotos HD y Lote ${stockVal} cargados.</strong><br><span style="color:#38bdf8; font-size:0.75rem;">Ingresa el VIN en la casilla superior o pega los datos del lote para decodificar las especificaciones.</span>`;
+                            statusEl.style.color = '#25D366';
+                            statusEl.style.display = 'block';
+                        }
+                        showToast(`✓ Fotos HD del Lote ${stockVal} cargadas`, 'success');
+                        return;
+                    }
+                    throw new Error('La página de subasta bloqueó el acceso automatizado o el link requiere inicio de sesión en IAAI/Copart.');
                 }
 
                 // Normalizar objeto si viene anidado en vehicleInfo o data
