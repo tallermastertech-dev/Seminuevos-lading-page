@@ -6732,11 +6732,16 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                     if (isIaai && lotId) {
                         document.getElementById('f_stock_no').value = lotId;
                         const iaaiHdImages = [];
-                        for (let i = 1; i <= 10; i++) {
+                        for (let i = 1; i <= 12; i++) {
                             iaaiHdImages.push(`https://vis.iaai.com/resizer?imageKeys=${lotId}~IAA~S${i}&width=1024&height=768`);
                         }
-                        fichaGallery = iaaiHdImages;
-                        renderFichaGallery();
+                        window._currentFichaImages = iaaiHdImages;
+                        if (typeof renderFichaGalleryThumbnails === 'function') {
+                            renderFichaGalleryThumbnails(iaaiHdImages, iaaiHdImages[0]);
+                        }
+                        if (typeof renderFichaGalleryPages === 'function') {
+                            renderFichaGalleryPages(iaaiHdImages);
+                        }
                         const imgUrlIn = document.getElementById('f_image_url');
                         if (imgUrlIn) imgUrlIn.value = iaaiHdImages[0];
                         const pvImg = document.getElementById('pv_vehicle_img');
@@ -6847,7 +6852,18 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                             imgEl.style.opacity = '1';
                         }
                         const indEl = document.getElementById('f_img_indicator');
-                        if (indEl) indEl.textContent = '✓ Foto Apify HD';
+                        if (indEl) indEl.textContent = `✓ ${images.length} Fotos HD`;
+                    }
+
+                    const cleanImgList = images.map(img => typeof img === 'string' ? img : (img.hdUrl || img.full || img.url || img.highRes || img.thumbUrl || img.src)).filter(Boolean);
+                    if (cleanImgList.length > 0) {
+                        window._currentFichaImages = cleanImgList;
+                        if (typeof renderFichaGalleryThumbnails === 'function') {
+                            renderFichaGalleryThumbnails(cleanImgList, bestImg || cleanImgList[0]);
+                        }
+                        if (typeof renderFichaGalleryPages === 'function') {
+                            renderFichaGalleryPages(cleanImgList);
+                        }
                     }
                 }
 
