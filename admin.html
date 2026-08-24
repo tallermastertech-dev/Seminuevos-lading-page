@@ -6728,26 +6728,9 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                         if (copartMatch) lotId = copartMatch[1];
                     }
 
-                    // Pre-poblar imágenes HD y lote si es IAAI para garantizar éxito visual inmediato
-                    if (isIaai && lotId) {
+                    // Pre-poblar número de lote si está presente en la URL
+                    if (lotId) {
                         document.getElementById('f_stock_no').value = lotId;
-                        const iaaiHdImages = [];
-                        for (let i = 1; i <= 12; i++) {
-                            iaaiHdImages.push(`https://vis.iaai.com/resizer?imageKeys=${lotId}~IAA~S${i}&width=1024&height=768`);
-                        }
-                        window._currentFichaImages = iaaiHdImages;
-                        if (typeof renderFichaGalleryThumbnails === 'function') {
-                            renderFichaGalleryThumbnails(iaaiHdImages, iaaiHdImages[0]);
-                        }
-                        if (typeof renderFichaGalleryPages === 'function') {
-                            renderFichaGalleryPages(iaaiHdImages);
-                        }
-                        const imgUrlIn = document.getElementById('f_image_url');
-                        if (imgUrlIn) imgUrlIn.value = iaaiHdImages[0];
-                        const pvImg = document.getElementById('pv_vehicle_img');
-                        if (pvImg) { pvImg.src = iaaiHdImages[0]; pvImg.style.opacity = '1'; }
-                        const indEl = document.getElementById('f_img_indicator');
-                        if (indEl) indEl.textContent = '✓ Fotos IAAI HD';
                         updateFichaLive();
                     }
 
