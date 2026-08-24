@@ -6315,7 +6315,6 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                                 const photoNum = (p * 6) + idx + 1;
                                 return `
                                 <div style="height:250px; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.15); background:#050811 url('${photoUrl}') center center / cover no-repeat; position:relative; box-shadow:0 4px 14px rgba(0,0,0,0.5);">
-                                    <img src="${photoUrl}" crossorigin="anonymous" style="display:none;">
                                     <div style="position:absolute; bottom:8px; left:10px; background:rgba(9,13,22,0.88); border:1px solid rgba(255,255,255,0.25); color:#fff; font-size:0.68rem; padding:3px 10px; border-radius:4px; font-weight:700; backdrop-filter:blur(4px); box-shadow:0 2px 6px rgba(0,0,0,0.4);">
                                         <i class="fas fa-camera" style="color:#38bdf8;"></i> Foto ${photoNum} de ${allImgs.length}
                                     </div>
@@ -6850,36 +6849,42 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                     }
                 }
 
-                // Asignar a inputs
-                if (vin && !vin.includes('*')) document.getElementById('fichaVinInput').value = vin.toUpperCase();
-                if (stockNo) document.getElementById('f_stock_no').value = stockNo;
-                if (branch) document.getElementById('f_branch').value = branch;
-                if (titleName) document.getElementById('f_title').value = titleName;
-                if (extColor || intColor) document.getElementById('f_colors').value = [extColor, intColor].filter(Boolean).join(' / ');
-                if (engine) document.getElementById('f_engine').value = engine;
-                if (trans) document.getElementById('f_trans').value = normTrans(trans);
-                if (drive) document.getElementById('f_drivetrain').value = formatDriveType(drive);
-                if (fuel) document.getElementById('f_fuel_type').value = formatFuelType(fuel);
-                if (titleDoc) document.getElementById('f_title_type').value = titleDoc;
-                if (primDamage) document.getElementById('f_primary_damage').value = (secDamage && secDamage !== 'None') ? `${primDamage} / ${secDamage}` : primDamage;
+                // Asignar a inputs de forma segura a prueba de fallos
+                const setVal = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el && val !== undefined && val !== null && String(val).trim() !== '') {
+                        el.value = val;
+                    }
+                };
+
+                if (vin && !vin.includes('*')) setVal('fichaVinInput', vin.toUpperCase());
+                if (stockNo) setVal('f_stock_no', stockNo);
+                if (titleName) setVal('f_title', titleName);
+                if (extColor || intColor) setVal('f_colors', [extColor, intColor].filter(Boolean).join(' / '));
+                if (engine) setVal('f_engine', engine);
+                if (trans) setVal('f_trans', normTrans(trans));
+                if (drive) setVal('f_drivetrain', formatDriveType(drive));
+                if (fuel) setVal('f_fuel_type', formatFuelType(fuel));
+                if (titleDoc) setVal('f_title_type', titleDoc);
+                if (primDamage) setVal('f_primary_damage', (secDamage && secDamage !== 'None') ? `${primDamage} / ${secDamage}` : primDamage);
                 if (airbags) {
                     const isIntact = airbags.toLowerCase().includes('intact') || airbags.toLowerCase().includes('not') || airbags.toLowerCase().includes('original');
-                    document.getElementById('f_airbags').value = isIntact ? 'Originales de Fábrica (No detonadas)' : airbags;
+                    setVal('f_airbags', isIntact ? 'Originales de Fábrica (No detonadas)' : airbags);
                 }
-                if (mfgIn) document.getElementById('f_plant').value = mfgIn;
-                if (vehicleClass) document.getElementById('f_body').value = vehicleClass;
+                if (mfgIn) setVal('f_plant', mfgIn);
+                if (vehicleClass) setVal('f_body', vehicleClass);
                 
                 if (startCode || keys) {
                     const sc = startCode || 'Run & Drive';
                     const k = keys ? ` (Llaves: ${keys})` : '';
-                    document.getElementById('f_start_code').value = `${sc}${k}`;
+                    setVal('f_start_code', `${sc}${k}`);
                 }
 
                 if (odo) {
                     const milesNum = parseInt(String(odo).replace(/[^0-9]/g, '')) || 0;
                     if (milesNum > 0) {
-                        document.getElementById('f_miles').value = milesNum;
-                        onMilesInput(milesNum);
+                        setVal('f_miles', milesNum);
+                        if (typeof onMilesInput === 'function') onMilesInput(milesNum);
                     }
                 }
 
