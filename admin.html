@@ -6797,6 +6797,31 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 const token = getApifyToken();
                 let items = null;
 
+                // Caso 0: El usuario ingresó un VIN de 17 caracteres en esta casilla
+                if (/^[A-HJ-NPR-Z0-9]{17}$/i.test(cleanUrl)) {
+                    const vinUpper = cleanUrl.toUpperCase();
+                    const vinInput = document.getElementById('fichaVinInput');
+                    if (vinInput) vinInput.value = vinUpper;
+                    if (statusEl) {
+                        statusEl.innerHTML = `💡 Has ingresado un VIN (<strong>${vinUpper}</strong>). Decodificando especificaciones con NHTSA...`;
+                        statusEl.style.color = '#38bdf8';
+                        statusEl.style.display = 'block';
+                    }
+                    await decodeVinNhtsa();
+                    if (statusEl) {
+                        statusEl.innerHTML = `✅ <strong>Especificaciones del VIN ${vinUpper} listas.</strong><br><span style="color:#94a3b8; font-size:0.7rem;">💡 Para fotos de subasta, pega el link completo de IAAI/Copart o sube fotos en el Paso 2.</span>`;
+                        statusEl.style.color = '#25D366';
+                    }
+                    showToast(`✓ VIN ${vinUpper} decodificado con éxito`, 'success');
+                    return;
+                }
+
+                // Si ingresó solo un número de lote (ej: 46161953)
+                if (/^\d{7,9}$/.test(cleanUrl)) {
+                    document.getElementById('f_stock_no').value = cleanUrl;
+                    cleanUrl = `https://www.iaai.com/VehicleDetail/${cleanUrl}~US`;
+                }
+
                 // Caso 1: Pegó un JSON directo
                 if (cleanUrl.startsWith('{') || cleanUrl.startsWith('[')) {
                     const parsed = JSON.parse(cleanUrl);
