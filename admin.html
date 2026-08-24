@@ -1443,21 +1443,21 @@
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
         }
 
-        /* --- THE PRINTABLE 1-PAGE SHEET (EXACT LETTER SIZE) --- */
+        /* --- THE PRINTABLE 1-PAGE SHEET (EXACT LETTER SIZE - EXECUTIVE LUXURY THEME) --- */
         .ficha-sheet {
             width: 780px;
             max-width: 780px;
             min-height: 1010px;
             height: 1010px;
             margin: 0 auto;
-            background: #000000;
-            background-image: radial-gradient(circle at 100% 0%, rgba(39, 92, 234, 0.18) 0%, transparent 40%),
-                              radial-gradient(circle at 0% 100%, rgba(39, 92, 234, 0.1) 0%, transparent 40%);
-            color: #ffffff;
-            border: 1px solid rgba(39, 92, 234, 0.35);
-            border-radius: 8px;
+            background: #0b0f19;
+            background-image: radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.07) 0%, transparent 45%),
+                              radial-gradient(circle at 0% 100%, rgba(99, 102, 241, 0.05) 0%, transparent 45%);
+            color: #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
             padding: 16px 20px 12px 20px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(39, 92, 234, 0.12);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 1px rgba(255, 255, 255, 0.15);
             font-family: 'Mina', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             position: relative;
             box-sizing: border-box;
@@ -1471,7 +1471,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1.5px solid rgba(39, 92, 234, 0.25);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.09);
             padding-bottom: 8px;
             margin-bottom: 8px;
         }
@@ -1489,7 +1489,7 @@
         }
 
         .ficha-brand-img {
-            height: 40px;
+            height: 38px;
             width: auto;
             object-fit: contain;
         }
@@ -1498,12 +1498,12 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            background: rgba(39, 92, 234, 0.15);
-            color: #4d7aef;
-            border: 1px solid rgba(39, 92, 234, 0.4);
+            background: rgba(56, 189, 248, 0.08);
+            color: #7dd3fc;
+            border: 1px solid rgba(56, 189, 248, 0.25);
             padding: 2px 10px;
             border-radius: 999px;
-            font-size: 0.65rem;
+            font-size: 0.64rem;
             font-family: 'Unbounded', sans-serif;
             font-weight: 700;
             letter-spacing: 0.5px;
@@ -1512,8 +1512,8 @@
         }
 
         .ficha-subtitle {
-            font-size: 0.68rem;
-            color: var(--text2);
+            font-size: 0.67rem;
+            color: #94a3b8;
             letter-spacing: 0.4px;
             text-transform: uppercase;
             font-weight: 600;
@@ -1521,24 +1521,24 @@
 
         .ficha-meta-col {
             text-align: right;
-            font-size: 0.68rem;
-            color: var(--text2);
+            font-size: 0.67rem;
+            color: #94a3b8;
             line-height: 1.4;
-            background: #060a12;
+            background: rgba(15, 23, 42, 0.6);
             padding: 6px 12px;
             border-radius: 8px;
-            border: 1px solid rgba(39, 92, 234, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .ficha-meta-col strong {
-            color: #ffffff;
+            color: #f1f5f9;
         }
 
         .ficha-meta-col .vin-badge {
             font-family: 'Courier New', monospace;
-            color: #4d7aef;
+            color: #38bdf8;
             font-weight: 700;
-            font-size: 0.80rem;
+            font-size: 0.78rem;
         }
 
         /* --- SHOWCASE ROW WITH PHOTO --- */
@@ -1546,10 +1546,11 @@
             display: grid;
             grid-template-columns: 1fr 190px;
             gap: 12px;
-            background: linear-gradient(90deg, rgba(39, 92, 234, 0.18) 0%, rgba(6, 10, 18, 0.7) 100%);
-            border-left: 4px solid #275CEA;
-            border-radius: 0 8px 8px 0;
-            padding: 8px 12px;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.75) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-left: 3.5px solid #38bdf8;
+            border-radius: 8px;
+            padding: 10px 14px;
             margin-bottom: 8px;
             align-items: center;
         }
@@ -1557,12 +1558,12 @@
         .ficha-photo-wrapper {
             position: relative;
             width: 100%;
-            height: 90px;
+            height: 92px;
             border-radius: 6px;
             overflow: hidden;
-            border: 1px solid rgba(39, 92, 234, 0.4);
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
-            background: #000000;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+            background: #070a12;
         }
 
         .ficha-photo-img {
@@ -1576,39 +1577,40 @@
             position: absolute;
             bottom: 3px;
             right: 3px;
-            background: rgba(0, 0, 0, 0.75);
-            color: #4d7aef;
-            font-size: 0.55rem;
+            background: rgba(11, 15, 25, 0.85);
+            color: #7dd3fc;
+            font-size: 0.53rem;
             font-family: 'Unbounded', sans-serif;
             font-weight: 700;
-            padding: 1px 5px;
+            padding: 1px 6px;
             border-radius: 3px;
-            border: 1px solid rgba(39, 92, 234, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             letter-spacing: 0.3px;
+            backdrop-filter: blur(4px);
         }
 
         /* --- BLOCKS --- */
         .ficha-block {
             margin-bottom: 8px;
-            background: #060a12;
-            border: 1px solid rgba(39, 92, 234, 0.2);
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 8px;
-            padding: 8px 12px;
+            padding: 9px 12px;
         }
 
         .ficha-block-title {
             font-family: 'Unbounded', sans-serif;
-            font-size: 0.72rem;
+            font-size: 0.70rem;
             font-weight: 700;
-            color: #4d7aef;
+            color: #e2e8f0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
             margin-bottom: 6px;
             padding-bottom: 4px;
-            border-bottom: 1px solid rgba(39, 92, 234, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
         }
 
         .ficha-grid-2 {
@@ -1630,51 +1632,51 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.70rem;
-            padding: 1.5px 0;
-            border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+            font-size: 0.69rem;
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
         }
 
         .ficha-spec-label {
-            color: var(--text2);
+            color: #94a3b8;
             font-weight: 500;
         }
 
         .ficha-spec-val {
-            color: #ffffff;
+            color: #f1f5f9;
             font-weight: 600;
             text-align: right;
         }
 
         .ficha-spec-val.highlight {
-            color: #4d7aef;
-            font-weight: 700;
+            color: #bae6fd;
+            font-weight: 600;
         }
 
         .ficha-spec-val.success {
-            color: #25D366;
-            font-weight: 700;
+            color: #6ee7b7;
+            font-weight: 600;
         }
 
         /* Checklist Block 02 */
         .ficha-checklist-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 4px 10px;
+            gap: 4px 12px;
         }
 
         .ficha-check-item {
             display: flex;
             align-items: flex-start;
             gap: 6px;
-            font-size: 0.69rem;
-            color: #f1f5f9;
-            line-height: 1.25;
+            font-size: 0.68rem;
+            color: #cbd5e1;
+            line-height: 1.3;
         }
 
         .ficha-check-icon {
-            color: #275CEA;
-            font-size: 0.80rem;
+            color: #38bdf8;
+            font-size: 0.75rem;
             font-weight: 800;
             line-height: 1;
             margin-top: 1px;
@@ -1687,12 +1689,12 @@
             gap: 6px;
             margin-top: 6px;
             padding-top: 6px;
-            border-top: 1px solid rgba(39, 92, 234, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
         }
 
         .ficha-pilar-card {
-            background: #000000;
-            border: 1px solid rgba(37, 211, 102, 0.3);
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.07);
             border-radius: 6px;
             padding: 5px 4px;
             text-align: center;
@@ -1700,16 +1702,16 @@
 
         .ficha-pilar-title {
             font-family: 'Unbounded', sans-serif;
-            font-size: 0.58rem;
+            font-size: 0.56rem;
             font-weight: 700;
-            color: #25D366;
+            color: #38bdf8;
             text-transform: uppercase;
             margin-bottom: 2px;
         }
 
         .ficha-pilar-desc {
-            font-size: 0.58rem;
-            color: var(--text2);
+            font-size: 0.57rem;
+            color: #94a3b8;
         }
 
         /* Footer */
@@ -1719,9 +1721,9 @@
             align-items: center;
             margin-top: 8px;
             padding-top: 6px;
-            border-top: 1.5px solid rgba(39, 92, 234, 0.25);
-            font-size: 0.66rem;
-            color: var(--text2);
+            border-top: 1px solid rgba(255, 255, 255, 0.09);
+            font-size: 0.65rem;
+            color: #64748b;
         }
 
         .ficha-footer-brand {
@@ -1729,7 +1731,7 @@
             align-items: center;
             gap: 6px;
             font-weight: 600;
-            color: #ffffff;
+            color: #cbd5e1;
         }
 
         /* PRINT STYLES */
@@ -2235,25 +2237,25 @@
                             <!-- TITULO VEHICULO PRINCIPAL & FOTO DE REFERENCIA -->
                             <div class="ficha-showcase-row">
                                 <div>
-                                    <div style="font-family:'Unbounded',sans-serif; font-size:1.15rem; font-weight:800; color:#ffffff; line-height:1.2; margin-bottom:3px;" id="pv_title">
+                                    <div style="font-family:'Unbounded',sans-serif; font-size:1.15rem; font-weight:800; color:#f8fafc; line-height:1.2; margin-bottom:3px;" id="pv_title">
                                         Selecciona un vehículo o ingresa un VIN / Lote
                                     </div>
-                                    <div style="font-size:0.72rem; color:var(--text2); margin-top:2px;">
-                                        <span id="pv_cat_tag" style="color:#25D366; font-weight:700;"><i class="fas fa-check-circle"></i> Ficha Técnica Oficial</span> · <span id="pv_header_spec" style="color:#ffffff;">Especificaciones pendientes por decodificar</span>
+                                    <div style="font-size:0.71rem; color:#94a3b8; margin-top:2px;">
+                                        <span id="pv_cat_tag" style="color:#6ee7b7; font-weight:600;"><i class="fas fa-check-circle"></i> Ficha Técnica Oficial</span> · <span id="pv_header_spec" style="color:#e2e8f0;">Especificaciones pendientes por decodificar</span>
                                     </div>
-                                    <div style="margin-top:5px; display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
-                                        <span style="background:rgba(39,92,234,0.22); color:#4d7aef; font-size:0.62rem; padding:2px 7px; border-radius:4px; font-weight:700;" id="pv_drivetrain_tag">---</span>
-                                        <span style="background:rgba(37,211,102,0.18); color:#25D366; font-size:0.62rem; padding:2px 7px; border-radius:4px; font-weight:700;"><i class="fas fa-shield-alt"></i> INSPECCIÓN 150 PTS</span>
-                                        <span style="background:rgba(39,92,234,0.22); color:#38bdf8; font-size:0.62rem; padding:2px 7px; border-radius:4px; font-weight:700;" id="pv_showroom_badge"><i class="fas fa-store"></i> SHOWROOM & VITRINA</span>
-                                        <span style="background:rgba(168,85,247,0.22); color:#c084fc; font-size:0.62rem; padding:2px 7px; border-radius:4px; font-weight:700; border:1px solid rgba(168,85,247,0.4);" id="pv_regime_badge"><i class="fas fa-landmark"></i> <span id="pv_regime_text">PUERTO LIBRE / NACIONAL</span></span>
+                                    <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                                        <span style="background:rgba(56,189,248,0.1); color:#7dd3fc; font-size:0.62rem; padding:2px 8px; border-radius:4px; font-weight:600; border:1px solid rgba(56,189,248,0.25);" id="pv_drivetrain_tag">---</span>
+                                        <span style="background:rgba(16,185,129,0.1); color:#6ee7b7; font-size:0.62rem; padding:2px 8px; border-radius:4px; font-weight:600; border:1px solid rgba(16,185,129,0.25);"><i class="fas fa-shield-alt"></i> INSPECCIÓN 150 PTS</span>
+                                        <span style="background:rgba(255,255,255,0.06); color:#cbd5e1; font-size:0.62rem; padding:2px 8px; border-radius:4px; font-weight:600; border:1px solid rgba(255,255,255,0.12);" id="pv_showroom_badge"><i class="fas fa-store"></i> SHOWROOM & VITRINA</span>
+                                        <span style="background:rgba(168,85,247,0.1); color:#d8b4fe; font-size:0.62rem; padding:2px 8px; border-radius:4px; font-weight:600; border:1px solid rgba(168,85,247,0.25);" id="pv_regime_badge"><i class="fas fa-landmark"></i> <span id="pv_regime_text">PUERTO LIBRE / NACIONAL</span></span>
                                     </div>
-                                    <!-- PRECIO DE VENTA DESTACADO EN CABECERA (20pt+ / 1.55rem+) -->
+                                    <!-- PRECIO DE VENTA DESTACADO EN CABECERA -->
                                     <div id="pv_price_tag" style="margin-top:8px; display:flex; align-items:baseline; gap:8px;">
-                                        <span style="font-size:0.72rem; color:#94a3b8; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">PRECIO DE VENTA:</span>
-                                        <span id="pv_price_val" style="font-size:1.6rem; font-weight:900; color:#38bdf8; font-family:'Unbounded',sans-serif; text-shadow:0 0 16px rgba(56,189,248,0.45); line-height:1;">$0</span>
+                                        <span style="font-size:0.68rem; color:#94a3b8; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">PRECIO DE VENTA:</span>
+                                        <span id="pv_price_val" style="font-size:1.55rem; font-weight:800; color:#f8fafc; font-family:'Unbounded',sans-serif; line-height:1;">$0</span>
                                     </div>
                                 </div>
-                                <div class="ficha-photo-wrapper" id="pv_vehicle_img_container" style="background:#050811 center/cover no-repeat;">
+                                <div class="ficha-photo-wrapper" id="pv_vehicle_img_container" style="background:#070a12 center/cover no-repeat;">
                                     <img id="pv_vehicle_img" src="images/favicon.png" alt="Foto Vehículo" class="ficha-photo-img" style="display:none;" onerror="this.src='images/favicon.png';">
                                     <div class="ficha-photo-badge"><i class="fas fa-camera"></i> UNIDAD REF</div>
                                 </div>
@@ -2262,7 +2264,7 @@
                             <!-- DATOS DE FABRICACIÓN, CHASIS & TREN MOTRIZ -->
                             <div class="ficha-block">
                                 <div class="ficha-block-title">
-                                    <i class="fas fa-gears"></i> Datos de Fabricación, Chasis & Tren Motriz
+                                    <i class="fas fa-gears" style="color:#38bdf8;"></i> Datos de Fabricación, Chasis & Tren Motriz
                                 </div>
                                 <div class="ficha-grid-2">
                                     <!-- Columna Izquierda: Chasis y Origen -->
@@ -2326,7 +2328,7 @@
                             <!-- EQUIPAMIENTO, CONFORT & SEGURIDAD DESTACADA -->
                             <div class="ficha-block">
                                 <div class="ficha-block-title">
-                                    <i class="fas fa-shield-halved"></i> Equipamiento, Confort & Seguridad Destacada
+                                    <i class="fas fa-shield-halved" style="color:#38bdf8;"></i> Equipamiento, Confort & Seguridad Destacada
                                 </div>
                                 <div class="ficha-checklist-grid" id="pv_features_grid">
                                     <div style="color:var(--text3); font-size:0.75rem; grid-column:span 2; padding:8px 0; text-align:center;">
@@ -2337,27 +2339,27 @@
 
                             <!-- PLANTILLA 1: AUDITORÍA DE ORIGEN & CONDICIÓN DE STOCK LOCAL -->
                             <div class="ficha-block" id="ficha_block_stock_local" style="margin-bottom:0;">
-                                <div class="ficha-block-title" style="color:#25D366; border-bottom-color:rgba(37,211,102,0.3);">
-                                    <i class="fas fa-clipboard-check"></i> Auditoría de Origen & Condición de Stock Local
+                                <div class="ficha-block-title">
+                                    <i class="fas fa-clipboard-check" style="color:#38bdf8;"></i> Auditoría de Origen & Condición de Stock Local
                                 </div>
                                 <div class="ficha-grid-2">
                                     <!-- Columna Izquierda: Historial de Origen & Condición -->
                                     <ul class="ficha-specs-list">
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Régimen / Circulación:</span>
-                                            <span class="ficha-spec-val highlight" id="pv_stock_regime" style="color:#c084fc; font-weight:700;">Puerto Libre / Nacional</span>
+                                            <span class="ficha-spec-val" id="pv_stock_regime" style="color:#d8b4fe; font-weight:600;">Puerto Libre / Nacional</span>
                                         </li>
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Kilometraje / Odómetro:</span>
-                                            <span class="ficha-spec-val highlight" id="pv_stock_km_current" style="color:#38bdf8; font-weight:700;">15,000 KM</span>
+                                            <span class="ficha-spec-val" id="pv_stock_km_current" style="color:#f1f5f9; font-weight:700;">15,000 KM</span>
                                         </li>
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Placa / Identificación:</span>
-                                            <span class="ficha-spec-val success" id="pv_stock_plate">En Trámite / Asignada</span>
+                                            <span class="ficha-spec-val" id="pv_stock_plate">En Trámite / Asignada</span>
                                         </li>
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Propietarios / Dueños:</span>
-                                            <span class="ficha-spec-val success" id="pv_stock_owners">Único Dueño (1 Owner)</span>
+                                            <span class="ficha-spec-val" id="pv_stock_owners">Único Dueño (1 Owner)</span>
                                         </li>
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Tipo de Título / Doc:</span>
@@ -2374,7 +2376,7 @@
                                         <ul class="ficha-specs-list">
                                             <li class="ficha-spec-item">
                                                 <span class="ficha-spec-label">Llaves de Contacto:</span>
-                                                <span class="ficha-spec-val success" id="pv_stock_keys">2 Llaves Inteligentes (Presencia)</span>
+                                                <span class="ficha-spec-val" id="pv_stock_keys">2 Llaves Inteligentes (Presencia)</span>
                                             </li>
                                             <li class="ficha-spec-item">
                                                 <span class="ficha-spec-label">Bolsas de Aire (Airbags):</span>
@@ -2382,11 +2384,11 @@
                                             </li>
                                         </ul>
                                         <!-- Extras / Servicios Realizados -->
-                                        <div style="margin-top:6px; background:rgba(37,211,102,0.06); border:1px solid rgba(37,211,102,0.2); border-radius:6px; padding:6px 8px;">
-                                            <div style="font-size:0.68rem; font-weight:700; color:#25D366; margin-bottom:4px; display:flex; align-items:center; gap:4px;">
+                                        <div style="margin-top:6px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px 8px;">
+                                            <div style="font-size:0.68rem; font-weight:700; color:#7dd3fc; margin-bottom:4px; display:flex; align-items:center; gap:4px;">
                                                 <i class="fas fa-plus-circle"></i> Extras / Servicios Realizados:
                                             </div>
-                                            <div id="pv_stock_extras_list" style="font-size:0.68rem; color:#e2e8f0; line-height:1.4; display:flex; flex-direction:column; gap:3px;">
+                                            <div id="pv_stock_extras_list" style="font-size:0.68rem; color:#cbd5e1; line-height:1.4; display:flex; flex-direction:column; gap:3px;">
                                                 <div>• Mantenimiento preventivo integral de 150 puntos realizado.</div>
                                                 <div>• Documentación y papeles 100% al día para traspaso inmediato.</div>
                                                 <div>• Tratamiento de protección de pintura e higienización interior.</div>
@@ -2398,8 +2400,8 @@
 
                             <!-- PLANTILLA 2: AUDITORÍA DE ORIGEN & CONDICIÓN DE SUBASTA (SUBASTA USA) -->
                             <div class="ficha-block" id="ficha_block_subasta" style="display:none; margin-bottom:0;">
-                                <div class="ficha-block-title" style="color:#38bdf8; border-bottom-color:rgba(56,189,248,0.3);">
-                                    <i class="fas fa-clipboard-check"></i> Auditoría de Origen & Condición de Subasta USA
+                                <div class="ficha-block-title">
+                                    <i class="fas fa-clipboard-check" style="color:#38bdf8;"></i> Auditoría de Origen & Condición de Subasta USA
                                 </div>
                                 <div class="ficha-grid-2">
                                     <!-- Columna Izquierda: Documentación y Daños -->
@@ -6281,13 +6283,15 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
 
             if (mode === 'stock_local') {
                 if (btnStock) {
-                    btnStock.style.background = '#25D366';
-                    btnStock.style.color = '#000';
-                    btnStock.style.boxShadow = '0 0 10px rgba(37,211,102,0.4)';
+                    btnStock.style.background = 'rgba(56, 189, 248, 0.15)';
+                    btnStock.style.color = '#7dd3fc';
+                    btnStock.style.border = '1px solid rgba(56, 189, 248, 0.4)';
+                    btnStock.style.boxShadow = '0 0 12px rgba(56, 189, 248, 0.2)';
                 }
                 if (btnSubasta) {
                     btnSubasta.style.background = 'transparent';
                     btnSubasta.style.color = '#94a3b8';
+                    btnSubasta.style.border = '1px solid rgba(255, 255, 255, 0.1)';
                     btnSubasta.style.boxShadow = 'none';
                 }
                 if (blockStock) blockStock.style.display = 'block';
@@ -6299,27 +6303,29 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 if (priceGroup) priceGroup.style.display = 'block';
 
                 if (badgeTop) {
-                    badgeTop.innerHTML = '<i class="fas fa-certificate"></i> Ficha Comercial · Stock Local';
-                    badgeTop.style.color = '#25D366';
-                    badgeTop.style.borderColor = 'rgba(37,211,102,0.4)';
-                    badgeTop.style.background = 'rgba(37,211,102,0.1)';
+                    badgeTop.innerHTML = '<i class="fas fa-certificate"></i> Ficha Oficial · Stock Local';
+                    badgeTop.style.color = '#7dd3fc';
+                    badgeTop.style.borderColor = 'rgba(56, 189, 248, 0.25)';
+                    badgeTop.style.background = 'rgba(56, 189, 248, 0.08)';
                 }
                 if (subtitle) subtitle.textContent = 'Informe Técnico Oficial de Unidad en Vitrina · Entrega Inmediata';
                 if (modeBadge) {
                     modeBadge.textContent = 'SHOWROOM & VITRINA';
-                    modeBadge.style.background = 'rgba(37,211,102,0.2)';
-                    modeBadge.style.color = '#25D366';
+                    modeBadge.style.background = 'rgba(255, 255, 255, 0.06)';
+                    modeBadge.style.color = '#cbd5e1';
                 }
             } else {
                 if (btnStock) {
                     btnStock.style.background = 'transparent';
                     btnStock.style.color = '#94a3b8';
+                    btnStock.style.border = '1px solid rgba(255, 255, 255, 0.1)';
                     btnStock.style.boxShadow = 'none';
                 }
                 if (btnSubasta) {
-                    btnSubasta.style.background = '#38bdf8';
-                    btnSubasta.style.color = '#000';
-                    btnSubasta.style.boxShadow = '0 0 10px rgba(56,189,248,0.4)';
+                    btnSubasta.style.background = 'rgba(56, 189, 248, 0.15)';
+                    btnSubasta.style.color = '#7dd3fc';
+                    btnSubasta.style.border = '1px solid rgba(56, 189, 248, 0.4)';
+                    btnSubasta.style.boxShadow = '0 0 12px rgba(56, 189, 248, 0.2)';
                 }
                 if (blockStock) blockStock.style.display = 'none';
                 if (blockSubasta) blockSubasta.style.display = 'block';
@@ -6330,15 +6336,15 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
 
                 if (badgeTop) {
                     badgeTop.innerHTML = '<i class="fas fa-gavel"></i> Auditoría de Subasta · Importación USA';
-                    badgeTop.style.color = '#38bdf8';
-                    badgeTop.style.borderColor = 'rgba(56,189,248,0.4)';
-                    badgeTop.style.background = 'rgba(56,189,248,0.1)';
+                    badgeTop.style.color = '#7dd3fc';
+                    badgeTop.style.borderColor = 'rgba(56, 189, 248, 0.25)';
+                    badgeTop.style.background = 'rgba(56, 189, 248, 0.08)';
                 }
                 if (subtitle) subtitle.textContent = 'Auditoría Técnica de Unidad en Yarda USA & Especificaciones de Importación';
                 if (modeBadge) {
                     modeBadge.textContent = 'SUBASTA USA (BAJO PEDIDO)';
-                    modeBadge.style.background = 'rgba(39,92,234,0.22)';
-                    modeBadge.style.color = '#4d7aef';
+                    modeBadge.style.background = 'rgba(56, 189, 248, 0.1)';
+                    modeBadge.style.color = '#7dd3fc';
                 }
             }
 
