@@ -5697,6 +5697,55 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             return 'Tracción Delantera (FWD)';
         }
 
+        function formatTransmission(transStyle, transSpeeds, make = '', model = '', year = '') {
+            const s = String(transStyle || '').toLowerCase();
+            const speeds = parseInt(transSpeeds) || null;
+            const combined = `${make || ''} ${model || ''} ${year || ''}`.toLowerCase();
+
+            // 1. Detección explícita de Manual
+            if (s.includes('manual') || s.includes('stick') || s.includes('m/t') || s.includes('mecánic') || s.includes('mecanic')) {
+                return speeds ? `Manual de ${speeds} Velocidades` : 'Manual de 6 Velocidades';
+            }
+
+            // 2. Detección explícita de Doble Embrague (DCT / DSG / PDK)
+            if (s.includes('dual clutch') || s.includes('dct') || s.includes('dsg') || s.includes('pdk') || s.includes('doble embrague')) {
+                return speeds ? `Doble Embrague (DCT) de ${speeds} Vel.` : 'Doble Embrague (DCT) de 7 Vel.';
+            }
+
+            // 3. Detección EXPLÍCITA de CVT (ÚNICAMENTE si la fuente especifica explícitamente "CVT" o "Continuously Variable")
+            if (s.includes('continuously variable') || s.includes('cvt') || s.includes('variable')) {
+                if (combined.includes('corolla') || combined.includes('corolla cross')) {
+                    return 'Automática Direct Shift-CVT';
+                }
+                return 'Automática CVT';
+            }
+
+            // 4. Si la API devolvió el número exacto de velocidades
+            if (speeds) {
+                return `Automática de ${speeds} Velocidades`;
+            }
+
+            // 5. REGLA UNIVERSAL: Si dice genéricamente "Automatic" o "Automatic Transmission", PROHIBIDO usar "CVT".
+            // Mapeo inteligente de caja automática según el segmento del vehículo:
+            
+            // Pickups grandes y SUVs Full-Size modernas (10 Velocidades / 8 Velocidades)
+            if (combined.includes('f-150') || combined.includes('f150') || combined.includes('silverado') || combined.includes('sierra') || combined.includes('tahoe') || combined.includes('suburban') || combined.includes('yukon') || combined.includes('escalade') || combined.includes('expedition') || combined.includes('navigator')) {
+                const y = parseInt(year) || 0;
+                return (y >= 2018) ? 'Automática de 10 Velocidades' : 'Automática de 8 Velocidades';
+            }
+
+            if (combined.includes('frontier') || combined.includes('titan')) {
+                return 'Automática de 9 Velocidades';
+            }
+
+            if (combined.includes('pilot') || combined.includes('odyssey') || combined.includes('accord 2.0')) {
+                return 'Automática de 10 Velocidades';
+            }
+
+            // Sedanes y SUVs compactos/medianos modernos (Tucson, RAV4 gas, Grand Cherokee, Camry, Durango, Sportage, etc.)
+            return 'Automática de 8 Velocidades';
+        }
+
         function estimateAccurateHp(make, model, disp, cyl, year) {
             const combined = `${make || ''} ${model || ''}`.toLowerCase();
             const d = parseFloat(disp) || 0;
@@ -6650,7 +6699,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 const hpStr = (engineHp && parseInt(engineHp) > 0) ? `${parseInt(engineHp)} HP` : estimateAccurateHp(make, cleanModel, displacementL, cylinders, year);
                 const plantLoc = [plantCity, plantState, plantCountry].filter(Boolean).join(', ') || 'Planta de Fabricación Oficial';
                 const bodyStr = formatBody(bodyClass, doors, '5');
-                const transStr = `${transStyle.includes('Auto') ? 'Automática' : (transStyle || 'Automática')} ${transSpeeds ? transSpeeds + ' Vel.' : 'CVT'}`.trim();
+                const transStr = formatTransmission(transStyle, transSpeeds, make, cleanModel, year);
                 const driveStr = formatDriveType(driveTypeRaw, fullTitle);
                 const fuelStr = formatFuelType(fuelPrimary);
                 const brakeStr = 'Discos ventilados x4 con ABS + EBD';
