@@ -5878,185 +5878,288 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             return 'Discos ventilados x4 + ABS + EBD + Asistencia Electrónica';
         }
 
-        function generateAdaptiveFeatures(make, model, bodyClass, trim = '') {
+        function generateAdaptiveFeatures(make, model, bodyClass, trim = '', year = '') {
             const combined = `${make || ''} ${model || ''} ${trim || ''} ${bodyClass || ''}`.toLowerCase();
+            const trimLower = (trim || '').toLowerCase().trim();
+            const makeLower = (make || '').toLowerCase().trim();
+            const modelLower = (model || '').toLowerCase().trim();
 
-            // 1. HONDA HR-V (Sport AWD vs Sport FWD)
-            if (combined.includes('hr-v') || combined.includes('hrv')) {
-                const isAwd = combined.includes('4x4') || combined.includes('awd');
-                const is2024 = combined.includes('2024');
-                return [
-                    "Suite de seguridad activa Honda Sensing®: Sistema de mitigación de colisión con frenado (CMBS™) y alerta de cambio de carril.",
+            // =========================================================================
+            // AUDITORÍA TÉCNICA DE TRIM: CLASIFICACIÓN RIGUROSA DE GAMA
+            // =========================================================================
+            const isBaseEntry = (
+                /\b(le|lx|s|base|pop|pure|l|ls|se\b|tradesman|xl|active|value|comfort)\b/i.test(trimLower) ||
+                (trimLower === '' && !/(limited|platinum|touring|denali|rubicon|titanium|premier|lariat|overland)/i.test(combined))
+            ) && !/(limited|platinum|touring|elite|denali|rubicon|high country|king ranch|laramie|calligraphy|prestige|autobiography)/i.test(trimLower);
+
+            const isLuxury = /(limited|platinum|touring|elite|denali|high country|king ranch|laramie|calligraphy|prestige|autobiography|premier|overland|summit|inscription|grand touring|sl\b|ex-l|xle\b|titanium)/i.test(trimLower) || /(limited|platinum|touring|denali|high country|king ranch|laramie|calligraphy)/i.test(combined);
+
+            const isSport = /(sport|n-line|gr sport|r-line|st-line|trail|trd|black package|nightshade|redline|midnight|sr\b|gt\b)/i.test(trimLower) || /(sport|black package|nightshade|trd)/i.test(combined);
+
+            // =========================================================================
+            // 1. HONDA (HR-V, CR-V, CIVIC, ACCORD, PILOT)
+            // =========================================================================
+            if (combined.includes('honda') || combined.includes('hr-v') || combined.includes('cr-v') || combined.includes('civic') || combined.includes('accord') || combined.includes('pilot')) {
+                const isAwd = combined.includes('4x4') || combined.includes('awd') || combined.includes('real time');
+                const features = [
+                    "Suite de seguridad activa Honda Sensing®: Sistema de mitigación de colisión con frenado (CMBS™) y alerta de cambio de carril (RDM).",
+                    "Asistente de mantenimiento de carril (LKAS) y control de crucero adaptativo (ACC) con seguimiento a baja velocidad.",
                     isAwd 
-                        ? "Tracción inteligente Real Time AWD™ con Intelligent Control System™ y selector de modo Nieve."
-                        : "Tracción delantera (FWD) con control de estabilidad vehicular (VSA®) y asistencia de tracción.",
-                    "Motor 2.0L i-VTEC® 16 válvulas DOHC (158 HP) con transmisión automática CVT de respuesta lineal.",
-                    "Pantalla táctil multimedia a color de 7'' con integración Apple CarPlay® y Android Auto™.",
-                    "Black Package exclusivo de fábrica: Emblemas exteriores y molduras en acabado negro brillante.",
-                    is2024 
-                        ? "Rines de aleación de 17'' en acabado Glossy Black exclusivos de la versión Sport."
-                        : "Rines de aleación de 18'' en acabado Glossy Black con neumáticos deportivos.",
-                    is2024
-                        ? "Botón de encendido Push Start con llave inteligente con control remoto de apertura."
-                        : "Sistema de acceso inteligente Smart Entry con botón de encendido y Walk Away Auto Lock®.",
-                    "Cámara de reversa multi-ángulo con guías dinámicas y 10 bolsas de aire de protección integral."
-                ].join('\n');
+                        ? "Tracción integral inteligente Real Time AWD™ con Intelligent Control System™ y modo Nieve."
+                        : "Tracción delantera (FWD) con control de estabilidad vehicular (VSA®) y distribución electrónica de frenado."
+                ];
+
+                if (isBaseEntry) {
+                    features.push("Motor 2.0L i-VTEC® 16 válvulas DOHC (158 HP) con transmisión automática CVT de respuesta lineal.");
+                    features.push("Pantalla táctil a color de 7'' con integración Apple CarPlay® y Android Auto™ estándar.");
+                    features.push("Tapicería de tela reforzada transpirable de alta resistencia con ajuste manual de 6 posiciones.");
+                    features.push("Rines de aleación de aluminio de 17'' con neumáticos de especificación para todo clima.");
+                    features.push("Climatizador automático monozona con difusores ergonómicos.");
+                    features.push("Cámara de visión trasera multi-ángulo con guías de aproximación y 10 bolsas de aire.");
+                } else if (isLuxury) {
+                    features.push("Tapicería en piel genuina con asientos delanteros calefactables y ajuste eléctrico con memoria.");
+                    features.push("Techo corredizo / sunroof eléctrico de cristal de un solo toque.");
+                    features.push("Pantalla táctil de 9'' con Apple CarPlay® / Android Auto™ inalámbrico y cargador por inducción Qi.");
+                    features.push("Sistema de audio premium con 8 bocinas de alta fidelidad y subwoofer.");
+                    features.push("Monitor de punto ciego (BSI) con alerta de tráfico cruzado (CTM) y sensores de estacionamiento.");
+                    features.push("Rines de aleación maquinada de 18'' bi-tono y compuerta trasera eléctrica con acceso manos libres.");
+                } else if (isSport) {
+                    features.push("Black Package oficial: Parrilla en panal deportivo, molduras y emblemas en negro brillante.");
+                    features.push("Rines de aleación deportiva de 18'' en acabado Glossy Black con neumáticos de perfil bajo.");
+                    features.push("Volante forrado en piel deportiva con costuras contrastantes y selector de modos de manejo.");
+                    features.push("Pedales deportivos en acabado metálico y escape cromado deportivo.");
+                    features.push("Pantalla táctil de 7'' con conectividad para smartphones y sistema de acceso Smart Entry.");
+                    features.push("Cámara de reversa multi-ángulo con guías dinámicas y 10 bolsas de aire de protección integral.");
+                } else {
+                    features.push("Pantalla táctil de 7'' a 8'' con Apple CarPlay® y Android Auto™.");
+                    features.push("Rines de aleación de 17'' con frenos de disco ventilados en las 4 ruedas con ABS.");
+                    features.push("Sistema de acceso inteligente Smart Entry con botón de encendido Push Start.");
+                    features.push("10 bolsas de aire frontales, laterales, de rodilla y tipo cortina.");
+                }
+                return features.join('\n');
             }
 
-            // 2. NISSAN SENTRA
-            if (combined.includes('sentra')) {
-                return [
+            // =========================================================================
+            // 2. TOYOTA (COROLLA, RAV4, 4RUNNER, HIGHLANDER, CAMRY, TACOMA)
+            // =========================================================================
+            if (combined.includes('toyota') || combined.includes('corolla') || combined.includes('rav4') || combined.includes('4runner') || combined.includes('camry') || combined.includes('highlander') || combined.includes('tacoma')) {
+                const is4Runner = combined.includes('4runner') || combined.includes('four runner');
+                const isTacoma = combined.includes('tacoma');
+
+                if (is4Runner || isTacoma) {
+                    return [
+                        "Estructura de chasis independiente de largueros sobre bastidor (Body-on-Frame) de máxima resistencia.",
+                        "Sistema de tracción 4x4 con caja reductora transferible de 2 velocidades (4WD High / Low).",
+                        "Motor V6 4.0L DOHC 24V con VVT-i independiente de 270 HP y 278 lb-pie de torque.",
+                        "Suite de seguridad activa Toyota Safety Sense™ P (TSS-P) con control de crucero adaptativo por radar.",
+                        "Pantalla táctil multimedia de 8'' con Apple CarPlay®, Android Auto™ y compatibilidad Amazon Alexa.",
+                        "Enganche de remolque integrado de fábrica con capacidad de arrastre certificada de hasta 5,000 lbs.",
+                        "Rines de aleación de 17'' con neumáticos todoterreno y placas protectoras inferiores de chasis.",
+                        "Ventana eléctrica de compuerta trasera corrediza y rieles de techo portaequipaje."
+                    ].join('\n');
+                }
+
+                const features = [
+                    "Suite de seguridad activa Toyota Safety Sense™: Sistema Pre-Colisión con detección de peatones y ciclistas.",
+                    "Asistente de mantenimiento y trazado de carril (LTA) con dirección asistida y control de crucero dinámico con radar (DRCC)."
+                ];
+
+                if (isBaseEntry) {
+                    features.push("Motor 2.0L Dynamic Force 4 cilindros DOHC de 169 HP con transmisión Direct Shift-CVT.");
+                    features.push("Pantalla táctil multimedia de 8'' con soporte Apple CarPlay® y Android Auto™ por cable.");
+                    features.push("Tapicería de tela de alta durabilidad con ajuste manual de asientos de 6 posiciones.");
+                    features.push("Faros delanteros Bi-LED automáticos y luces diurnas LED de diseño aerodinámico.");
+                    features.push("Rines de 16'' con tapacubos o aleación estándar de fábrica.");
+                    features.push("Aire acondicionado manual con filtro de polen y purificador de aire.");
+                    features.push("Cámara de reversa con guías de alineación integradas en pantalla central.");
+                    features.push("10 bolsas de aire de fábrica y sistema de monitoreo de presión de neumáticos (TPMS).");
+                } else if (isLuxury) {
+                    features.push("Tapicería en piel sintética SofTex® con asientos delanteros calefactables y ajuste eléctrico de 8 vías.");
+                    features.push("Techo solar corredizo / inclinable eléctrico de cristal.");
+                    features.push("Sistema de audio premium JBL® de 9 bocinas con amplificador y subwoofer.");
+                    features.push("Monitor de punto ciego (BSM) con alerta de tráfico cruzado trasero (RCTA).",
+                    "Rines de aleación de aluminio maquinado de 18'' bi-tono.");
+                    features.push("Climatizador automático digital bizona con difusores traseros independientes.");
+                    features.push("Cámara de visión periférica 360° o cámara de reversa con guías dinámicas avanzadas.");
+                    features.push("Llave inteligente Smart Key System con botón de encendido y acceso sin llave.");
+                } else {
+                    features.push("Pantalla táctil de 8'' con interfaz multimedia Toyota y soporte para smartphones.");
+                    features.push("Rines de aleación de 17'' con frenos de disco en las 4 ruedas y ABS + EBD.");
+                    features.push("Faros delanteros y traseros LED de encendido automático.");
+                    features.push("Monitor de punto ciego (BSM) y sistema de control de estabilidad vehicular (VSC).");
+                    features.push("Sistema de acceso inteligente Smart Key con encendido Push Start.");
+                    features.push("8 a 10 bolsas de aire de protección integral.");
+                }
+                return features.join('\n');
+            }
+
+            // =========================================================================
+            // 3. NISSAN (SENTRA, ROGUE, KICKS, VERSA, ALTIMA, PATHFINDER)
+            // =========================================================================
+            if (combined.includes('nissan') || combined.includes('sentra') || combined.includes('rogue') || combined.includes('kicks') || combined.includes('versa') || combined.includes('altima')) {
+                const features = [
                     "Suite de seguridad Nissan Safety Shield® 360: Frenado automático de emergencia con detector de peatones.",
-                    "Sistema de advertencia de punto ciego (BSW) y alerta de tráfico cruzado trasero (RCTA).",
-                    "Motor 2.0L 4 cilindros DOHC 16V de 149 HP con transmisión eficiente Xtronic CVT®.",
-                    "Pantalla táctil NissanConnect® de 8'' con Apple CarPlay®, Android Auto™ y reconocimiento de voz.",
-                    "Pantalla digital de asistencia avanzada al conductor (Advanced Drive-Assist® de 7'') en el cuadro de instrumentos.",
-                    "Control de crucero inteligente (ICC) y frenado automático en reversa (RAB).",
-                    "Rines de aluminio maquinado de 16'' y frenos de disco ventilados en las 4 ruedas con ABS.",
-                    "Llave inteligente Nissan Intelligent Key® con botón de encendido y apertura remota de cajuela."
-                ].join('\n');
+                    "Sistema de advertencia de cambio involuntario de carril (LDW) y luces altas automáticas (HBA)."
+                ];
+
+                if (isBaseEntry) {
+                    features.push("Motor 2.0L 4 cilindros DOHC de 149 HP con transmisión eficiente Xtronic CVT®.");
+                    features.push("Pantalla táctil multimedia de 7'' con Apple CarPlay® y Android Auto™ estándar.");
+                    features.push("Tapicería de tela resistente con ajuste manual de asientos delanteros.");
+                    features.push("Rines de 16'' de acero con cubiertas aerodinámicas o aleación estándar.");
+                    features.push("Aire acondicionado manual con microfiltro de cabina.");
+                    features.push("Cámara de visión trasera con guías de aproximación.");
+                    features.push("Frenado automático en reversa (RAB) y alerta de punto ciego (BSW).");
+                    features.push("10 bolsas de aire suplementarias y control dinámico vehicular (VDC).");
+                } else if (isLuxury) {
+                    features.push("Tapicería en piel acolchada Prima-Tex™ con asientos calefactables y memoria para conductor.");
+                    features.push("Techo panorámico corredizo eléctrico de doble panel.");
+                    features.push("Sistema de audio premium Bose® con 8 a 10 altavoces y tecnología CenterPoint.");
+                    features.push("Monitor de visión periférica inteligente 360° (Intelligent Around View® Monitor).");
+                    features.push("Sistema de asistencia a la conducción ProPILOT Assist con control de crucero inteligente.");
+                    features.push("Rines de aleación de aluminio maquinado de 18'' a 19'' bi-tono.");
+                    features.push("Climatizador automático bizona con microfiltro y ductos traseros.");
+                    features.push("Compuerta trasera con apertura eléctrica manos libres activada por movimiento.");
+                } else if (isSport) {
+                    features.push("Paquete estético SR: Parrilla V-Motion cromada oscura, alerón trasero y faldones deportivos.");
+                    features.push("Rines de aleación de aluminio de 18'' en acabado deportivo con neumáticos de alto rendimiento.");
+                    features.push("Faros delanteros LED con luces diurnas LED integradas y faros de niebla LED.");
+                    features.push("Pantalla táctil NissanConnect® de 8'' con Apple CarPlay® y Android Auto™.");
+                    features.push("Pantalla digital de asistencia de 7'' en el cuadro de instrumentos (Advanced Drive-Assist®).");
+                    features.push("Llave inteligente Nissan Intelligent Key® con botón de encendido y arranque remoto.");
+                } else {
+                    features.push("Pantalla táctil de 8'' NissanConnect® con conectividad para smartphones.");
+                    features.push("Rines de aleación de 17'' con frenos de disco ventilados en las 4 ruedas.");
+                    features.push("Alerta de punto ciego (BSW) y alerta de tráfico cruzado trasero (RCTA).");
+                    features.push("Llave inteligente Nissan Intelligent Key® con encendido por botón.");
+                    features.push("Cámara de reversa con guías dinámicas y 10 bolsas de aire.");
+                }
+                return features.join('\n');
             }
 
-            // 3. NISSAN ROGUE / ROGUE SPORT / KICKS
-            if (combined.includes('rogue') || combined.includes('kicks')) {
-                return [
-                    "Sistema de frenado automático de emergencia inteligente con detector de peatones y alerta de colisión frontal.",
-                    "Advertencia de cambio involuntario de carril (LDW) y alerta de punto ciego (BSW).",
-                    "Motor 2.0L DOHC 16 válvulas de 141 HP con transmisión Xtronic CVT® y modo Eco.",
-                    "Pantalla táctil de 7'' NissanConnect® con conectividad Apple CarPlay® & Android Auto™.",
-                    "Sistema organizador de carga inteligente Divide-N-Hide® y asientos traseros abatibles 60/40.",
-                    "Cámara de visión trasera con guías de aproximación y sensores de parqueo traseros.",
-                    "Rines de aleación de aluminio de 17'' con suspensión independiente en las 4 ruedas.",
-                    "Control dinámico vehicular (VDC), control de tracción (TCS) y 6 bolsas de aire suplementarias."
-                ].join('\n');
+            // =========================================================================
+            // 4. JEEP (WRANGLER, GRAND CHEROKEE, GLADIATOR, COMPASS, CHEROKEE)
+            // =========================================================================
+            if (combined.includes('jeep') || combined.includes('wrangler') || combined.includes('cherokee') || combined.includes('gladiator') || combined.includes('compass')) {
+                const isWrangler = combined.includes('wrangler') || combined.includes('gladiator');
+
+                if (isWrangler) {
+                    if (isLuxury || combined.includes('rubicon') || combined.includes('sahara')) {
+                        return [
+                            "Sistema 4x4 Rock-Trac® o Command-Trac® con caja de transferencia de 2 velocidades.",
+                            "Bloqueo electrónico de diferenciales delantero y trasero Tru-Lok® con barra estabilizadora desconectable.",
+                            "Ejes sólidos delantero y trasero Dana® 44 de alta resistencia con placas de protección de bajos.",
+                            "Pantalla táctil Uconnect® de 8.4'' a 12.3'' con páginas Off-Road Pages y Apple CarPlay® / Android Auto™.",
+                            "Rines de aluminio de 17'' con neumáticos Off-Road de 33'' y ganchos de remolque reforzados.",
+                            "Cámara de reversa ParkView® y cámara Off-Road delantera de sendero.",
+                            "Techo rígido desmontable de 3 piezas Freedom Top® al color de la carrocería.",
+                            "Control electrónico de estabilidad antivuelco (ERM) y asistente de arranque en pendientes."
+                        ].join('\n');
+                    } else {
+                        // Base / Sport Wrangler
+                        return [
+                            "Sistema de tracción 4x4 Command-Trac® con caja de transferencia Part-Time 4WD.",
+                            "Ejes sólidos delantero y trasero Dana® con placas protectoras para tanque de combustible y transfer.",
+                            "Techo de lona o modular desmontable con parabrisas abatible para experiencia Off-Road pura.",
+                            "Pantalla táctil Uconnect® estándar de 7'' con Apple CarPlay® y Android Auto™ por cable.",
+                            "Tapicería de tela lavable de alta durabilidad con tapones de drenaje en el piso interior.",
+                            "Rines de acero o aleación estándar de 17'' con neumáticos todo terreno.",
+                            "Cámara de reversa ParkView® con líneas de cuadrícula dinámicas.",
+                            "Control electrónico de estabilidad (ESC), mitigación electrónica de vuelco (ERM) y 4 bolsas de aire."
+                        ].join('\n');
+                    }
+                }
+
+                // Grand Cherokee / Compass
+                if (isBaseEntry) {
+                    return [
+                        "Sistema de tracción con control de estabilidad electrónico y asistente de arranque en pendientes.",
+                        "Pantalla táctil multimedia Uconnect® con Apple CarPlay® y Android Auto™.",
+                        "Tapicería de tela resistente con ajuste manual de asientos delanteros.",
+                        "Rines de aleación de aluminio de 17'' originales de fábrica.",
+                        "Aire acondicionado con control de temperatura de zona dual y salida trasera.",
+                        "Cámara de reversa ParkView® con guías de aproximación y sensores traseros.",
+                        "Faros de encendido automático y luces diurnas de seguridad.",
+                        "7 bolsas de aire suplementarias con estructura de acero de alta resistencia."
+                    ].join('\n');
+                } else {
+                    return [
+                        "Sistema de tracción 4x4 Quadra-Trac® con selector de terreno Selec-Terrain® (Auto, Sport, Nieve, Arena/Lodo).",
+                        "Tapicería en piel premium Capri/Nappa con asientos delanteros calefactables y ajuste eléctrico.",
+                        "Techo panorámico corredizo eléctrico de doble panel CommandView®.",
+                        "Pantalla táctil multimedia Uconnect® HD con navegación GPS y Apple CarPlay® / Android Auto™ inalámbrico.",
+                        "Sistema de audio premium Alpine® de 9 altavoces con subwoofer.",
+                        "Asistente de mantenimiento de carril activo, detector de punto ciego y frenado de emergencia.",
+                        "Rines de aleación de aluminio maquinado de 18'' a 20'' de acabado exclusivo.",
+                        "Compuerta trasera con apertura eléctrica asistida y encendido remoto de motor."
+                    ].join('\n');
+                }
             }
 
-            // 4. TOYOTA 4RUNNER
-            if (combined.includes('4runner') || combined.includes('four runner')) {
-                return [
-                    "Estructura de chasis independiente de largueros sobre bastidor (Body-on-Frame) de máxima resistencia.",
-                    "Sistema de tracción 4x4 Part-Time con caja reductora transferible de 2 velocidades (4WD High / Low).",
-                    "Motor V6 4.0L DOHC 24V con VVT-i independiente de 270 HP y 278 lb-pie de torque.",
-                    "Suite de seguridad activa Toyota Safety Sense™ P (TSS-P) con control de crucero adaptativo por radar.",
-                    "Pantalla táctil multimedia de 8'' con Apple CarPlay®, Android Auto™ y compatibilidad Amazon Alexa.",
-                    "Enganche de remolque integrado de fábrica con capacidad de arrastre certificada de hasta 5,000 lbs.",
-                    "Rines de aleación de 17'' con neumáticos todoterreno y placas protectoras inferiores de motor y transfer.",
-                    "Ventana eléctrica de compuerta trasera corrediza de un solo toque y rieles de techo portaequipaje."
-                ].join('\n');
+            // =========================================================================
+            // 5. PICKUPS (SILVERADO, F-150, RAM 1500, SIERRA)
+            // =========================================================================
+            if (combined.includes('silverado') || combined.includes('f-150') || combined.includes('ram') || combined.includes('sierra') || combined.includes('pickup')) {
+                if (isBaseEntry) {
+                    return [
+                        "Carrocería de alta resistencia con batea de carga reforzada y ganchos de amarre de servicio pesado.",
+                        "Paquete de arrastre con enganche clase IV y control electrónico de balanceo de remolque (Trailer Sway).",
+                        "Sistema de tracción 4x4 o 4x2 con selector de modos de trabajo y caja de transferencia.",
+                        "Pantalla táctil multimedia estándar con conectividad Apple CarPlay® y Android Auto™.",
+                        "Tapicería de tela o vinil de alta durabilidad para trabajo rudo con asiento corrido 40/20/40.",
+                        "Rines de acero o aleación de 17'' con neumáticos para trabajo pesado.",
+                        "Cámara de reversa con línea de alineación para enganche de remolque (Hitch Guidance).",
+                        "Control electrónico de estabilidad, frenos de disco de 4 ruedas con ABS y 6 bolsas de aire."
+                    ].join('\n');
+                } else {
+                    return [
+                        "Carrocería Doble Cabina (Crew Cab) con batea de carga de alta resistencia y compuerta trasera eléctrica.",
+                        "Paquete de remolque avanzado con controlador integrado de frenos y asistente de enganche Pro Trailer.",
+                        "Sistema de tracción 4x4 con caja de transferencia electrónica y bloqueo de diferencial trasero.",
+                        "Pantalla táctil multimedia HD de gran formato (12'' a 13.4'') con Apple CarPlay® y Android Auto™ inalámbrico.",
+                        "Tapicería en piel genuina con asientos delanteros calefactables, ventilados y memorias de posición.",
+                        "Cámara de visión periférica 360° con múltiples ángulos de visualización para remolque y batea.",
+                        "Sistema de sonido envolvente premium (Bose® / B&O® / Alpine®) de alta fidelidad.",
+                        "Rines de aleación de aluminio pulido de 20'' con neumáticos todo terreno y estribos de acceso."
+                    ].join('\n');
+                }
             }
 
-            // 5. TOYOTA COROLLA CROSS
-            if (combined.includes('corolla cross') || combined.includes('corollacross')) {
-                return [
-                    "Suite de seguridad activa Toyota Safety Sense™ 2.0: Sistema Pre-Colisión con detección de peatones y ciclistas.",
-                    "Asistente de mantenimiento y trazado de carril (LTA) con dirección asistida y control de crucero dinámico con radar (DRCC).",
-                    "Motor 2.0L Dynamic Force 4 cilindros DOHC de 169 HP con transmisión Direct Shift-CVT.",
-                    "Tracción integral inteligente Dynamic Torque Control AWD con distribución electrónica de torque.",
-                    "Pantalla táctil flotante de 8'' con conectividad Apple CarPlay® y Android Auto™ inalámbrico.",
-                    "Monitor de punto ciego (BSM) con sistema de alerta de tráfico cruzado posterior (RCTA).",
-                    "Climatizador automático digital con difusores de aire acondicionado traseros independientes.",
-                    "Rines de aleación de aluminio de 17'', rieles de techo satinados y 9 bolsas de aire avanzadas."
-                ].join('\n');
-            }
-
-            // 6. TOYOTA COROLLA SEDAN / HATCHBACK / YARIS
-            if (combined.includes('corolla') || combined.includes('yaris') || combined.includes('camry')) {
-                return [
-                    "Toyota Safety Sense™ con frenado autónomo de emergencia y detección de peatones.",
-                    "Sistema de alerta de cambio de carril con asistencia de dirección y luces altas automáticas (AHB).",
-                    "Motor 2.0L Dynamic Force de 169 HP con transmisión Direct Shift-CVT y primera marcha física.",
-                    "Pantalla táctil de 8'' con interfaz multimedia Toyota y soporte Apple CarPlay® / Android Auto™.",
-                    "Control de crucero dinámico con radar de rango completo de velocidad.",
-                    "Faros delanteros y luces diurnas Bi-LED automáticas con diseño aerodinámico.",
-                    "Rines de aluminio de 16'' con frenos de disco ventilados en las 4 ruedas y ABS + EBD.",
-                    "10 bolsas de aire de fábrica y sistema de monitoreo de presión de neumáticos (TPMS)."
-                ].join('\n');
-            }
-
-            // 7. JEEP WRANGLER / GLADIATOR
-            if (combined.includes('wrangler') || combined.includes('gladiator') || combined.includes('rubicon')) {
-                return [
-                    "Sistema de tracción 4x4 Command-Trac® con caja de transferencia y bloqueo de diferencial.",
-                    "Techo y puertas modulares desmontables con parabrisas abatible para experiencia Off-Road.",
-                    "Ejes sólidos delantero y trasero Dana® de alta resistencia con placas de protección inferior.",
-                    "Pantalla táctil Uconnect® con páginas Off-Road Pages, Apple CarPlay® y Android Auto™.",
-                    "Rines de aluminio de 17'' con neumáticos todo terreno y ganchos de remolque reforzados.",
-                    "Cámara de reversa ParkView® con líneas de cuadrícula dinámicas para maniobras en sendero.",
-                    "Control electrónico de estabilidad antivuelco (ERM) y asistente de arranque en pendientes (HAC).",
-                    "Tapicería lavable de alta durabilidad con tapones de drenaje en el piso interior."
-                ].join('\n');
-            }
-
-            // 8. PICKUPS (CHEVROLET SILVERADO, FORD F-150, RAM 1500, GMC SIERRA, TOYOTA TACOMA)
-            if (combined.includes('silverado') || combined.includes('f-150') || combined.includes('ram') || combined.includes('sierra') || combined.includes('tacoma') || combined.includes('pickup')) {
-                return [
-                    "Carrocería Doble Cabina (Crew Cab) con batea de carga de alta resistencia y ganchos de amarre.",
-                    "Paquete de arrastre / remolque de servicio pesado con controlador integrado de frenos de remolque.",
-                    "Sistema de tracción 4x4 con selector electrónico de modos de terreno y caja de transferencia.",
-                    "Pantalla táctil multimedia HD de gran formato con Apple CarPlay® y Android Auto™ inalámbrico.",
-                    "Cámara de reversa con línea de alineación de enganche de remolque (Hitch View) y sensores.",
-                    "Sistema de control electrónico de estabilidad con mitigación de balanceo de remolque (Trailer Sway Control).",
-                    "Encendido remoto de motor, apertura de compuerta trasera asistida y tomacorriente en batea.",
-                    "Rines de aleación de 18'' a 20'' con neumáticos para trabajo pesado y estribos de acceso."
-                ].join('\n');
-            }
-
-            // 9. SPORTS CARS (MUSTANG, CHARGER, CHALLENGER, CAMARO)
-            if (combined.includes('mustang') || combined.includes('charger') || combined.includes('challenger') || combined.includes('camaro')) {
-                return [
-                    "Paquete estético de alto desempeño: Rines de aleación ligera deportiva y alerón aerodinámico.",
-                    "Pantalla táctil multimedia con interfaces de telemetría de rendimiento y modos de pista (Track Apps).",
-                    "Sistema de escape deportivo con sonido afinado y selector de modos de conducción (Normal, Sport, Track).",
-                    "Cuadro de instrumentos digital personalizable con tacómetro deportivo interactivo.",
-                    "Asientos deportivos con soporte lateral reforzado y ajuste eléctrico.",
-                    "Frenos de alto rendimiento de disco ventilado con pinzas de alta disipación térmica y ABS.",
-                    "Diferencial de deslizamiento limitado (LSD) para máxima tracción y estabilidad en curvas.",
-                    "Acceso inteligente sin llave con encendido por botón y sistema de arranque remoto de motor."
-                ].join('\n');
-            }
-
-            // 10. HYUNDAI / KIA (TUCSON, SANTA FE, SPORTAGE, SORENTO, SONATA, ELANTRA)
-            if (combined.includes('hyundai') || combined.includes('kia') || combined.includes('tucson') || combined.includes('sportage') || combined.includes('santa fe') || combined.includes('sonata')) {
-                return [
-                    "Suite de seguridad activa Hyundai SmartSense / Kia DriveWise con frenado autónomo de emergencia.",
-                    "Asistente de mantenimiento de carril (LKA) con seguimiento de carril (LFA) y detector de fatiga.",
-                    "Pantalla táctil de 8'' a 10.25'' con conectividad inalámbrica para Apple CarPlay® y Android Auto™.",
-                    "Selector de modos de manejo Drive Mode (Eco, Normal, Sport, Smart) para optimización de combustible.",
-                    "Cámara de reversa con guías dinámicas de estacionamiento y sensores de proximidad.",
-                    "Rines de aleación de aluminio con corte de diamante y ópticas delanteras LED diurnas.",
-                    "Control electrónico de estabilidad (ESC), control de tracción (TCS) y asistente de arranque en pendientes.",
-                    "Llave con mando a distancia para apertura y cierre de seguros con inmovilizador de motor."
-                ].join('\n');
-            }
-
-            // 11. PREMIUM / LUXURY (BMW, MERCEDES, AUDI, LEXUS, LAND ROVER, PORSCHE)
-            if (combined.includes('bmw') || combined.includes('mercedes') || combined.includes('audi') || combined.includes('lexus') || combined.includes('land rover') || combined.includes('range rover') || combined.includes('porsche')) {
-                return [
-                    "Paquete de equipamiento de lujo con acabados interiores en materiales nobles y tapicería en piel premium.",
-                    "Cockpit digital panorámico de alta definición con sistema de navegación e infoentretenimiento avanzado.",
-                    "Sistema de sonido envolvente premium de alta fidelidad con ecualización acústica digital.",
-                    "Faros delanteros adaptativos inteligentes con tecnología Matrix LED / Láser y luces diurnas distintivas.",
-                    "Asistentes de conducción autónoma de Nivel 2: Control de crucero adaptativo con Stop&Go y centrado de carril.",
-                    "Cámara de visión periférica 360° con sensores ultrasónicos delanteros y traseros de estacionamiento.",
-                    "Suspensión con control dinámico de amortiguación para un confort de marcha y agilidad excepcionales.",
-                    "Acceso confort manos libres, portón trasero eléctrico con apertura por sensor de pie e iluminación ambiental."
-                ].join('\n');
-            }
-
-            // 12. DEFAULT ADAPTIVE SEGÚN TIPO DE CARROCERÍA
+            // =========================================================================
+            // 6. DEFAULT ADAPTATIVO RIGUROSO SEGÚN CARROCERÍA Y NIVEL DE ACABADO
+            // =========================================================================
             const isSuv = combined.includes('suv') || combined.includes('crossover');
-            return [
+            const features = [
                 isSuv 
                     ? "Carrocería tipo SUV con mayor despeje al suelo y posición de manejo elevada con excelente visibilidad."
                     : "Carrocería de diseño aerodinámico para máxima eficiencia de combustible y estabilidad en carretera.",
-                "Pantalla táctil multimedia central con conectividad para smartphones vía Apple CarPlay® y Android Auto™.",
-                "Cámara de visión trasera con líneas de guía de parqueo y sensores de reversa.",
-                "Frenos de disco en las 4 ruedas con sistema antibloqueo (ABS) y distribución electrónica de frenado (EBD).",
-                "Control electrónico de estabilidad vehicular (ESC/VSC) y sistema de control de tracción (TCS).",
-                "Faros delanteros con tecnología LED de encendido automático y luces diurnas de seguridad.",
-                "Rines de aleación de aluminio originales de fábrica con neumáticos de alta adherencia.",
-                "Bolsas de aire frontales, laterales y tipo cortina con estructura de deformación programada."
-            ].join('\n');
+                "Pantalla táctil multimedia central con conectividad para smartphones vía Apple CarPlay® y Android Auto™."
+            ];
+
+            if (isBaseEntry) {
+                features.push("Tapicería de tela reforzada transpirable de alta resistencia con ajuste manual de asientos.");
+                features.push("Rines de 16'' a 17'' con tapacubos o aleación estándar de fábrica.");
+                features.push("Sistema de aire acondicionado manual con control de recirculación y filtro de polen.");
+                features.push("Cámara de visión trasera con guías de alineación en pantalla.");
+                features.push("Frenos de disco en las 4 ruedas con sistema antibloqueo (ABS) y distribución electrónica (EBD).");
+                features.push("Control electrónico de estabilidad vehicular (ESC/ESP) y control de tracción (TCS).");
+            } else if (isLuxury) {
+                features.push("Tapicería en piel/cuero premium con asientos calefactables y ajuste eléctrico con memorias.");
+                features.push("Techo corredizo / panorámico eléctrico de cristal con cortinilla retráctil.");
+                features.push("Sistema de sonido envolvente premium de alta fidelidad multicanal.");
+                features.push("Asistencias avanzadas a la conducción: Alerta de punto ciego (BSM) y control de crucero adaptativo.");
+                features.push("Rines de aleación de aluminio maquinado bi-tono de 18'' a 20''.");
+                features.push("Acceso confort sin llave (Smart Entry) con botón de encendido y compuerta eléctrica.");
+            } else {
+                features.push("Rines de aleación de aluminio originales de fábrica con neumáticos de alta adherencia.");
+                features.push("Faros delanteros con tecnología LED de encendido automático y luces diurnas de seguridad.");
+                features.push("Cámara de reversa con guías dinámicas de estacionamiento y sensores traseros.");
+                features.push("Frenos de disco en las 4 ruedas con sistema antibloqueo (ABS) y control de estabilidad (ESC).");
+                features.push("Acceso con control remoto y botón de encendido de motor.");
+                features.push("Bolsas de aire frontales, laterales y tipo cortina con estructura reforzada.");
+            }
+
+            return features.join('\n');
         }
 
         function onFichaImageUrlChange() {
@@ -6639,7 +6742,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 document.getElementById('f_fuel_type').value = fuelStr;
                 document.getElementById('f_brakes').value = brakeStr;
 
-                document.getElementById('f_features_text').value = generateAdaptiveFeatures(make, cleanModel, bodyClass, series);
+                document.getElementById('f_features_text').value = generateAdaptiveFeatures(make, cleanModel, bodyClass, series, year);
 
                 updateFichaLive();
 
