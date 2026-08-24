@@ -5752,6 +5752,23 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             return 'Tracción Delantera (FWD)';
         }
 
+        function formatVehicleKeys(trim = '', title = '', hasNoDuplicate = false) {
+            const combined = `${trim || ''} ${title || ''}`.toLowerCase();
+            const isBase = (
+                /\b(le|lx|s|base|pop|pure|l|ls|se\b|tradesman|xl|active|value|comfort)\b/i.test(combined)
+            ) && !/(limited|platinum|touring|elite|denali|rubicon|high country|king ranch|laramie|calligraphy|prestige|autobiography|xle\b|ex-l|sel\b|titanium|premier)/i.test(combined);
+
+            if (isBase) {
+                return hasNoDuplicate 
+                    ? '1 Llave Física de Espadín con Mando (Sin Duplicado)' 
+                    : '2 Llaves Físicas de Espadín con Mando a Distancia';
+            } else {
+                return hasNoDuplicate 
+                    ? '1 Llave Inteligente Smart Key (Presencial - Sin Duplicado)' 
+                    : '2 Llaves Inteligentes Smart Key (Presencia)';
+            }
+        }
+
         function formatTransmission(transStyle, transSpeeds, make = '', model = '', year = '') {
             const s = String(transStyle || '').toLowerCase();
             const speeds = parseInt(transSpeeds) || null;
@@ -5767,20 +5784,23 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 return speeds ? `Doble Embrague (DCT) de ${speeds} Vel.` : 'Doble Embrague (DCT) de 7 Vel.';
             }
 
-            // 3. Detección EXPLÍCITA de CVT (ÚNICAMENTE si la fuente especifica explícitamente "CVT" o "Continuously Variable")
-            if (s.includes('continuously variable') || s.includes('cvt') || s.includes('variable')) {
+            // 3. REGLA ESTRICTA DE PICKUPS Y TRUCKS 4X4: Prohibido asignar CVT a vehículos pesados o de alto torque
+            const isTruckOrHeavy4x4 = combined.includes('pickup') || combined.includes('truck') || combined.includes('silverado') || combined.includes('sierra') || combined.includes('f-150') || combined.includes('f150') || combined.includes('ram') || combined.includes('tacoma') || combined.includes('tundra') || combined.includes('frontier') || combined.includes('colorado') || combined.includes('canyon') || combined.includes('ranger') || combined.includes('4runner') || combined.includes('tahoe') || combined.includes('suburban') || combined.includes('yukon') || combined.includes('escalade') || combined.includes('grand cherokee') || combined.includes('durango') || combined.includes('wrangler') || combined.includes('gladiator');
+
+            // 4. Detección EXPLÍCITA de CVT (ÚNICAMENTE si la fuente especifica explícitamente "CVT" o "Continuously Variable" y NO es una Pickup/Truck pesada)
+            if ((s.includes('continuously variable') || s.includes('cvt') || s.includes('variable')) && !isTruckOrHeavy4x4) {
                 if (combined.includes('corolla') || combined.includes('corolla cross')) {
                     return 'Automática Direct Shift-CVT';
                 }
                 return 'Automática CVT';
             }
 
-            // 4. Si la API devolvió el número exacto de velocidades
+            // 5. Si la API devolvió el número exacto de velocidades
             if (speeds) {
                 return `Automática de ${speeds} Velocidades`;
             }
 
-            // 5. REGLA UNIVERSAL: Si dice genéricamente "Automatic" o "Automatic Transmission", PROHIBIDO usar "CVT".
+            // 6. REGLA UNIVERSAL: Si dice genéricamente "Automatic" o "Automatic Transmission", PROHIBIDO usar "CVT".
             // Mapeo inteligente de caja automática según el segmento del vehículo:
             
             // Pickups grandes y SUVs Full-Size modernas (10 Velocidades / 8 Velocidades)
@@ -5805,6 +5825,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             const combined = `${make || ''} ${model || ''}`.toLowerCase();
             const d = parseFloat(disp) || 0;
             const c = parseInt(cyl) || 4;
+            const y = parseInt(year) || 0;
 
             // 1. Honda
             if (combined.includes('hr-v') || combined.includes('hrv')) {
@@ -5850,14 +5871,29 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             if (combined.includes('rav4') || combined.includes('camry')) {
                 return '203 HP @ 6,600 RPM';
             }
-            if (combined.includes('4runner') || combined.includes('fj cruiser') || combined.includes('prado')) {
+            if (combined.includes('4runner')) {
+                return (y >= 2025 || (c === 4 && d < 3.0)) ? '278 HP @ 6,000 RPM' : '270 HP @ 5,600 RPM';
+            }
+            if (combined.includes('tacoma')) {
+                return (y >= 2024 || (c === 4 && d < 3.0)) ? '278 HP @ 6,000 RPM' : (d >= 3.5 ? '278 HP @ 6,000 RPM' : '159 HP @ 5,200 RPM');
+            }
+            if (combined.includes('tundra') || combined.includes('sequoia')) {
+                return (y >= 2022 || d < 4.0) ? '389 HP @ 5,200 RPM' : ((d >= 5.7) ? '381 HP @ 5,600 RPM' : '304 HP @ 5,500 RPM');
+            }
+            if (combined.includes('fj cruiser') || combined.includes('prado')) {
                 return '270 HP @ 5,600 RPM';
             }
             if (combined.includes('hilux') || combined.includes('fortuner')) {
                 return d >= 4.0 ? '235 HP @ 5,200 RPM' : (d >= 2.7 ? '164 HP @ 5,200 RPM' : '201 HP @ 3,400 RPM');
             }
-            if (combined.includes('land cruiser') || combined.includes('tundra') || combined.includes('sequoia')) {
-                return (d >= 5.7) ? '381 HP @ 5,600 RPM' : ((d >= 4.6) ? '304 HP @ 5,500 RPM' : '389 HP @ 5,200 RPM');
+            if (combined.includes('yaris') || combined.includes('raize') || combined.includes('rush')) {
+                return '105 HP @ 6,000 RPM';
+            }
+            if (combined.includes('highlander')) {
+                return d <= 2.5 ? '243 HP' : '295 HP @ 6,600 RPM';
+            }
+            if (combined.includes('land cruiser')) {
+                return (y >= 2024 || (c === 4 && d < 3.0)) ? '326 HP @ 6,000 RPM' : ((d >= 5.7) ? '381 HP @ 5,600 RPM' : '304 HP @ 5,500 RPM');
             }
             if (combined.includes('yaris') || combined.includes('raize') || combined.includes('rush')) {
                 return '105 HP @ 6,000 RPM';
@@ -6639,7 +6675,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             }
 
             if (document.getElementById('f_keys')) {
-                document.getElementById('f_keys').value = hasNoDuplicate ? '1 Llave con Botón de Encendido (Sin Duplicado)' : '2 Llaves Inteligentes (Presencia)';
+                document.getElementById('f_keys').value = formatVehicleKeys(v.trim || '', title, hasNoDuplicate);
             }
             if (document.getElementById('f_airbags')) document.getElementById('f_airbags').value = 'Originales de Fábrica (100% Intactas)';
             
@@ -6773,6 +6809,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 document.getElementById('f_gvwr').value = gvwrStr;
                 document.getElementById('f_fuel_type').value = fuelStr;
                 document.getElementById('f_brakes').value = brakeStr;
+                if (document.getElementById('f_keys')) document.getElementById('f_keys').value = formatVehicleKeys(series, fullTitle, false);
 
                 document.getElementById('f_features_text').value = generateAdaptiveFeatures(
                     make, cleanModel, bodyClass, series, year, 
@@ -7352,8 +7389,19 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             setTxt('pv_stock_plate', plate);
             setTxt('pv_stock_owners', owners);
             setTxt('pv_stock_title_type', titleType || 'Título Limpio (Clean Title)');
-            setTxt('pv_stock_damage', primaryDamage || 'Sin Daño Estructural');
-            setTxt('pv_stock_keys', keys);
+            // AUDITORÍA TÉCNICA DE CONSISTENCIA CRUZADA: Validar llaves de acuerdo al Trim
+            const combinedTrimTitle = `${trim || ''} ${title || ''}`.toLowerCase();
+            const isBaseVersion = (
+                /\b(le|lx|s|base|pop|pure|l|ls|se\b|tradesman|xl|active|value|comfort)\b/i.test(combinedTrimTitle)
+            ) && !/(limited|platinum|touring|elite|denali|rubicon|high country|king ranch|laramie|calligraphy|prestige|autobiography|xle\b|ex-l|sel\b|titanium|premier)/i.test(combinedTrimTitle);
+
+            let validatedKeys = keys;
+            if (isBaseVersion && (keys.toLowerCase().includes('botón') || keys.toLowerCase().includes('presencia') || keys.toLowerCase().includes('smart key') || keys.toLowerCase().includes('inteligente'))) {
+                validatedKeys = (keys.toLowerCase().includes('sin duplicado') || keys.toLowerCase().includes('1 llave'))
+                    ? '1 Llave Física de Espadín con Mando (Sin Duplicado)'
+                    : '2 Llaves Físicas de Espadín con Mando a Distancia';
+            }
+            setTxt('pv_stock_keys', validatedKeys);
             setTxt('pv_stock_airbags', airbags || 'Originales de Fábrica (100% Intactas)');
 
             // Extras / Servicios Realizados List
