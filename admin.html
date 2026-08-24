@@ -6370,12 +6370,29 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             const sel = document.getElementById('fichaVehicleSelect');
             if (!sel) return;
             const currentVal = sel.value;
-            sel.innerHTML = '<option value="">-- Selecciona un vehículo del catálogo --</option>';
+            sel.innerHTML = '<option value="">-- Selecciona un vehículo de Stock Local (Vitrina) --</option>';
             if (Array.isArray(vehicles)) {
-                vehicles.forEach(v => {
+                // Filtrar estrictamente para que SOLO salga Stock Local (Vitrina / Entrega Inmediata)
+                const stockLocalOnly = vehicles.filter(v => {
+                    const cat = String(v.catalog || '').toLowerCase().trim();
+                    const avail = String(v.availability || '').toLowerCase().trim();
+                    const orig = String(v.origin || '').toLowerCase().trim();
+                    const desc = String(v.description || '').toLowerCase();
+                    const price = String(v.price || '').trim();
+
+                    // Descartar si pertenece al catálogo de importados o es lote de subasta por pedido
+                    if (cat === 'importados' || cat === 'subasta' || cat === 'importado') return false;
+                    if (avail === 'por_pedido' || orig === 'importado') return false;
+                    if (desc.includes('importado bajo pedido') || desc.includes('subasta iaai') || desc.includes('subasta copart')) return false;
+                    if (price.toLowerCase() === 'consultar' && (desc.includes('lote') || desc.includes('vin:'))) return false;
+
+                    return true;
+                });
+
+                stockLocalOnly.forEach(v => {
                     const opt = document.createElement('option');
                     opt.value = v.id;
-                    opt.textContent = `${v.title} (${v.year || 'S/A'}) - ${v.price || 'Consultar'}`;
+                    opt.textContent = `${v.title} (${v.year || 'S/A'}) - ${v.price || 'Vitrina'}`;
                     sel.appendChild(opt);
                 });
             }
