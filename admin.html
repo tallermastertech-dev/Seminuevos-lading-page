@@ -4872,37 +4872,63 @@
                         console.warn("Apify direct fetch warning in bulk:", e.message);
                     }
 
-                    const rawItem = (Array.isArray(items) && items.length > 0) ? items[0] : null;
+                    let rawItem = (Array.isArray(items) && items.length > 0) ? items[0] : null;
                     const info = rawItem ? (rawItem.vehicleInfo || rawItem.data || rawItem.details || rawItem) : {};
                     const item = { ...rawItem, ...info };
 
-                    // Parse fields
-                    const year = item.year || item.modelYear || item["Year"] || new Date().getFullYear();
-                    const make = item.make || item["Make"] || item.mkn || '';
-                    const model = item.model || item["Model"] || item.lm || '';
-                    const series = item.series || item.trim || item["Series"] || '';
+                    // Parse fields from Apify
+                    let year = item.year || item.modelYear || item["Year"] || new Date().getFullYear();
+                    let make = item.make || item["Make"] || item.mkn || '';
+                    let model = item.model || item["Model"] || item.lm || '';
+                    let series = item.series || item.trim || item["Series"] || '';
                     let vin = item["VIN (Status)"] || item["VIN"] || item.vin || item.vinNumber || '';
                     if (vin) vin = vin.replace(/\s*\(OK\)/i, '').replace(/\s*\(.*?\)/g, '').trim();
 
-                    const title = item.title || `${year} ${make} ${model} ${series}`.trim() || `Vehículo Subasta #${lotId || index + 1}`;
+                    let title = item.title || `${year} ${make} ${model} ${series}`.trim() || `Vehículo Subasta #${lotId || index + 1}`;
                     const rawOdo = item["Odometer"] || item.odometer || item.mileage || '';
-                    const engine = item["Engine"] || item.engine || item.engineDescription || '';
-                    const trans = item["Transmission"] || item.transmission || '';
+                    let engine = item["Engine"] || item.engine || item.engineDescription || '';
+                    let trans = item["Transmission"] || item.transmission || '';
                     const fuel = item["Fuel Type"] || item.fuel || 'Gasolina';
-                    const bodyType = item["Vehicle Class"] || item["Body Style"] || item.bodyStyle || 'SUV';
+                    let bodyType = item["Vehicle Class"] || item["Body Style"] || item.bodyStyle || 'SUV';
                     const damage = item["Primary Damage"] || item.damage || item.primaryDamage || 'Sin daño mayor';
 
-                    // Parse images
+                    // Parse HD images with Guaranteed CDN Fallback
                     let images = item.images || item.photos || item.imageUrls || [];
                     if (!Array.isArray(images) || images.length === 0) {
                         images = [];
                         if (lotId && isIaai) {
-                            for (let i = 1; i <= 10; i++) {
+                            for (let i = 1; i <= 15; i++) {
                                 images.push(`https://vis.iaai.com/resizer?imageKeys=${lotId}~IAA~S${i}&width=1024&height=768`);
                             }
                         }
                     }
-                    const cleanImgs = images.map(img => typeof img === 'string' ? img : (img.hdUrl || img.full || img.url || img.thumbUrl || img.src)).filter(Boolean).slice(0, 10);
+                    const cleanImgs = images.map(img => typeof img === 'string' ? img : (img.hdUrl || img.full || img.url || img.thumbUrl || img.src)).filter(Boolean).slice(0, 15);
+
+                    // NHTSA Auto-Decodificación si hay VIN
+                    if (vin && /^[A-HJ-NPR-Z0-9]{17}$/i.test(vin)) {
+                        try {
+                            if (liveTimerEl) liveTimerEl.innerHTML = `⚡ [${index + 1}/${links.length}] Decodificando especificaciones con NHTSA (${vin})...`;
+                            const nhtsaRes = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`);
+                            if (nhtsaRes.ok) {
+                                const nhtsaJson = await nhtsaRes.json();
+                                const r = nhtsaJson?.Results?.[0];
+                                if (r) {
+                                    year = r.ModelYear || year;
+                                    make = r.Make || make;
+                                    model = (r.Model || model).replace(/\s*\(.*?\)/g, '').trim();
+                                    series = r.Series || r.Trim || series;
+                                    title = `${year} ${make} ${model} ${series}`.trim().replace(/\s+/g, ' ');
+                                    if (r.DisplacementL || r.EngineCylinders) {
+                                        engine = formatEngine(r.DisplacementL, r.EngineCylinders, r.EngineConfiguration);
+                                    }
+                                    trans = formatTransmission(r.TransmissionStyle, r.TransmissionSpeeds, make, model, year);
+                                    bodyType = r.BodyClass || bodyType;
+                                }
+                            }
+                        } catch (e) {
+                            console.warn("NHTSA decode in bulk error:", e);
+                        }
+                    }
 
                     const normEng = normEngine(engine, title, '');
                     const normTransStr = formatTransmission(trans, null, make, model, year);
