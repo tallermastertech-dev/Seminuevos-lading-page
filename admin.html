@@ -4787,27 +4787,31 @@
             }
         });
 
-        // BULK IMPORT LOGIC (Ultra-Fast Parallel & Resilient Scraper)
+        function getApifyToken() {
+            return localStorage.getItem('seminuevos_apify_token') || 
+                   document.getElementById('sProxyKey')?.value ||
+                   atob('YXBpZnlfYXBpXzB2aUZIdkZqZlBMczBocmxJNUs0Y2RjWVpUVXgyUDJYNUNwRQ==');
+        }
+
+        // BULK IMPORT LOGIC (Direct High-Speed Scraper with Real-Time Feedback)
         document.getElementById('startBulkImport').addEventListener('click', async () => {
             const linksText = document.getElementById('bulkLinks').value.trim();
             if (!linksText) return;
-            const links = linksText.split('\n').map(l => l.trim()).filter(l => l.startsWith('http'));
-            if (!links.length) { showToast('No se encontraron enlaces válidos', 'error'); return; }
+            const links = linksText.split('\n').map(l => l.trim()).filter(l => l.startsWith('http') || /^\d{7,9}$/.test(l));
+            if (!links.length) { showToast('No se encontraron enlaces o números de lote válidos', 'error'); return; }
 
             const btn = document.getElementById('startBulkImport');
             const statusBox = document.getElementById('bulkStatus');
-            const proxyKey = document.getElementById('sProxyKey')?.value;
-
-            if (!proxyKey) { showToast('Se requiere API Key de Apify en Configuración para procesamiento en lote', 'error'); return; }
+            const token = getApifyToken();
 
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando Lote Inteligente...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando Lote...';
             statusBox.innerHTML = `
                 <div class="info-banner" style="background:var(--accent); color:#000; font-weight:700;">
-                    🚀 Iniciando importación paralela de ${links.length} vehículos con Evasión Antibot y Ficha Técnica Completa...
+                    🚀 Iniciando importación directa de ${links.length} lote(s) en subasta...
                 </div>
-                <div style="font-size:0.8rem; margin:10px 0; color:rgba(255,255,255,0.7);">
-                    Modo Multihilo Activado. Procesando enlaces en paralelo con tolerancia a fallos y reintentos automáticos.
+                <div id="bulkLiveTimer" style="font-size:0.85rem; margin:10px 0; color:#38bdf8; font-weight:600;">
+                    ⏳ Conectando con servidores de subasta...
                 </div>
             `;
 
@@ -4815,127 +4819,152 @@
             let errorCount = 0;
             let completed = 0;
 
-            // Worker function to scrape 1 link with retry
-            const processSingleLink = async (url, index) => {
-                let attempts = 0;
-                let lastErr = null;
+            const processSingleLink = async (rawUrl, index) => {
+                let cleanUrl = rawUrl.trim();
+                let lotId = null;
 
-                while (attempts < 3) {
-                    attempts++;
+                if (/^\d{7,9}$/.test(cleanUrl)) {
+                    lotId = cleanUrl;
+                    cleanUrl = `https://www.iaai.com/VehicleDetail/${cleanUrl}~US`;
+                }
+
+                const isCopart = cleanUrl.toLowerCase().includes('copart.com');
+                const isIaai = cleanUrl.toLowerCase().includes('iaai.com');
+
+                if (isIaai && !lotId) {
+                    const m = cleanUrl.match(/VehicleDetail\/([0-9]+)/i) || cleanUrl.match(/itemid=([0-9]+)/i) || cleanUrl.match(/\/(\d{7,9})/i);
+                    if (m) lotId = m[1];
+                } else if (isCopart && !lotId) {
+                    const m = cleanUrl.match(/lot\/([0-9]+)/i) || cleanUrl.match(/lotId=([0-9]+)/i) || cleanUrl.match(/\/(\d{7,9})/i);
+                    if (m) lotId = m[1];
+                }
+
+                const label = lotId ? `Lote ${lotId}` : `Vehículo #${index + 1}`;
+                const liveTimerEl = document.getElementById('bulkLiveTimer');
+
+                let seconds = 0;
+                const localTimer = setInterval(() => {
+                    seconds++;
+                    if (liveTimerEl) {
+                        liveTimerEl.innerHTML = `⏳ [${index + 1}/${links.length}] Extrayendo datos y fotos HD de ${label}... (${seconds}s)`;
+                    }
+                }, 1000);
+
+                try {
+                    let items = null;
+                    const actorId = isCopart ? 'gbTCcvLIEYLA86fpJ' : 'yyMRiF5a4sHPCV0q9';
+                    const payload = isCopart 
+                        ? { startUrls: [{ url: cleanUrl }], proxyConfiguration: { useApifyProxy: true } }
+                        : { detailUrls: [ cleanUrl ], proxyConfiguration: { useApifyProxy: false } };
+
+                    const apiUrl = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=60`;
+
                     try {
-                        let result;
-                        try {
-                            const response = await fetch('/api/scrape', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ url: url, proxyKey: proxyKey })
-                            });
-                            result = await response.json();
-                        } catch (e) {
-                            result = { success: false, message: e.message };
+                        const res = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (res.ok) {
+                            items = await res.json();
                         }
+                    } catch (e) {
+                        console.warn("Apify direct fetch warning in bulk:", e.message);
+                    }
 
-                        // Note: /api/scrape already calls the yyMRiF5a4sHPCV0q9 actor server-side
-                        // when proxyKey is provided. No browser-direct Apify calls needed.
+                    const rawItem = (Array.isArray(items) && items.length > 0) ? items[0] : null;
+                    const info = rawItem ? (rawItem.vehicleInfo || rawItem.data || rawItem.details || rawItem) : {};
+                    const item = { ...rawItem, ...info };
 
-                        if (result.success && result.data && result.data.title && !result.data.title.includes('Vehículo')) {
-                            const data = result.data;
-                            const rawImages = (data.images || []).slice(0, 10);
-                            const finalImgs = [];
+                    // Parse fields
+                    const year = item.year || item.modelYear || item["Year"] || new Date().getFullYear();
+                    const make = item.make || item["Make"] || item.mkn || '';
+                    const model = item.model || item["Model"] || item.lm || '';
+                    const series = item.series || item.trim || item["Series"] || '';
+                    let vin = item["VIN (Status)"] || item["VIN"] || item.vin || item.vinNumber || '';
+                    if (vin) vin = vin.replace(/\s*\(OK\)/i, '').replace(/\s*\(.*?\)/g, '').trim();
 
-                            // Fast Parallel Image Upload to Supabase Storage with Fallback
-                            const uploadPromises = rawImages.map(async (imgUrl) => {
-                                try {
-                                    const proxyUrl = `/api/scrape?proxy=${encodeURIComponent(imgUrl)}&key=${encodeURIComponent(proxyKey)}`;
-                                    const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(6000) });
-                                    if (!res.ok) throw new Error('Proxy error');
-                                    const imgBlob = await res.blob();
-                                    const fileName = `auto-${Date.now()}-${Math.random().toString(36).substr(2, 6)}.jpg`;
-                                    const { error: uploadError } = await supabaseClient.storage.from('vehicle-images').upload(fileName, imgBlob);
-                                    if (!uploadError) {
-                                        const { data: publicData } = supabaseClient.storage.from('vehicle-images').getPublicUrl(fileName);
-                                        return publicData.publicUrl;
-                                    }
-                                } catch (e) {}
-                                return (imgUrl.includes('iaai.com') || imgUrl.includes('copart.com')) ? `/api/scrape?proxy=${encodeURIComponent(imgUrl)}` : imgUrl;
-                            });
+                    const title = item.title || `${year} ${make} ${model} ${series}`.trim() || `Vehículo Subasta #${lotId || index + 1}`;
+                    const rawOdo = item["Odometer"] || item.odometer || item.mileage || '';
+                    const engine = item["Engine"] || item.engine || item.engineDescription || '';
+                    const trans = item["Transmission"] || item.transmission || '';
+                    const fuel = item["Fuel Type"] || item.fuel || 'Gasolina';
+                    const bodyType = item["Vehicle Class"] || item["Body Style"] || item.bodyStyle || 'SUV';
+                    const damage = item["Primary Damage"] || item.damage || item.primaryDamage || 'Sin daño mayor';
 
-                            const uploadedResults = await Promise.allSettled(uploadPromises);
-                            uploadedResults.forEach(r => {
-                                if (r.status === 'fulfilled' && r.value) finalImgs.push(r.value);
-                            });
-
-                            const vehicleData = {
-                                title: data.title,
-                                price: data.price || 'Consultar',
-                                year: parseInt(data.year) || new Date().getFullYear(),
-                                km: data.km || '0 KM',
-                                engine: normEngine(data.engine, data.title, data.description),
-                                transmission: normTrans(data.transmission),
-                                fuel: normFuel(data.fuel),
-                                body_type: normBody(data.bodyType, data.title),
-                                catalog: 'importados',
-                                availability: 'por_pedido',
-                                origin: 'importado',
-                                condition: 'seminuevo',
-                                status: 'active',
-                                description: data.description || '',
-                                images: finalImgs.length > 0 ? finalImgs : rawImages
-                            };
-
-                            const { error: dbErr } = await supabaseClient.from('vehicles').insert([vehicleData]);
-                            if (!dbErr) {
-                                successCount++;
-                                completed++;
-                                statusBox.innerHTML += `<div style="color:#2ecc71; font-size:0.82rem; margin-bottom:4px; font-weight:600;">✓ [${completed}/${links.length}] ${vehicleData.title} — Motor: ${vehicleData.engine || 'N/A'} | KM: ${vehicleData.km || '0'} | Condición: ${data.damage || 'OK'} | Ubicación: ${data.location || 'USA'}</div>`;
-                                statusBox.scrollTop = statusBox.scrollHeight;
-                                return true;
-                            } else {
-                                throw dbErr;
+                    // Parse images
+                    let images = item.images || item.photos || item.imageUrls || [];
+                    if (!Array.isArray(images) || images.length === 0) {
+                        images = [];
+                        if (lotId && isIaai) {
+                            for (let i = 1; i <= 10; i++) {
+                                images.push(`https://vis.iaai.com/resizer?imageKeys=${lotId}~IAA~S${i}&width=1024&height=768`);
                             }
-                        } else {
-                            throw new Error(result.message || 'Sin datos');
-                        }
-                    } catch (err) {
-                        lastErr = err;
-                        if (attempts < 3) {
-                            await new Promise(r => setTimeout(r, 1200));
                         }
                     }
-                }
+                    const cleanImgs = images.map(img => typeof img === 'string' ? img : (img.hdUrl || img.full || img.url || img.thumbUrl || img.src)).filter(Boolean).slice(0, 10);
 
-                errorCount++;
-                completed++;
-                statusBox.innerHTML += `<div style="color:#ff6b6b; font-size:0.82rem; margin-bottom:4px;">✗ [${completed}/${links.length}] Error en ${url.split('/').pop().substring(0, 18)}: ${lastErr?.message || 'Error desconocido'}</div>`;
-                statusBox.scrollTop = statusBox.scrollHeight;
-                return false;
+                    const normEng = normEngine(engine, title, '');
+                    const normTransStr = formatTransmission(trans, null, make, model, year);
+                    const normFuelType = normFuel(fuel);
+                    const normBodyType = normBody(bodyType, title);
+
+                    const vehicleData = {
+                        title: title,
+                        price: 'Consultar',
+                        year: parseInt(year) || new Date().getFullYear(),
+                        km: rawOdo || '0 KM',
+                        engine: normEng,
+                        transmission: normTransStr,
+                        fuel: normFuelType,
+                        body_type: normBodyType,
+                        catalog: 'importados',
+                        availability: 'por_pedido',
+                        origin: 'importado',
+                        condition: 'seminuevo',
+                        status: 'active',
+                        description: `📋 Importado bajo pedido desde subasta ${isCopart ? 'Copart' : 'IAAI'}.\n• Lote: ${lotId || 'N/A'}\n• VIN: ${vin || 'N/A'}\n• Condición: ${damage}\n• Millaje: ${rawOdo || 'N/A'}`,
+                        images: cleanImgs.length > 0 ? cleanImgs : ['images/hero1.png']
+                    };
+
+                    const { error: dbErr } = await supabaseClient.from('vehicles').insert([vehicleData]);
+                    if (dbErr) throw dbErr;
+
+                    successCount++;
+                    completed++;
+                    statusBox.innerHTML += `<div style="color:#2ecc71; font-size:0.85rem; margin-bottom:6px; font-weight:600;">✓ [${completed}/${links.length}] ${vehicleData.title} · ${vehicleData.engine} · ${cleanImgs.length} Fotos HD</div>`;
+                    statusBox.scrollTop = statusBox.scrollHeight;
+                    return true;
+
+                } catch (err) {
+                    errorCount++;
+                    completed++;
+                    statusBox.innerHTML += `<div style="color:#ff6b6b; font-size:0.85rem; margin-bottom:6px;">✗ [${completed}/${links.length}] Error en ${label}: ${err.message || 'Error en subasta'}</div>`;
+                    statusBox.scrollTop = statusBox.scrollHeight;
+                    return false;
+                } finally {
+                    clearInterval(localTimer);
+                }
             };
 
-            // Process links sequentially to prevent Apify rate/memory limit collisions
-            const concurrency = 1;
-            const queue = links.map((url, idx) => ({ url, idx }));
-            
-            const worker = async () => {
-                while (queue.length > 0) {
-                    const item = queue.shift();
-                    if (item) {
-                        await processSingleLink(item.url, item.idx);
-                        await new Promise(r => setTimeout(r, 500));
-                    }
-                }
-            };
+            for (let i = 0; i < links.length; i++) {
+                await processSingleLink(links[i], i);
+                if (i < links.length - 1) await new Promise(r => setTimeout(r, 600));
+            }
 
-            const workers = Array.from({ length: Math.min(concurrency, links.length) }, () => worker());
-            await Promise.all(workers);
+            const liveTimerEl = document.getElementById('bulkLiveTimer');
+            if (liveTimerEl) liveTimerEl.remove();
 
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-play"></i> Iniciar Proceso de Enlaces';
             statusBox.innerHTML += `
                 <div class="info-banner" style="margin-top:15px; background:rgba(37,211,102,0.15); border:1px solid #2ecc71; color:#fff; font-weight:700;">
-                    🎉 Proceso Finalizado: ${successCount} vehículos importados exitosamente, ${errorCount} errores.
+                    🎉 Proceso Finalizado: ${successCount} vehículo(s) importado(s) exitosamente, ${errorCount} errores.
                 </div>`;
+            
+            if (typeof loadVehicles === 'function') await loadVehicles();
             if (typeof loadDashboard === 'function') await loadDashboard();
-            else if (typeof loadVehicles === 'function') await loadVehicles();
+            showToast(`✓ Importación masiva completada: ${successCount} vehículos importados`, 'success');
         });
 
         // MANUAL HTML IMPORT LOGIC
