@@ -325,20 +325,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const searchTerm = document.getElementById('catalogSearch')?.value?.toLowerCase() || '';
         if (searchTerm) {
             filtered = filtered.filter(v =>
-                v.title.toLowerCase().includes(searchTerm) ||
-                v.year.toString().includes(searchTerm) ||
-                (v.bodyType && v.bodyType.toLowerCase().includes(searchTerm))
+                (v.title || '').toLowerCase().includes(searchTerm) ||
+                (v.year || '').toString().includes(searchTerm) ||
+                ((v.bodyType || v.body_type) && (v.bodyType || v.body_type).toLowerCase().includes(searchTerm))
             );
         }
 
         if (typeConditionFilter !== 'todos') {
-            filtered = filtered.filter(v => 
-                v.condition === typeConditionFilter || 
-                (v.bodyType && (v.bodyType === typeConditionFilter || v.bodyType.toLowerCase() === typeConditionFilter.toLowerCase()))
-            );
+            filtered = filtered.filter(v => {
+                const bt = (v.bodyType || v.body_type || '').toLowerCase();
+                return v.condition === typeConditionFilter || (bt && bt === typeConditionFilter.toLowerCase());
+            });
         }
         if (brandFilter !== 'todos') {
-            filtered = filtered.filter(v => v.title.toLowerCase().includes(brandFilter));
+            filtered = filtered.filter(v => (v.title || '').toLowerCase().includes(brandFilter));
         }
         filtered = sortVehicles(filtered);
         gridElement.innerHTML = '';
@@ -364,9 +364,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const viewCount = car.views || 0;
             const viewsBadge = viewCount > 0 ? `<span class="views-badge" id="views-card-${car.id}"><i class="fas fa-eye"></i> ${viewCount} vista${viewCount !== 1 ? 's' : ''}</span>` : `<span class="views-badge" id="views-card-${car.id}" style="display:none;"></span>`;
             let carImg = (car.images && car.images.length > 0 && car.images[0]) ? car.images[0] : '';
-            if (carImg && (carImg.includes('iaai.com') || carImg.includes('copart.com')) && !carImg.includes('/api/scrape?proxy=')) {
-                carImg = `/api/scrape?proxy=${encodeURIComponent(carImg)}`;
-            }
             const fallbackImg = 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=70&w=500&auto=format&fit=crop';
             if (!carImg) {
                 carImg = fallbackImg;
@@ -418,19 +415,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 "@context": "https://schema.org/",
                 "@type": "Product",
                 "name": v.title,
-                "image": v.images[0],
+                "image": (v.images && v.images[0]) || '',
                 "description": cleanDesc,
                 "brand": {
                     "@type": "Brand",
-                    "name": v.title.split(' ')[0]
+                    "name": (v.title || '').split(' ')[0]
                 },
                 "model": v.title,
-                "productionDate": v.year.toString(),
+                "productionDate": (v.year || '').toString(),
                 "offers": {
                     "@type": "Offer",
                     "url": window.location.href,
                     "priceCurrency": "USD",
-                    "price": v.price === 'Consultar' ? "0" : v.price.replace(/[^0-9.-]+/g, ""),
+                    "price": v.price === 'Consultar' ? "0" : (v.price || '').replace(/[^0-9.-]+/g, ""),
                     "availability": "https://schema.org/InStock",
                     "itemCondition": v.condition === '0km' ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition"
                 }
@@ -446,9 +443,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderAllWithSearch() {
         const query = catalogSearch?.value || '';
-        renderVehicles(sortVehicles(appVehiclesSeminuevos, catalogSort?.value), 'seminuevos-grid', query);
-        renderVehicles(sortVehicles(appVehiclesPorPedido, catalogSort?.value), 'pedido-grid', query);
-        renderVehicles(sortVehicles(appVehicles0km, catalogSort?.value), 'okm-grid', query);
+        renderVehicles(sortVehicles(appVehiclesSeminuevos, catalogSort?.value), seminuevosGrid, query);
+        renderVehicles(sortVehicles(appVehiclesPorPedido, catalogSort?.value), porpedidoGrid, query);
+        renderVehicles(sortVehicles(appVehicles0km, catalogSort?.value), zerokmGrid, query);
     }
 
     catalogSort?.addEventListener('change', renderAllWithSearch);
@@ -490,7 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!container) return;
             
             // Get unique body types present in these vehicles
-            const uniqueTypes = [...new Set(vehicles.map(v => v.bodyType).filter(Boolean))];
+            const uniqueTypes = [...new Set(vehicles.map(v => v.bodyType || v.body_type).filter(Boolean))];
             
             // Define the most common ones to show even if empty, or just show what exists
             // To satisfy user, we show what exists + the standard ones if we want
@@ -544,7 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const staticPorPedido = allStatic.filter(v => {
                 const c = (v.catalog || '').toLowerCase();
-                return c === 'importados' || c === 'por_pedido' || v.availability === 'por_pedido' || v.origin === 'importado';
+                return c === 'importados' || c === 'importado' || c === 'por_pedido' || c === 'pedido' || c === 'subasta' || c === 'subastas' || v.availability === 'por_pedido' || v.origin === 'importado';
             });
 
             const staticZeroKm = allStatic.filter(v => {
@@ -564,8 +561,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const dbPorPedido = combinedRaw.filter(v => {
                 const c = (v.catalog || '').toLowerCase().trim();
-                if (c === 'importados' || c === 'importado' || c === 'por_pedido' || c === 'pedido') return true;
-                return v.availability === 'por_pedido' || v.origin === 'importado';
+                if (c === 'importados' || c === 'importado' || c === 'por_pedido' || c === 'pedido' || c === 'subasta' || c === 'subastas') return true;
+                if (v.availability === 'por_pedido' || v.origin === 'importado') return true;
+                const desc = (v.description || '').toLowerCase();
+                if (desc.includes('subasta') || desc.includes('lote') || desc.includes('vin:')) return true;
+                return false;
             });
 
             const db0km = combinedRaw.filter(v => {
@@ -577,21 +577,20 @@ document.addEventListener('DOMContentLoaded', () => {
             let deleted = [];
             try { deleted = JSON.parse(localStorage.getItem('sn_deleted_vehicles') || '[]'); } catch(e) {}
 
-            // Combine DB & Static vehicles without duplicating (DB vehicles always take priority)
+            // Combine DB & Static vehicles without duplicating DB vehicles against each other
             const mergeByTitle = (dbArr, staticArr) => {
-                const map = new Map();
-                // 1. DB vehicles are always included
-                dbArr.forEach(item => {
-                    const key = (item.title || '').toLowerCase().trim();
-                    if (key && !map.has(key)) map.set(key, item);
-                });
-                // 2. Static vehicles added only if not in DB and not deleted
+                const list = [...dbArr]; // Include ALL database vehicles
+                const dbTitles = new Set(dbArr.map(item => (item.title || '').toLowerCase().trim()));
+                const dbIds = new Set(dbArr.map(item => String(item.id || '')));
+
                 staticArr.forEach(item => {
-                    const key = (item.title || '').toLowerCase().trim();
+                    const titleKey = (item.title || '').toLowerCase().trim();
                     const idKey = String(item.id || '');
-                    if (key && !deleted.includes(key) && !deleted.includes(idKey) && !map.has(key)) map.set(key, item);
+                    if (titleKey && !deleted.includes(titleKey) && !deleted.includes(idKey) && !dbTitles.has(titleKey) && !dbIds.has(idKey)) {
+                        list.push(item);
+                    }
                 });
-                return Array.from(map.values());
+                return list;
             };
 
             appVehiclesSeminuevos = mergeByTitle(dbSemi, staticSemi);
