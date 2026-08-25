@@ -3466,12 +3466,16 @@
             const dbVehs = data || [];
             const titleMap = new Map();
             
-            // 1. DB vehicles ALWAYS take top priority and are NEVER hidden by local blacklist
+            // 1. DB vehicles (filtered against deleted list so user deletions take immediate effect)
             dbVehs.forEach(v => {
                 const key = (v.title || '').toLowerCase().trim();
-                if (key && !titleMap.has(key)) {
+                const idKey = String(v.id || '');
+                if (key && !deleted.includes(key) && !deleted.includes(idKey)) {
                     const catalog = v.catalog || (v.availability === 'entrega_inmediata' ? 'seminuevos' : (v.condition === '0km' ? '0km' : 'importados'));
-                    titleMap.set(key, { ...v, catalog: catalog, status: v.status || 'active' });
+                    const mapKey = `db_${v.id}_${key}`;
+                    if (!titleMap.has(mapKey)) {
+                        titleMap.set(mapKey, { ...v, catalog: catalog, status: v.status || 'active' });
+                    }
                 }
             });
 
@@ -3479,9 +3483,12 @@
             [...localVehs, ...allStatic].forEach(v => {
                 const key = (v.title || '').toLowerCase().trim();
                 const idKey = String(v.id || '');
-                if (key && !deleted.includes(key) && !deleted.includes(idKey) && !titleMap.has(key)) {
-                    const catalog = v.catalog || (v.availability === 'entrega_inmediata' ? 'seminuevos' : (v.condition === '0km' ? '0km' : 'importados'));
-                    titleMap.set(key, { ...v, catalog: catalog, status: v.status || 'active', isStatic: true });
+                if (key && !deleted.includes(key) && !deleted.includes(idKey)) {
+                    const isAlreadyInDb = Array.from(titleMap.values()).some(item => (item.title || '').toLowerCase().trim() === key);
+                    if (!isAlreadyInDb) {
+                        const catalog = v.catalog || (v.availability === 'entrega_inmediata' ? 'seminuevos' : (v.condition === '0km' ? '0km' : 'importados'));
+                        titleMap.set(`static_${v.id}_${key}`, { ...v, catalog: catalog, status: v.status || 'active', isStatic: true });
+                    }
                 }
             });
             
@@ -3543,15 +3550,16 @@
 
             let html = `<table><thead><tr><th style="width:50px; text-align:center;"><input type="checkbox" id="headerCheckbox" onchange="toggleSelectAll()" ${allSelected ? 'checked' : ''} class="vehicle-checkbox"></th><th>Vehículo</th><th>Precio</th><th>Catálogo</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>`;
             filtered.forEach(v => {
-                const isChecked = selectedVehicles.has(v.id) ? 'checked' : '';
-                const isSelectedClass = selectedVehicles.has(v.id) ? 'class="selected"' : '';
+                const sId = String(v.id);
+                const isChecked = (selectedVehicles.has(v.id) || selectedVehicles.has(sId)) ? 'checked' : '';
+                const isSelectedClass = (selectedVehicles.has(v.id) || selectedVehicles.has(sId)) ? 'class="selected"' : '';
                 html += `<tr data-id="${v.id}" ${isSelectedClass}>
-                    <td style="text-align:center;"><input type="checkbox" class="vehicle-checkbox" data-id="${v.id}" onchange="toggleVehicle(${v.id})" ${isChecked}></td>
+                    <td style="text-align:center;"><input type="checkbox" class="vehicle-checkbox" data-id="${v.id}" onchange="toggleVehicle('${v.id}')" ${isChecked}></td>
                     <td><div class="vehicle-row-info"><img src="${imgSrc(v)}" class="vehicle-row-img" onerror="this.src='images/favicon.png'; this.style.opacity='0.3';"><div><div class="vehicle-row-name">${v.title}</div><div class="vehicle-row-cat">${v.year} · ${(v.body_type || v.bodyType || '').toUpperCase()}</div></div></div></td>
                     <td style="color:var(--accent);font-weight:600">${v.price}</td>
                     <td><span class="badge badge-gold">${(v.catalog || '').toUpperCase()}</span></td>
                     <td>${statusBadge(v.status)}</td>
-                    <td><div class="action-btns"><button class="action-btn" onclick="openFichaForVehicle(${v.id})" title="Ficha Técnica Comercial" style="color:#38bdf8;"><i class="fas fa-file-invoice"></i></button><button class="action-btn" onclick="editVehicle(${v.id})" title="Editar"><i class="fas fa-pen"></i></button><button class="action-btn delete" onclick="deleteVehicle(${v.id})" title="Eliminar"><i class="fas fa-trash"></i></button></div></td>
+                    <td><div class="action-btns"><button class="action-btn" onclick="openFichaForVehicle('${v.id}')" title="Ficha Técnica Comercial" style="color:#38bdf8;"><i class="fas fa-file-invoice"></i></button><button class="action-btn" onclick="editVehicle('${v.id}')" title="Editar"><i class="fas fa-pen"></i></button><button class="action-btn delete" onclick="deleteVehicle('${v.id}')" title="Eliminar"><i class="fas fa-trash"></i></button></div></td>
                 </tr>`;
             });
             html += '</tbody></table>';
@@ -3759,19 +3767,25 @@
             }
         }
 
-        async function editVehicle(id) { const v = vehicles.find(v => v.id === id); if (v) openModal(v); }
+        async function editVehicle(id) { 
+            const sId = String(id);
+            const v = vehicles.find(v => String(v.id) === sId); 
+            if (v) openModal(v); 
+        }
 
         function toggleVehicle(id) {
-            if (selectedVehicles.has(id)) {
+            const sId = String(id);
+            if (selectedVehicles.has(id) || selectedVehicles.has(sId)) {
                 selectedVehicles.delete(id);
+                selectedVehicles.delete(sId);
             } else {
-                selectedVehicles.add(id);
+                selectedVehicles.add(sId);
             }
             // Update table rows visually without full re-render
-            const row = document.querySelector(`tr[data-id="${id}"]`);
+            const row = document.querySelector(`tr[data-id="${id}"]`) || document.querySelector(`tr[data-id="${sId}"]`);
             const checkbox = row?.querySelector('.vehicle-checkbox');
             if (row && checkbox) {
-                if (selectedVehicles.has(id)) {
+                if (selectedVehicles.has(sId) || selectedVehicles.has(id)) {
                     row.classList.add('selected');
                     checkbox.checked = true;
                 } else {
@@ -3799,8 +3813,9 @@
 
             if (headerCheckbox.checked) {
                 filtered.forEach(v => {
-                    selectedVehicles.add(v.id);
-                    const row = document.querySelector(`tr[data-id="${v.id}"]`);
+                    const sId = String(v.id);
+                    selectedVehicles.add(sId);
+                    const row = document.querySelector(`tr[data-id="${v.id}"]`) || document.querySelector(`tr[data-id="${sId}"]`);
                     if (row) {
                         row.classList.add('selected');
                         const cb = row.querySelector('.vehicle-checkbox');
@@ -3809,8 +3824,10 @@
                 });
             } else {
                 filtered.forEach(v => {
+                    const sId = String(v.id);
                     selectedVehicles.delete(v.id);
-                    const row = document.querySelector(`tr[data-id="${v.id}"]`);
+                    selectedVehicles.delete(sId);
+                    const row = document.querySelector(`tr[data-id="${v.id}"]`) || document.querySelector(`tr[data-id="${sId}"]`);
                     if (row) {
                         row.classList.remove('selected');
                         const cb = row.querySelector('.vehicle-checkbox');
@@ -3846,38 +3863,79 @@
             if (!confirm(`¿Estás seguro de eliminar ${selectedVehicles.size} vehículo(s) seleccionado(s)?\n\nEsta acción no se puede deshacer.`)) return;
 
             showToast('Eliminando vehículos...', 'info');
-            const idsToDelete = Array.from(selectedVehicles);
-            await supabaseClient.from('vehicles').delete().in('id', idsToDelete);
-
+            const rawIds = Array.from(selectedVehicles);
             let deleted = [];
             try { deleted = JSON.parse(localStorage.getItem('sn_deleted_vehicles') || '[]'); } catch(e) {}
 
-            idsToDelete.forEach(id => {
-                const v = vehicles.find(item => item.id === id);
-                if (v && v.title) deleted.push(v.title.toLowerCase().trim());
-                deleted.push(String(id));
-            });
-            localStorage.setItem('sn_deleted_vehicles', JSON.stringify(deleted));
+            for (const idVal of rawIds) {
+                const sId = String(idVal);
+                const v = vehicles.find(item => String(item.id) === sId);
 
-            showToast(`${idsToDelete.length} vehículo(s) eliminado(s)`, 'success');
-            logSecurityEvent('VEHICLE_DELETE_BULK', 'warning', `${idsToDelete.length} vehículos eliminados en lote.`);
+                try {
+                    const numId = parseInt(idVal);
+                    if (!isNaN(numId)) {
+                        await supabaseClient.from('vehicles').delete().eq('id', numId);
+                    }
+                    await supabaseClient.from('vehicles').delete().eq('id', idVal);
+                    if (v && v.title) {
+                        await supabaseClient.from('vehicles').delete().eq('title', v.title);
+                    }
+                } catch(e) {
+                    console.warn('Bulk DB delete notice:', e);
+                }
+
+                if (v && v.title) {
+                    const tKey = v.title.toLowerCase().trim();
+                    if (!deleted.includes(tKey)) deleted.push(tKey);
+                }
+                if (!deleted.includes(sId)) deleted.push(sId);
+            }
+
+            localStorage.setItem('sn_deleted_vehicles', JSON.stringify(deleted));
+            showToast(`${rawIds.length} vehículo(s) eliminado(s)`, 'success');
+            logSecurityEvent('VEHICLE_DELETE_BULK', 'warning', `${rawIds.length} vehículos eliminados en lote.`);
             selectedVehicles.clear();
             await loadVehicles();
         }
 
         async function deleteVehicle(id) {
             if (!confirm('¿Eliminar este vehículo?')) return;
-            const v = vehicles.find(v => v.id === id);
-            await supabaseClient.from('vehicles').delete().eq('id', id);
+            const targetIdStr = String(id);
+            const v = vehicles.find(item => String(item.id) === targetIdStr);
 
+            showToast('Eliminando vehículo...', 'info');
+
+            // 1. Delete from Supabase DB
+            try {
+                const numericId = parseInt(id);
+                if (!isNaN(numericId)) {
+                    await supabaseClient.from('vehicles').delete().eq('id', numericId);
+                }
+                await supabaseClient.from('vehicles').delete().eq('id', id);
+                if (v && v.title) {
+                    await supabaseClient.from('vehicles').delete().eq('title', v.title);
+                }
+            } catch(e) {
+                console.warn('DB delete error notice:', e);
+            }
+
+            // 2. Save in localStorage deleted blacklist so static/cache units hide permanently
             let deleted = [];
             try { deleted = JSON.parse(localStorage.getItem('sn_deleted_vehicles') || '[]'); } catch(e) {}
-            if (v && v.title) deleted.push(v.title.toLowerCase().trim());
-            if (id) deleted.push(String(id));
+            if (v && v.title) {
+                const tKey = v.title.toLowerCase().trim();
+                if (!deleted.includes(tKey)) deleted.push(tKey);
+            }
+            if (!deleted.includes(targetIdStr)) deleted.push(targetIdStr);
             localStorage.setItem('sn_deleted_vehicles', JSON.stringify(deleted));
 
-            showToast('Vehículo eliminado', 'success');
-            if (v) logSecurityEvent('VEHICLE_DELETE', 'warning', `Vehículo eliminado: ${v.title} (${id})`);
+            // 3. Remove locally from memory vehicles array & update UI immediately
+            vehicles = vehicles.filter(item => String(item.id) !== targetIdStr && (!v || item.title !== v.title));
+            selectedVehicles.delete(id);
+            selectedVehicles.delete(targetIdStr);
+
+            showToast('Vehículo eliminado con éxito', 'success');
+            if (v) logSecurityEvent('VEHICLE_DELETE', 'warning', `Vehículo eliminado: ${v ? v.title : id} (${id})`);
             await loadVehicles();
         }
 
