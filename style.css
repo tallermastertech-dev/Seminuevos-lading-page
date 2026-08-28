@@ -2267,33 +2267,32 @@ body::after {
     box-shadow: var(--glow-gold-strong);
 }
 
-/* ===== SEPARATE REPAIR CHIPS / PILLS ===== */
-.repair-chips-container {
-    display: flex;
-    align-items: center;
+/* ===== CLEAR SELECTABLE REPAIR TOGGLE GRID ===== */
+.repair-toggle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
-    flex-wrap: wrap;
     width: 100%;
 }
 
-.repair-chip {
+.repair-toggle-card {
     position: relative;
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    border-radius: 999px;
-    background: rgba(39, 92, 234, 0.08);
-    border: 1px solid rgba(39, 92, 234, 0.3);
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--surface-container-highest);
+    border: 1.5px solid var(--ghost-border);
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.25s ease;
     user-select: none;
+    box-sizing: border-box;
 }
 
-.repair-chip:hover {
-    background: rgba(39, 92, 234, 0.18);
-    border-color: var(--primary);
-    transform: translateY(-1px);
+.repair-toggle-card:hover {
+    border-color: var(--ghost-border-gold);
+    background: var(--surface-bright);
 }
 
 .repair-checkbox-hidden {
@@ -2304,38 +2303,62 @@ body::after {
     pointer-events: none;
 }
 
-.repair-chip .chip-icon {
-    color: var(--primary);
-    font-size: 0.85rem;
+/* Custom Checkbox Indicator Box */
+.custom-check-box {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid var(--on-surface-variant);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
     transition: all 0.2s ease;
 }
 
-.repair-chip .chip-text {
+.custom-check-box .check-mark {
+    font-size: 0.65rem;
+    color: #ffffff;
+    opacity: 0;
+    transform: scale(0.4);
+    transition: all 0.2s ease;
+}
+
+.repair-toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-family: var(--font-display);
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 700;
     color: var(--on-surface);
     white-space: nowrap;
-    transition: all 0.2s ease;
 }
 
-/* Active Selected State (Filled Pill with Glow) */
-.repair-chip:has(.repair-checkbox-hidden:checked),
-.repair-chip.checked {
+.repair-toggle-label .icon-accent {
+    color: var(--primary);
+    font-size: 0.85rem;
+}
+
+/* Active Selected State */
+.repair-toggle-card:has(.repair-checkbox-hidden:checked),
+.repair-toggle-card.checked {
+    background: rgba(39, 92, 234, 0.15);
+    border-color: var(--primary);
+    box-shadow: 0 0 16px rgba(39, 92, 234, 0.3);
+}
+
+.repair-toggle-card:has(.repair-checkbox-hidden:checked) .custom-check-box,
+.repair-toggle-card.checked .custom-check-box {
     background: var(--primary);
     border-color: var(--primary);
-    box-shadow: 0 4px 18px rgba(39, 92, 234, 0.45);
 }
 
-.repair-chip:has(.repair-checkbox-hidden:checked) .chip-icon,
-.repair-chip.checked .chip-icon {
-    color: #ffffff;
-    transform: scale(1.1);
-}
-
-.repair-chip:has(.repair-checkbox-hidden:checked) .chip-text,
-.repair-chip.checked .chip-text {
-    color: #ffffff;
+.repair-toggle-card:has(.repair-checkbox-hidden:checked) .check-mark,
+.repair-toggle-card.checked .check-mark {
+    opacity: 1;
+    transform: scale(1);
 }
 
 .btn-calc-submit {
