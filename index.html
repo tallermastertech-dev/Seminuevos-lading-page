@@ -327,37 +327,43 @@
             <!-- Form Wrapper -->
             <div class="contact-form-wrapper">
                 <form class="contact-form" id="contactForm">
-                    <h3 style="font-family: var(--font-display); font-size: 1.3rem; color: #f8fafc; margin-top:0; margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+                    <h3 style="font-family: var(--font-display); font-size: 1.35rem; color: #f8fafc; margin-top:0; margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
                         <i class="fas fa-calendar-check" style="color: #38bdf8;"></i> Agendar una Cita
                     </h3>
-                    <div class="form-group">
-                        <label for="formName"><i class="fas fa-user"></i> Nombre Completo</label>
-                        <input type="text" id="formName" placeholder="Ingresa tu nombre completo" required>
+
+                    <div class="contact-form-grid">
+                        <div class="form-group">
+                            <label for="formName"><i class="fas fa-user"></i> Nombre Completo</label>
+                            <input type="text" id="formName" placeholder="Tu nombre completo" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="formPhone"><i class="fas fa-phone"></i> Teléfono de Contacto</label>
+                            <input type="tel" id="formPhone" placeholder="Ej: +58 412 1234567" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="formEmail"><i class="fas fa-envelope"></i> Correo Electrónico</label>
+                            <input type="email" id="formEmail" placeholder="ejemplo@correo.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="formService"><i class="fas fa-list-check"></i> Motivo de la Cita</label>
+                            <div class="custom-select-wrapper">
+                                <select id="formService" class="custom-select-box" required>
+                                    <option value="" disabled selected>-- Selecciona un motivo --</option>
+                                    <option value="Comprar un vehículo">🚗 Quiero comprar un vehículo</option>
+                                    <option value="Importación por pedido">🚢 Importación por pedido desde USA</option>
+                                    <option value="Trade In / Retoma">🔄 Trade In / Retoma de mi auto</option>
+                                    <option value="Soporte técnico MasterTech">🛠️ Soporte técnico MasterTech</option>
+                                    <option value="Otro">💬 Otro motivo / Asesoría general</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="formMessage"><i class="fas fa-comment-alt"></i> Mensaje (Opcional)</label>
+                            <textarea id="formMessage" placeholder="Cuéntanos en qué vehículo estás interesado o en qué podemos ayudarte..." rows="3"></textarea>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="formPhone"><i class="fas fa-phone"></i> Teléfono de Contacto</label>
-                        <input type="tel" id="formPhone" placeholder="Ej: +58 412 1234567" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="formEmail"><i class="fas fa-envelope"></i> Correo Electrónico</label>
-                        <input type="email" id="formEmail" placeholder="ejemplo@correo.com" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="formService"><i class="fas fa-list-check"></i> Motivo de la Cita</label>
-                        <select id="formService" required>
-                            <option value="">-- Selecciona un motivo --</option>
-                            <option value="Comprar un vehículo">Quiero comprar un vehículo</option>
-                            <option value="Importación por pedido">Importación por pedido</option>
-                            <option value="Trade In / Retoma">Trade In o Retoma de mi auto</option>
-                            <option value="Soporte técnico MasterTech">Soporte técnico MasterTech</option>
-                            <option value="Otro">Otro motivo</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="formMessage"><i class="fas fa-comment-alt"></i> Mensaje (Opcional)</label>
-                        <textarea id="formMessage" placeholder="Cuéntanos en qué vehículo estás interesado o en qué podemos ayudarte..." rows="3"></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block" style="font-size: 0.95rem; font-weight: 700; padding: 16px; justify-content: center; letter-spacing: 0.5px;">
+
+                    <button type="submit" class="btn btn-primary btn-block btn-schedule-submit">
                         <i class="fas fa-paper-plane"></i> AGENDAR CITA AHORA
                     </button>
                 </form>
