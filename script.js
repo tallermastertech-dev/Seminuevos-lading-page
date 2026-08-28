@@ -1630,8 +1630,25 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.remove('print-mode-quote', 'print-mode-sheet');
     });
 
-    document.getElementById('calcRepairs1')?.addEventListener('change', updateCalc);
-    document.getElementById('calcRepairs2')?.addEventListener('change', updateCalc);
+    ['calcRepairs1', 'calcRepairs2'].forEach(id => {
+        const input = document.getElementById(id);
+        if (!input) return;
+        const updatePillState = () => {
+            const label = input.closest('.repair-pill-item');
+            if (label) {
+                if (input.checked) {
+                    label.classList.add('checked');
+                } else {
+                    label.classList.remove('checked');
+                }
+            }
+            if (typeof updateCalc === 'function') updateCalc();
+        };
+
+        input.addEventListener('change', updatePillState);
+        input.addEventListener('click', updatePillState);
+        updatePillState();
+    });
     document.getElementById('calcBaseCost')?.addEventListener('input', updateCalc);
     document.getElementById('calcOrigin')?.addEventListener('change', updateCalc);
     document.getElementById('calcDestination')?.addEventListener('change', updateCalc);

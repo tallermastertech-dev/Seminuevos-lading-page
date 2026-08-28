@@ -2285,7 +2285,7 @@ body::after {
     gap: 8px !important;
     padding: 10px 14px !important;
     border-radius: 999px !important;
-    background: #090d16 !important;
+    background: #090d16;
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     user-select: none;
@@ -2315,82 +2315,98 @@ body::after {
     transition: all 0.2s ease;
 }
 
-/* Option 1: Cyan Outline Pill */
+/* Option 1: Cyan Outline Pill (Grado 1) */
 .repair-pill-item.pill-cyan {
-    border: 1.5px solid #38bdf8;
+    border: 1.5px solid #38bdf8 !important;
 }
 
 .repair-pill-item.pill-cyan .pill-icon-box {
-    background: rgba(56, 189, 248, 0.12);
+    background: rgba(56, 189, 248, 0.15) !important;
 }
 
 .repair-pill-item.pill-cyan .pill-icon {
-    color: #38bdf8;
-    font-size: 0.7rem;
-    transition: transform 0.2s ease;
+    color: #38bdf8 !important;
+    font-size: 0.72rem;
+}
+
+.repair-pill-item.pill-cyan .pill-title {
+    color: #f8fafc !important;
 }
 
 .repair-pill-item.pill-cyan:hover {
-    background: rgba(56, 189, 248, 0.15);
-    box-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
+    background: rgba(56, 189, 248, 0.18) !important;
+    box-shadow: 0 0 14px rgba(56, 189, 248, 0.35) !important;
 }
 
+/* Checked State for Cyan Pill */
 .repair-pill-item.pill-cyan:has(.repair-checkbox-hidden:checked),
 .repair-pill-item.pill-cyan.checked {
-    background: #38bdf8;
-    box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+    background: #38bdf8 !important;
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.6) !important;
+}
+
+.repair-pill-item.pill-cyan:has(.repair-checkbox-hidden:checked) .pill-title,
+.repair-pill-item.pill-cyan.checked .pill-title {
+    color: #070a12 !important;
+    font-weight: 800 !important;
 }
 
 .repair-pill-item.pill-cyan:has(.repair-checkbox-hidden:checked) .pill-icon-box,
 .repair-pill-item.pill-cyan.checked .pill-icon-box {
-    background: rgba(7, 10, 18, 0.2);
+    background: rgba(7, 10, 18, 0.25) !important;
 }
 
 .repair-pill-item.pill-cyan:has(.repair-checkbox-hidden:checked) .pill-icon,
-.repair-pill-item.pill-cyan.checked .pill-icon,
-.repair-pill-item.pill-cyan:has(.repair-checkbox-hidden:checked) .pill-title,
-.repair-pill-item.pill-cyan.checked .pill-title {
-    color: #070a12;
-    font-weight: 800;
+.repair-pill-item.pill-cyan.checked .pill-icon {
+    color: #070a12 !important;
 }
 
-/* Option 2: Royal Blue Outline Pill */
+/* Option 2: Royal Blue Outline Pill (Grado 2) */
 .repair-pill-item.pill-blue {
-    border: 1.5px solid #275CEA;
+    border: 1.5px solid #275CEA !important;
 }
 
 .repair-pill-item.pill-blue .pill-icon-box {
-    background: rgba(39, 92, 234, 0.15);
+    background: rgba(39, 92, 234, 0.18) !important;
 }
 
 .repair-pill-item.pill-blue .pill-icon {
-    color: #275CEA;
-    font-size: 0.7rem;
-    transition: transform 0.2s ease;
+    color: #275CEA !important;
+    font-size: 0.72rem;
+}
+
+.repair-pill-item.pill-blue .pill-title {
+    color: #f8fafc !important;
 }
 
 .repair-pill-item.pill-blue:hover {
-    background: rgba(39, 92, 234, 0.18);
-    box-shadow: 0 0 14px rgba(39, 92, 234, 0.4);
+    background: rgba(39, 92, 234, 0.2) !important;
+    box-shadow: 0 0 14px rgba(39, 92, 234, 0.4) !important;
 }
 
+/* Checked State for Blue Pill */
 .repair-pill-item.pill-blue:has(.repair-checkbox-hidden:checked),
 .repair-pill-item.pill-blue.checked {
-    background: #275CEA;
-    box-shadow: 0 0 20px rgba(39, 92, 234, 0.6);
+    background: #275CEA !important;
+    border-color: #275CEA !important;
+    box-shadow: 0 0 20px rgba(39, 92, 234, 0.6) !important;
+}
+
+.repair-pill-item.pill-blue:has(.repair-checkbox-hidden:checked) .pill-title,
+.repair-pill-item.pill-blue.checked .pill-title {
+    color: #ffffff !important;
+    font-weight: 800 !important;
 }
 
 .repair-pill-item.pill-blue:has(.repair-checkbox-hidden:checked) .pill-icon-box,
 .repair-pill-item.pill-blue.checked .pill-icon-box {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.25) !important;
 }
 
 .repair-pill-item.pill-blue:has(.repair-checkbox-hidden:checked) .pill-icon,
-.repair-pill-item.pill-blue.checked .pill-icon,
-.repair-pill-item.pill-blue:has(.repair-checkbox-hidden:checked) .pill-title,
-.repair-pill-item.pill-blue.checked .pill-title {
-    color: #ffffff;
-    font-weight: 800;
+.repair-pill-item.pill-blue.checked .pill-icon {
+    color: #ffffff !important;
 }
 
 .pill-title {
