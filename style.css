@@ -2267,31 +2267,35 @@ body::after {
     box-shadow: var(--glow-gold-strong);
 }
 
-/* ===== EXECUTIVE REPAIR TOGGLE BUTTONS ===== */
-.repair-cards-grid {
+/* ===== EXECUTIVE SEGMENTED CONTROL ===== */
+.repair-segmented-control {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 14px;
+    gap: 8px;
+    background: var(--surface-container-highest);
+    border: 1px solid var(--ghost-border);
+    border-radius: var(--radius-md);
+    padding: 5px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.repair-card-option {
+.segmented-item {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--surface-container-highest);
-    border: 1px solid var(--ghost-border);
-    border-radius: var(--radius-md);
-    padding: 14px 18px;
+    padding: 12px 14px;
+    border-radius: calc(var(--radius-md) - 3px);
     cursor: pointer;
     transition: all 0.25s ease;
     user-select: none;
-    text-align: center;
+    background: transparent;
+    border: 1px solid transparent;
 }
 
-.repair-card-option:hover {
-    border-color: var(--ghost-border-gold);
-    background: var(--surface-bright);
+.segmented-item:hover {
+    background: rgba(255, 255, 255, 0.04);
 }
 
 .repair-checkbox-hidden {
@@ -2302,40 +2306,42 @@ body::after {
     pointer-events: none;
 }
 
-.repair-card-title {
+.segmented-label {
     font-family: var(--font-display);
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     font-weight: 700;
-    color: var(--on-surface);
+    color: var(--on-surface-variant);
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     white-space: nowrap;
+    transition: all 0.2s ease;
 }
 
-.repair-card-title i {
+.segmented-label i {
     color: var(--primary);
-    font-size: 0.88rem;
+    font-size: 0.85rem;
     transition: transform 0.2s ease;
 }
 
 /* Active State when checkbox is checked */
-.repair-card-option:has(.repair-checkbox-hidden:checked),
-.repair-card-option.checked {
-    background: rgba(39, 92, 234, 0.18);
+.segmented-item:has(.repair-checkbox-hidden:checked),
+.segmented-item.checked {
+    background: var(--primary);
     border-color: var(--primary);
-    box-shadow: 0 0 20px rgba(39, 92, 234, 0.3);
+    box-shadow: 0 4px 15px rgba(39, 92, 234, 0.4);
 }
 
-.repair-card-option:has(.repair-checkbox-hidden:checked) .repair-card-title,
-.repair-card-option.checked .repair-card-title {
+.segmented-item:has(.repair-checkbox-hidden:checked) .segmented-label,
+.segmented-item.checked .segmented-label {
     color: #ffffff;
 }
 
-.repair-card-option:has(.repair-checkbox-hidden:checked) .repair-card-title i,
-.repair-card-option.checked .repair-card-title i {
-    transform: scale(1.15);
+.segmented-item:has(.repair-checkbox-hidden:checked) .segmented-label i,
+.segmented-item.checked .segmented-label i {
+    color: #ffffff;
+    transform: scale(1.1);
 }
 
 .btn-calc-submit {
