@@ -2086,6 +2086,31 @@
                                     <input type="text" class="form-input" id="f_brakes" placeholder="Frenos de Disco con ABS" oninput="updateFichaLive()" style="font-size:0.78rem; padding:6px 8px; background:#060a12;">
                                 </div>
                             </div>
+
+                            <!-- PERSONALIZACIÓN DE INSIGNIAS DE CABECERA (BADGES) -->
+                            <div style="background:rgba(39,92,234,0.08); border:1px solid rgba(39,92,234,0.3); border-radius:8px; padding:10px; margin-top:10px;">
+                                <label style="font-size:0.72rem; font-weight:700; color:#38bdf8; display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+                                    <i class="fas fa-tags"></i> Personalizar Etiquetas / Badges de Cabecera:
+                                </label>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                                    <div>
+                                        <label class="form-label" style="font-size:0.65rem; color:#94a3b8; margin-bottom:2px;">1. Tracción (Badge 1)</label>
+                                        <input type="text" class="form-input" id="f_drivetrain" placeholder="Ej: 4WD / AWD / FWD" oninput="updateFichaLive()" style="font-size:0.75rem; padding:5px 7px; background:#060a12;">
+                                    </div>
+                                    <div>
+                                        <label class="form-label" style="font-size:0.65rem; color:#94a3b8; margin-bottom:2px;">2. Inspección (Badge 2)</label>
+                                        <input type="text" class="form-input" id="f_inspection_badge_input" placeholder="INSPECCIÓN 150 PTS" value="INSPECCIÓN 150 PTS" oninput="updateFichaLive()" style="font-size:0.75rem; padding:5px 7px; background:#060a12;">
+                                    </div>
+                                    <div>
+                                        <label class="form-label" style="font-size:0.65rem; color:#94a3b8; margin-bottom:2px;">3. Ubicación (Badge 3)</label>
+                                        <input type="text" class="form-input" id="f_showroom_badge_input" placeholder="SHOWROOM" value="SHOWROOM" oninput="updateFichaLive()" style="font-size:0.75rem; padding:5px 7px; background:#060a12;">
+                                    </div>
+                                    <div>
+                                        <label class="form-label" style="font-size:0.65rem; color:#94a3b8; margin-bottom:2px;">4. Régimen / Estado (Badge 4)</label>
+                                        <input type="text" class="form-input" id="f_regime_badge_input" placeholder="PUERTO LIBRE / NACIONAL" value="PUERTO LIBRE" oninput="updateFichaLive()" style="font-size:0.75rem; padding:5px 7px; background:#060a12;">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- 04. AUDITORÍA & CONDICIÓN -->
@@ -7510,6 +7535,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             setTxt('pv_airbags_desc', airbags);
             setTxt('pv_start_code_desc', startCode);
 
+            // Actualización Dinámica de las 4 Insignias de Cabecera (Badges)
             const dtTag = document.getElementById('pv_drivetrain_tag');
             if (dtTag) {
                 const s = (drivetrain || '').toUpperCase();
@@ -7517,7 +7543,44 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                     dtTag.style.display = 'none';
                 } else {
                     dtTag.style.display = 'inline-block';
-                    dtTag.textContent = s.includes('4WD') || s.includes('4X4') ? '4WD / 4X4' : (s.includes('AWD') ? 'AWD INTEGRAL' : (s.includes('FWD') ? 'FWD DELANTERA' : 'RWD TRASERA'));
+                    dtTag.textContent = s.includes('4WD') || s.includes('4X4') ? '4WD / 4X4' : (s.includes('AWD') ? 'AWD INTEGRAL' : (s.includes('FWD') ? 'FWD DELANTERA' : (s.includes('RWD') ? 'RWD TRASERA' : s)));
+                }
+            }
+
+            const inspVal = (document.getElementById('f_inspection_badge_input')?.value || '').trim();
+            const inspBadge = document.getElementById('pv_inspection_badge');
+            const inspTxt = document.getElementById('pv_inspection_text');
+            if (inspBadge) {
+                if (!inspVal) {
+                    inspBadge.style.display = 'none';
+                } else {
+                    inspBadge.style.display = 'inline-flex';
+                    if (inspTxt) inspTxt.textContent = inspVal.toUpperCase();
+                }
+            }
+
+            const showVal = (document.getElementById('f_showroom_badge_input')?.value || '').trim();
+            const showBadge = document.getElementById('pv_showroom_badge');
+            const showTxt = document.getElementById('pv_showroom_text');
+            if (showBadge) {
+                if (!showVal) {
+                    showBadge.style.display = 'none';
+                } else {
+                    showBadge.style.display = 'inline-flex';
+                    if (showTxt) showTxt.textContent = showVal.toUpperCase();
+                }
+            }
+
+            const regInputVal = (document.getElementById('f_regime_badge_input')?.value || '').trim();
+            const regBadge = document.getElementById('pv_regime_badge');
+            const regTxt = document.getElementById('pv_regime_text');
+            if (regBadge) {
+                const finalRegText = regInputVal || regime || 'PUERTO LIBRE';
+                if (!finalRegText) {
+                    regBadge.style.display = 'none';
+                } else {
+                    regBadge.style.display = 'inline-flex';
+                    if (regTxt) regTxt.textContent = finalRegText.toUpperCase();
                 }
             }
 
