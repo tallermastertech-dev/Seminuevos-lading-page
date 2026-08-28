@@ -2268,26 +2268,28 @@ body::after {
 }
 
 /* ===== LUXURY COLORED OUTLINE PILL TOGGLES ===== */
-.repair-pill-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
+.repair-pill-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .repair-pill-item {
     position: relative;
-    display: inline-flex;
+    display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
-    padding: 8px 18px;
+    padding: 9px 14px;
     border-radius: 999px;
     background: #090d16;
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     user-select: none;
     box-sizing: border-box;
+    width: 100%;
 }
 
 .repair-checkbox-hidden {
@@ -2298,14 +2300,29 @@ body::after {
     pointer-events: none;
 }
 
+.pill-icon-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
 /* Option 1: Cyan Outline Pill */
 .repair-pill-item.pill-cyan {
     border: 1.5px solid #38bdf8;
 }
 
+.repair-pill-item.pill-cyan .pill-icon-box {
+    background: rgba(56, 189, 248, 0.12);
+}
+
 .repair-pill-item.pill-cyan .pill-icon {
     color: #38bdf8;
-    font-size: 0.85rem;
+    font-size: 0.72rem;
     transition: transform 0.2s ease;
 }
 
@@ -2318,6 +2335,11 @@ body::after {
 .repair-pill-item.pill-cyan.checked {
     background: #38bdf8;
     box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+}
+
+.repair-pill-item.pill-cyan:has(.repair-checkbox-hidden:checked) .pill-icon-box,
+.repair-pill-item.pill-cyan.checked .pill-icon-box {
+    background: rgba(7, 10, 18, 0.2);
 }
 
 .repair-pill-item.pill-cyan:has(.repair-checkbox-hidden:checked) .pill-icon,
@@ -2333,9 +2355,13 @@ body::after {
     border: 1.5px solid #275CEA;
 }
 
+.repair-pill-item.pill-blue .pill-icon-box {
+    background: rgba(39, 92, 234, 0.15);
+}
+
 .repair-pill-item.pill-blue .pill-icon {
     color: #275CEA;
-    font-size: 0.85rem;
+    font-size: 0.72rem;
     transition: transform 0.2s ease;
 }
 
@@ -2350,6 +2376,11 @@ body::after {
     box-shadow: 0 0 20px rgba(39, 92, 234, 0.6);
 }
 
+.repair-pill-item.pill-blue:has(.repair-checkbox-hidden:checked) .pill-icon-box,
+.repair-pill-item.pill-blue.checked .pill-icon-box {
+    background: rgba(255, 255, 255, 0.2);
+}
+
 .repair-pill-item.pill-blue:has(.repair-checkbox-hidden:checked) .pill-icon,
 .repair-pill-item.pill-blue.checked .pill-icon,
 .repair-pill-item.pill-blue:has(.repair-checkbox-hidden:checked) .pill-title,
@@ -2360,7 +2391,7 @@ body::after {
 
 .pill-title {
     font-family: var(--font-display);
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 700;
     color: #f8fafc;
     white-space: nowrap;
