@@ -2277,8 +2277,7 @@ body::after {
 .repair-card-option {
     position: relative;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
     background: var(--surface-container-highest);
     border: 1px solid var(--ghost-border);
     border-radius: var(--radius-md);
@@ -2304,26 +2303,27 @@ body::after {
 .repair-card-content {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    flex: 1;
-    padding-right: 10px;
+    gap: 8px;
+    width: 100%;
 }
 
 .repair-card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 6px;
+    gap: 10px;
+    width: 100%;
 }
 
 .repair-card-title {
     font-family: var(--font-display);
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 700;
     color: var(--on-surface);
     display: flex;
     align-items: center;
     gap: 6px;
+    white-space: nowrap;
 }
 
 .repair-card-title i {
@@ -2331,29 +2331,17 @@ body::after {
     font-size: 0.85rem;
 }
 
-.repair-card-badge {
-    font-family: var(--font-display);
-    font-size: 0.65rem;
-    font-weight: 700;
-    background: rgba(39, 92, 234, 0.15);
-    color: var(--primary-fixed);
-    padding: 2px 6px;
-    border-radius: 6px;
-    border: 1px solid var(--ghost-border-gold);
-    white-space: nowrap;
-}
-
 .repair-card-desc {
-    font-size: 0.73rem;
+    font-size: 0.75rem;
     color: var(--on-surface-variant);
     margin: 0;
-    line-height: 1.35;
+    line-height: 1.4;
 }
 
 /* Custom Check Indicator Switch */
 .repair-toggle-indicator {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     border: 2px solid var(--outline-variant);
     background: transparent;
@@ -2365,7 +2353,7 @@ body::after {
 }
 
 .repair-toggle-indicator .check-icon {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: #ffffff;
     opacity: 0;
     transform: scale(0.5);
