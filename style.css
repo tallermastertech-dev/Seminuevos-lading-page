@@ -2278,19 +2278,21 @@ body::after {
 
 .repair-pill-item {
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 6px;
-    padding: 8px 10px;
-    border-radius: 999px;
-    background: #090d16;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 10px 14px !important;
+    border-radius: 999px !important;
+    background: #090d16 !important;
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     user-select: none;
-    box-sizing: border-box;
-    width: 100%;
-    min-height: 38px;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-height: 42px !important;
+    margin-bottom: 0 !important;
     overflow: hidden;
 }
 
@@ -3263,14 +3265,12 @@ body::after {
     margin-bottom: var(--space-5);
 }
 
-.calculator-inputs label {
+.calculator-inputs label:not(.repair-pill-item) {
     display: block;
-    position: static !important;
+    position: static;
     margin-bottom: var(--space-2);
     color: var(--on-surface-variant);
     font-size: 0.9rem;
-    padding: 0 !important;
-    background: transparent !important;
 }
 
 .calculator-inputs input[type="number"] {
