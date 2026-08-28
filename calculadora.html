@@ -133,7 +133,9 @@
             <div class="calculator-wrapper">
                 <div class="calculator-inputs">
                     <div class="form-group">
-                        <label for="calcStatus">Estatus del vehículo</label>
+                        <label for="calcStatus" class="form-label" style="font-family: var(--font-display); font-size: 0.72rem; font-weight: 700; color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-landmark" style="color: var(--primary);"></i> Estatus del Vehículo
+                        </label>
                         <select id="calcStatus" class="calc-select">
                             <option value="puerto_libre">Puerto Libre</option>
                             <option value="nacional">Nacional</option>
@@ -147,11 +149,15 @@
                     </div>
                     <div id="calcFieldsPL">
                         <div class="form-group">
-                            <label for="calcBaseCost">Costo de compra del vehículo ($)</label>
+                            <label for="calcBaseCost" class="form-label" style="font-family: var(--font-display); font-size: 0.72rem; font-weight: 700; color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-dollar-sign" style="color: var(--primary);"></i> Costo de Compra ($)
+                            </label>
                             <input type="number" id="calcBaseCost" placeholder="Ej. 15000">
                         </div>
                         <div class="form-group">
-                            <label for="calcOrigin">Ubicación del vehículo (Estado Origin)</label>
+                            <label for="calcOrigin" class="form-label" style="font-family: var(--font-display); font-size: 0.72rem; font-weight: 700; color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-map-marker-alt" style="color: var(--primary);"></i> Ubicación (Estado USA)
+                            </label>
                             <select id="calcOrigin" class="calc-select">
                                 <option value="FL">Florida</option>
                                 <option value="AL">Alabama</option>
@@ -210,7 +216,9 @@
                             <input type="number" id="calcCustomTransport" placeholder="Ej. 1200">
                         </div>
                         <div class="form-group">
-                            <label for="calcDestination">Destino (Puerto/Warehouse)</label>
+                            <label for="calcDestination" class="form-label" style="font-family: var(--font-display); font-size: 0.72rem; font-weight: 700; color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-warehouse" style="color: var(--primary);"></i> Destino (Puerto / Almacén)
+                            </label>
                             <select id="calcDestination" class="calc-select">
                                 <option value="FL">Florida / Miami Warehouse</option>
                                 <option value="AL">Alabama</option>
@@ -262,11 +270,13 @@
                                 <option value="WI">Wisconsin</option>
                                 <option value="WY">Wyoming</option>
                             </select>
-                            <p style="font-size: 0.7rem; color: var(--outline); margin-top: 4px;">El sistema calcula $1 por milla aproximada entre puntos.</p>
+                            <p style="font-size: 0.73rem; color: var(--on-surface-variant); margin-top: 6px; display: flex; align-items: center; gap: 5px;">
+                                <i class="fas fa-info-circle" style="color: var(--primary);"></i> El sistema calcula $1 por milla aproximada entre puntos.
+                            </p>
                         </div>
                         <!-- Reparaciones Estimadas (Grado 1 & 2) -->
                         <div class="form-group" style="margin-top: 20px; margin-bottom: 20px;">
-                            <label class="form-label" style="font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                            <label class="form-label" style="font-family: var(--font-display); font-size: 0.72rem; font-weight: 700; color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
                                 <i class="fas fa-wrench" style="color: var(--primary);"></i> Estimación de Reparaciones (Opcional)
                             </label>
                             
@@ -286,11 +296,10 @@
                                     <div class="pill-icon-box">
                                         <i class="fas fa-tools pill-icon"></i>
                                     </div>
-                                    <span class="pill-title">Grado 2 (Estructural)</span>
+                                    <span class="pill-title">Grado 2 (Mayor)</span>
                                 </label>
                             </div>
                         </div>
-
                         <button class="btn btn-primary btn-block btn-calc-submit" id="btnCalculateCost" style="margin-top: 15px;">
                             <i class="fas fa-calculator"></i> CALCULAR COSTO TOTAL <i class="fas fa-arrow-right"></i>
                         </button>
