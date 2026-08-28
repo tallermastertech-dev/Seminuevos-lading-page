@@ -2267,32 +2267,27 @@ body::after {
     box-shadow: var(--glow-gold-strong);
 }
 
-/* ===== CLEAR SELECTABLE REPAIR TOGGLE GRID ===== */
-.repair-toggle-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+/* ===== LUXURY COLORED OUTLINE PILL TOGGLES ===== */
+.repair-pill-row {
+    display: flex;
+    align-items: center;
     gap: 12px;
+    flex-wrap: wrap;
     width: 100%;
 }
 
-.repair-toggle-card {
+.repair-pill-item {
     position: relative;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 10px;
-    padding: 12px 14px;
-    background: var(--surface-container-highest);
-    border: 1.5px solid var(--ghost-border);
-    border-radius: var(--radius-md);
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: 999px;
+    background: #090d16;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     user-select: none;
     box-sizing: border-box;
-}
-
-.repair-toggle-card:hover {
-    border-color: var(--ghost-border-gold);
-    background: var(--surface-bright);
 }
 
 .repair-checkbox-hidden {
@@ -2303,62 +2298,73 @@ body::after {
     pointer-events: none;
 }
 
-/* Custom Checkbox Indicator Box */
-.custom-check-box {
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-    border: 2px solid var(--on-surface-variant);
-    background: transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: all 0.2s ease;
+/* Option 1: Cyan Outline Pill */
+.repair-pill-item.pill-cyan {
+    border: 1.5px solid #38bdf8;
 }
 
-.custom-check-box .check-mark {
-    font-size: 0.65rem;
-    color: #ffffff;
-    opacity: 0;
-    transform: scale(0.4);
-    transition: all 0.2s ease;
-}
-
-.repair-toggle-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--font-display);
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: var(--on-surface);
-    white-space: nowrap;
-}
-
-.repair-toggle-label .icon-accent {
-    color: var(--primary);
+.repair-pill-item.pill-cyan .pill-icon {
+    color: #38bdf8;
     font-size: 0.85rem;
+    transition: transform 0.2s ease;
 }
 
-/* Active Selected State */
-.repair-toggle-card:has(.repair-checkbox-hidden:checked),
-.repair-toggle-card.checked {
-    background: rgba(39, 92, 234, 0.15);
-    border-color: var(--primary);
-    box-shadow: 0 0 16px rgba(39, 92, 234, 0.3);
+.repair-pill-item.pill-cyan:hover {
+    background: rgba(56, 189, 248, 0.15);
+    box-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
 }
 
-.repair-toggle-card:has(.repair-checkbox-hidden:checked) .custom-check-box,
-.repair-toggle-card.checked .custom-check-box {
-    background: var(--primary);
-    border-color: var(--primary);
+.repair-pill-item.pill-cyan:has(.repair-checkbox-hidden:checked),
+.repair-pill-item.pill-cyan.checked {
+    background: #38bdf8;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
 }
 
-.repair-toggle-card:has(.repair-checkbox-hidden:checked) .check-mark,
-.repair-toggle-card.checked .check-mark {
-    opacity: 1;
-    transform: scale(1);
+.repair-pill-item.pill-cyan:has(.repair-checkbox-hidden:checked) .pill-icon,
+.repair-pill-item.pill-cyan.checked .pill-icon,
+.repair-pill-item.pill-cyan:has(.repair-checkbox-hidden:checked) .pill-title,
+.repair-pill-item.pill-cyan.checked .pill-title {
+    color: #070a12;
+    font-weight: 800;
+}
+
+/* Option 2: Royal Blue Outline Pill */
+.repair-pill-item.pill-blue {
+    border: 1.5px solid #275CEA;
+}
+
+.repair-pill-item.pill-blue .pill-icon {
+    color: #275CEA;
+    font-size: 0.85rem;
+    transition: transform 0.2s ease;
+}
+
+.repair-pill-item.pill-blue:hover {
+    background: rgba(39, 92, 234, 0.18);
+    box-shadow: 0 0 14px rgba(39, 92, 234, 0.4);
+}
+
+.repair-pill-item.pill-blue:has(.repair-checkbox-hidden:checked),
+.repair-pill-item.pill-blue.checked {
+    background: #275CEA;
+    box-shadow: 0 0 20px rgba(39, 92, 234, 0.6);
+}
+
+.repair-pill-item.pill-blue:has(.repair-checkbox-hidden:checked) .pill-icon,
+.repair-pill-item.pill-blue.checked .pill-icon,
+.repair-pill-item.pill-blue:has(.repair-checkbox-hidden:checked) .pill-title,
+.repair-pill-item.pill-blue.checked .pill-title {
+    color: #ffffff;
+    font-weight: 800;
+}
+
+.pill-title {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #f8fafc;
+    white-space: nowrap;
+    transition: all 0.2s ease;
 }
 
 .btn-calc-submit {
