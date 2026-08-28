@@ -270,59 +270,95 @@
 <section class="contact-section" id="contacto">
     <div class="container">
         <div class="section-header">
-            <span class="section-tag">CONTACTO DIRECTO</span>
+            <span class="section-tag"><i class="fas fa-headset"></i> CONTACTO DIRECTO</span>
             <h2 class="section-title">¿Listo para tu <span class="text-accent">próximo vehículo?</span></h2>
             <p class="section-subtitle">Habla con un asesor ahora o agenda tu cita. Estamos aquí para ayudarte.</p>
         </div>
         <div class="contact-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;">
             <div class="contact-info" style="display: flex; flex-direction: column; gap: 20px;">
-                <div style="background: var(--surface-container); border: 1px solid var(--ghost-border); border-radius: var(--radius-lg); padding: 30px;">
-                    <div style="font-size: 2.5rem; color: var(--primary); margin-bottom: 15px;"><i class="fab fa-whatsapp"></i></div>
-                    <h3 style="font-family: var(--font-display); font-size: 1.3rem; margin-bottom: 10px;">Escríbenos por WhatsApp</h3>
-                    <p style="color: var(--on-surface-variant); margin-bottom: 20px; font-size: 0.95rem;">Respuesta inmediata de lunes a sábado, 9AM – 7PM</p>
-                    <a href="https://wa.me/584248700438?text=Hola%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n%20sobre%20sus%20veh%C3%ADculos" class="btn btn-whatsapp btn-block" target="_blank" style="justify-content: center;">
-                        <i class="fab fa-whatsapp"></i> Escribir ahora
+                <!-- WhatsApp Card -->
+                <div class="contact-card-wa">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                        <div style="font-size: 2.2rem; color: #25D366;"><i class="fab fa-whatsapp"></i></div>
+                        <div>
+                            <h3 style="font-family: var(--font-display); font-size: 1.25rem; color: #f8fafc; margin: 0;">Escríbenos por WhatsApp</h3>
+                            <span style="color: #6ee7b7; font-size: 0.8rem; font-weight: 600;">Respuesta inmediata</span>
+                        </div>
+                    </div>
+                    <p style="color: #cbd5e1; margin-bottom: 20px; font-size: 0.9rem; line-height: 1.5;">Atención personalizada de lunes a sábado, 9AM – 7PM. Consulta inventario, cotizaciones e importaciones.</p>
+                    <a href="https://wa.me/584248700438?text=Hola%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n%20sobre%20sus%20veh%C3%ADculos" class="btn btn-whatsapp btn-block" target="_blank" style="justify-content: center; font-weight: 700;">
+                        <i class="fab fa-whatsapp"></i> ESCRIBIR AHORA POR WHATSAPP
                     </a>
                 </div>
-                <div style="background: var(--surface-container); border: 1px solid var(--ghost-border); border-radius: var(--radius-lg); padding: 25px; display: flex; flex-direction: column; gap: 12px;">
-                    <p style="font-size: 0.95rem;"><i class="fas fa-map-marker-alt" style="color: var(--primary); width: 18px;"></i> Porlamar, Isla de Margarita, Venezuela</p>
-                    <p style="font-size: 0.95rem;"><i class="fas fa-phone" style="color: var(--primary); width: 18px;"></i> +58 424-870-0438</p>
-                    <p style="font-size: 0.95rem;"><i class="fas fa-envelope" style="color: var(--primary); width: 18px;"></i> info@seminuevosagency.com</p>
-                    <p style="font-size: 0.95rem;"><i class="fas fa-clock" style="color: var(--primary); width: 18px;"></i> Lun – Sáb: 9AM – 7PM</p>
+
+                <!-- Info Card -->
+                <div class="contact-card-info" style="display: flex; flex-direction: column; gap: 16px;">
+                    <div class="contact-info-row">
+                        <div class="contact-info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div>
+                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Ubicación</div>
+                            <div style="color: #f8fafc; font-weight: 600;">Porlamar, Isla de Margarita, Venezuela</div>
+                        </div>
+                    </div>
+                    <div class="contact-info-row">
+                        <div class="contact-info-icon"><i class="fas fa-phone"></i></div>
+                        <div>
+                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Teléfono Comercial</div>
+                            <div style="color: #f8fafc; font-weight: 600;">+58 424-870-0438</div>
+                        </div>
+                    </div>
+                    <div class="contact-info-row">
+                        <div class="contact-info-icon"><i class="fas fa-envelope"></i></div>
+                        <div>
+                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Correo Electrónico</div>
+                            <div style="color: #f8fafc; font-weight: 600;">info@seminuevosagency.com</div>
+                        </div>
+                    </div>
+                    <div class="contact-info-row">
+                        <div class="contact-info-icon"><i class="fas fa-clock"></i></div>
+                        <div>
+                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Horario de Atención</div>
+                            <div style="color: #f8fafc; font-weight: 600;">Lunes a Sábado: 9AM – 7PM</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="contact-form-wrapper" style="background: var(--surface-container); border: 1px solid var(--ghost-border); border-radius: var(--radius-lg); padding: 35px;">
+
+            <!-- Form Wrapper -->
+            <div class="contact-form-wrapper">
                 <form class="contact-form" id="contactForm">
-                    <h3 style="font-family: var(--font-display); font-size: 1.3rem; margin-bottom: 25px;">Agendar una Cita</h3>
+                    <h3 style="font-family: var(--font-display); font-size: 1.3rem; color: #f8fafc; margin-top:0; margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-calendar-check" style="color: #38bdf8;"></i> Agendar una Cita
+                    </h3>
                     <div class="form-group">
-                        <input type="text" id="formName" placeholder="Tu nombre completo" required>
-                        <label for="formName">Nombre</label>
+                        <label for="formName"><i class="fas fa-user"></i> Nombre Completo</label>
+                        <input type="text" id="formName" placeholder="Ingresa tu nombre completo" required>
                     </div>
                     <div class="form-group">
-                        <input type="tel" id="formPhone" placeholder="Tu número de teléfono" required>
-                        <label for="formPhone">Teléfono</label>
+                        <label for="formPhone"><i class="fas fa-phone"></i> Teléfono de Contacto</label>
+                        <input type="tel" id="formPhone" placeholder="Ej: +58 412 1234567" required>
                     </div>
                     <div class="form-group">
-                        <input type="email" id="formEmail" placeholder="tu@email.com" required>
-                        <label for="formEmail">Email</label>
+                        <label for="formEmail"><i class="fas fa-envelope"></i> Correo Electrónico</label>
+                        <input type="email" id="formEmail" placeholder="ejemplo@correo.com" required>
                     </div>
                     <div class="form-group">
+                        <label for="formService"><i class="fas fa-list-check"></i> Motivo de la Cita</label>
                         <select id="formService" required>
-                            <option value="">Selecciona un motivo</option>
+                            <option value="">-- Selecciona un motivo --</option>
                             <option value="Comprar un vehículo">Quiero comprar un vehículo</option>
                             <option value="Importación por pedido">Importación por pedido</option>
                             <option value="Trade In / Retoma">Trade In o Retoma de mi auto</option>
                             <option value="Soporte técnico MasterTech">Soporte técnico MasterTech</option>
-                            <option value="Otro">Otro</option>
+                            <option value="Otro">Otro motivo</option>
                         </select>
-                        <label for="formService">Motivo de la cita</label>
                     </div>
                     <div class="form-group">
-                        <textarea id="formMessage" placeholder="Cuéntanos en qué podemos ayudarte..." rows="4"></textarea>
-                        <label for="formMessage">Mensaje</label>
+                        <label for="formMessage"><i class="fas fa-comment-alt"></i> Mensaje (Opcional)</label>
+                        <textarea id="formMessage" placeholder="Cuéntanos en qué vehículo estás interesado o en qué podemos ayudarte..." rows="3"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block" style="font-size: 1rem; padding: 16px; justify-content: center;">
-                        <i class="fas fa-calendar-check"></i> Agendar Cita
+                    <button type="submit" class="btn btn-primary btn-block" style="font-size: 0.95rem; font-weight: 700; padding: 16px; justify-content: center; letter-spacing: 0.5px;">
+                        <i class="fas fa-paper-plane"></i> AGENDAR CITA AHORA
                     </button>
                 </form>
             </div>
