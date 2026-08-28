@@ -253,7 +253,7 @@ const COMPANY_INFO = {
     name: "SemiNuevos Agency",
     slogan: "Conduce a Otro Nivel",
     phone: "+58 414-797-7832",
-    email: "info@seminuevosagency.com",
+    email: "info@seminuevoautos.com",
     address: "Porlamar, Isla de Margarita, Venezuela",
     hours: "Lun - Sáb: 9:00 AM - 7:00 PM",
     socialMedia: {
