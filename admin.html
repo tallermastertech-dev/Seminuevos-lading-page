@@ -2242,11 +2242,11 @@
                                     <div style="font-size:0.71rem; color:#94a3b8; margin-top:2px;">
                                         <span id="pv_cat_tag" style="color:#6ee7b7; font-weight:600;"><i class="fas fa-check-circle"></i> Ficha Técnica Oficial</span> · <span id="pv_header_spec" style="color:#e2e8f0;">Especificaciones pendientes por decodificar</span>
                                     </div>
-                                    <div style="margin-top:6px; display:flex; gap:5px; flex-wrap:nowrap; align-items:center; overflow:hidden;">
-                                        <span style="background:rgba(56,189,248,0.1); color:#7dd3fc; font-size:0.59rem; padding:2px 6px; border-radius:4px; font-weight:600; border:1px solid rgba(56,189,248,0.25); white-space:nowrap; flex-shrink:0;" id="pv_drivetrain_tag">---</span>
-                                        <span style="background:rgba(16,185,129,0.1); color:#6ee7b7; font-size:0.59rem; padding:2px 6px; border-radius:4px; font-weight:600; border:1px solid rgba(16,185,129,0.25); white-space:nowrap; flex-shrink:0;"><i class="fas fa-shield-alt"></i> INSPECCIÓN 150 PTS</span>
-                                        <span style="background:rgba(255,255,255,0.06); color:#cbd5e1; font-size:0.59rem; padding:2px 6px; border-radius:4px; font-weight:600; border:1px solid rgba(255,255,255,0.12); white-space:nowrap; flex-shrink:0;" id="pv_showroom_badge"><i class="fas fa-store"></i> SHOWROOM</span>
-                                        <span style="background:rgba(168,85,247,0.1); color:#d8b4fe; font-size:0.59rem; padding:2px 6px; border-radius:4px; font-weight:600; border:1px solid rgba(168,85,247,0.25); white-space:nowrap; flex-shrink:0;" id="pv_regime_badge"><i class="fas fa-landmark"></i> <span id="pv_regime_text">PUERTO LIBRE</span></span>
+                                    <div style="margin-top:6px; display:flex; gap:6px; flex-wrap:nowrap; align-items:center; overflow:hidden;">
+                                        <span style="display:none; background:rgba(39,92,234,0.15); color:#7dd3fc; font-size:0.59rem; padding:2px 8px; border-radius:4px; font-weight:700; border:1px solid rgba(56,189,248,0.25); white-space:nowrap; flex-shrink:0;" id="pv_drivetrain_tag">---</span>
+                                        <span style="background:rgba(37,211,102,0.12); color:#25D366; font-size:0.59rem; padding:2px 8px; border-radius:4px; font-weight:700; border:1px solid rgba(37,211,102,0.3); white-space:nowrap; flex-shrink:0;"><i class="fas fa-shield-alt"></i> INSPECCIÓN 150 PTS</span>
+                                        <span style="background:rgba(255,255,255,0.06); color:#cbd5e1; font-size:0.59rem; padding:2px 8px; border-radius:4px; font-weight:700; border:1px solid rgba(255,255,255,0.12); white-space:nowrap; flex-shrink:0;" id="pv_showroom_badge"><i class="fas fa-store"></i> SHOWROOM</span>
+                                        <span style="background:rgba(168,85,247,0.12); color:#d8b4fe; font-size:0.59rem; padding:2px 8px; border-radius:4px; font-weight:700; border:1px solid rgba(168,85,247,0.25); white-space:nowrap; flex-shrink:0;" id="pv_regime_badge"><i class="fas fa-landmark"></i> <span id="pv_regime_text">PUERTO LIBRE</span></span>
                                     </div>
                                     <!-- PRECIO DE VENTA DESTACADO EN CABECERA -->
                                     <div id="pv_price_tag" style="margin-top:8px; display:flex; align-items:baseline; gap:8px;">
@@ -2341,8 +2341,8 @@
                                 <div class="ficha-block-title">
                                     <i class="fas fa-clipboard-check" style="color:#38bdf8;"></i> Auditoría de Origen & Condición de Stock Local
                                 </div>
-                                <div class="ficha-grid-2">
-                                    <!-- Columna Izquierda: Historial de Origen & Condición -->
+                                <div class="ficha-grid-2" style="margin-bottom:8px;">
+                                    <!-- Columna Izquierda: Historial de Origen & Condición (4 especificaciones) -->
                                     <ul class="ficha-specs-list">
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Régimen / Circulación:</span>
@@ -2360,6 +2360,10 @@
                                             <span class="ficha-spec-label">Propietarios / Dueños:</span>
                                             <span class="ficha-spec-val" id="pv_stock_owners">Único Dueño (1 Owner)</span>
                                         </li>
+                                    </ul>
+
+                                    <!-- Columna Derecha: Título, Daños, Llaves y Airbags (4 especificaciones) -->
+                                    <ul class="ficha-specs-list">
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Tipo de Título / Doc:</span>
                                             <span class="ficha-spec-val success" id="pv_stock_title_type">Título Limpio (Clean Title)</span>
@@ -2368,31 +2372,27 @@
                                             <span class="ficha-spec-label">Daño en Subasta:</span>
                                             <span class="ficha-spec-val" id="pv_stock_damage">Sin Daño Estructural</span>
                                         </li>
+                                        <li class="ficha-spec-item">
+                                            <span class="ficha-spec-label">Llaves de Contacto:</span>
+                                            <span class="ficha-spec-val" id="pv_stock_keys">2 Llaves Inteligentes (Presencia)</span>
+                                        </li>
+                                        <li class="ficha-spec-item">
+                                            <span class="ficha-spec-label">Bolsas de Aire (Airbags):</span>
+                                            <span class="ficha-spec-val success" id="pv_stock_airbags">Originales de Fábrica (Intactas)</span>
+                                        </li>
                                     </ul>
+                                </div>
 
-                                    <!-- Columna Derecha: Condición Técnica & Extras Comerciales -->
-                                    <div>
-                                        <ul class="ficha-specs-list">
-                                            <li class="ficha-spec-item">
-                                                <span class="ficha-spec-label">Llaves de Contacto:</span>
-                                                <span class="ficha-spec-val" id="pv_stock_keys">2 Llaves Inteligentes (Presencia)</span>
-                                            </li>
-                                            <li class="ficha-spec-item">
-                                                <span class="ficha-spec-label">Bolsas de Aire (Airbags):</span>
-                                                <span class="ficha-spec-val success" id="pv_stock_airbags">Originales de Fábrica (Intactas)</span>
-                                            </li>
-                                        </ul>
-                                        <!-- Extras / Servicios Realizados -->
-                                        <div style="margin-top:6px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px 8px;">
-                                            <div style="font-size:0.68rem; font-weight:700; color:#7dd3fc; margin-bottom:4px; display:flex; align-items:center; gap:4px;">
-                                                <i class="fas fa-plus-circle"></i> Extras / Servicios Realizados:
-                                            </div>
-                                            <div id="pv_stock_extras_list" style="font-size:0.68rem; color:#cbd5e1; line-height:1.4; display:flex; flex-direction:column; gap:3px;">
-                                                <div>• Mantenimiento preventivo integral de 150 puntos realizado.</div>
-                                                <div>• Documentación y papeles 100% al día para traspaso inmediato.</div>
-                                                <div>• Tratamiento de protección de pintura e higienización interior.</div>
-                                            </div>
-                                        </div>
+                                <!-- Extras / Servicios Realizados (Ancho Completo) -->
+                                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:6px 10px;">
+                                    <div style="font-size:0.68rem; font-weight:700; color:#7dd3fc; margin-bottom:4px; display:flex; align-items:center; gap:5px;">
+                                        <i class="fas fa-plus-circle"></i> Extras & Servicios de Preparación Incluidos:
+                                    </div>
+                                    <div id="pv_stock_extras_list" style="font-size:0.68rem; color:#cbd5e1; line-height:1.4; display:grid; grid-template-columns:1fr 1fr; gap:3px 15px;">
+                                        <div>• Mantenimiento integral de 150 puntos realizado.</div>
+                                        <div>• Papeles 100% al día para traspaso inmediato.</div>
+                                        <div>• Tratamiento de pintura e higienización interior.</div>
+                                        <div>• Garantía certificada por SemiNuevos Agency.</div>
                                     </div>
                                 </div>
                             </div>
@@ -2439,7 +2439,7 @@
                                         </li>
                                         <li class="ficha-spec-item">
                                             <span class="ficha-spec-label">Modalidad Comercial:</span>
-                                            <span class="ficha-spec-val highlight"><i class="fas fa-truck-ramp-box"></i> Importación Puerta a Puerta</span>
+                                            <span class="ficha-spec-val highlight" style="color:#38bdf8; font-weight:700;"><i class="fas fa-truck-ramp-box"></i> Importación Puerta a Puerta</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -7513,9 +7513,10 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             const dtTag = document.getElementById('pv_drivetrain_tag');
             if (dtTag) {
                 const s = (drivetrain || '').toUpperCase();
-                if (drivetrain === '---') {
-                    dtTag.textContent = '---';
+                if (!drivetrain || drivetrain === '---' || drivetrain === '--') {
+                    dtTag.style.display = 'none';
                 } else {
+                    dtTag.style.display = 'inline-block';
                     dtTag.textContent = s.includes('4WD') || s.includes('4X4') ? '4WD / 4X4' : (s.includes('AWD') ? 'AWD INTEGRAL' : (s.includes('FWD') ? 'FWD DELANTERA' : 'RWD TRASERA'));
                 }
             }
