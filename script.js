@@ -534,18 +534,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const allStatic = (typeof vehiclesSeminuevos !== 'undefined') ? vehiclesSeminuevos : [];
             
+            // Helper Discriminator: Strict detection of imported / auction / por_pedido vehicles
+            const isImportedOrAuction = (v) => {
+                if (!v) return false;
+                const c = (v.catalog || '').toLowerCase().trim();
+                const avail = (v.availability || '').toLowerCase().trim();
+                const orig = (v.origin || '').toLowerCase().trim();
+                const desc = (v.description || '').toLowerCase();
+                const title = (v.title || '').toLowerCase();
+
+                if (c === 'importados' || c === 'importado' || c === 'por_pedido' || c === 'pedido' || c === 'subasta' || c === 'subastas') return true;
+                if (avail === 'por_pedido' || orig === 'importado') return true;
+                if (v.lot_number || v.lotNumber || v.smi_id || (v.id && String(v.id).startsWith('SMI-'))) return true;
+                if (desc.includes('subasta') || desc.includes('yarda usa') || desc.includes('copart') || desc.includes('iaai') || desc.includes('por pedido') || desc.includes('importación') || desc.includes('importacion')) return true;
+                if (title.includes('actual') || title.includes('exceeds mechanical limits') || title.includes('smi-')) return true;
+                return false;
+            };
+
             const staticSemi = allStatic.filter(v => {
-                const c = (v.catalog || '').toLowerCase();
+                if (isImportedOrAuction(v)) return false;
+                const c = (v.catalog || '').toLowerCase().trim();
                 return c === 'seminuevos' || c === 'stock_local' || v.availability === 'entrega_inmediata' || v.origin === 'nacional';
             });
 
             const staticPorPedido = allStatic.filter(v => {
-                const c = (v.catalog || '').toLowerCase();
-                return c === 'importados' || c === 'importado' || c === 'por_pedido' || c === 'pedido' || c === 'subasta' || c === 'subastas' || v.availability === 'por_pedido' || v.origin === 'importado';
+                if (isImportedOrAuction(v)) return true;
+                const c = (v.catalog || '').toLowerCase().trim();
+                return c === 'importados' || c === 'importado' || c === 'por_pedido' || c === 'pedido' || c === 'subasta' || c === 'subastas';
             });
 
             const staticZeroKm = allStatic.filter(v => {
-                const c = (v.catalog || '').toLowerCase();
+                const c = (v.catalog || '').toLowerCase().trim();
                 return c === '0km' || v.condition === '0km';
             });
 
@@ -554,12 +573,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const combinedRaw = [...(vDataRes.data || []), ...localVehs];
 
             const dbSemi = combinedRaw.filter(v => {
+                if (isImportedOrAuction(v)) return false; // Strictly exclude imported/auction vehicles from Stock Local
                 const c = (v.catalog || '').toLowerCase().trim();
                 if (c === 'seminuevos' || c === 'seminuevo' || c === 'stock_local') return true;
                 return v.availability === 'entrega_inmediata' || v.origin === 'nacional';
             });
 
             const dbPorPedido = combinedRaw.filter(v => {
+                if (isImportedOrAuction(v)) return true; // Strictly route imported/auction vehicles to Por Pedido
                 const c = (v.catalog || '').toLowerCase().trim();
                 if (c === 'importados' || c === 'importado' || c === 'por_pedido' || c === 'pedido' || c === 'subasta' || c === 'subastas') return true;
                 if (v.availability === 'por_pedido' || v.origin === 'importado') return true;
