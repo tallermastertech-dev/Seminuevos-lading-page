@@ -534,14 +534,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const allStatic = (typeof vehiclesSeminuevos !== 'undefined') ? vehiclesSeminuevos : [];
             
-            // Helper Discriminator 1: Detect 0KM vehicles
+            // Helper Discriminator 1: Detect 0KM vehicles (strictly 0 KM mileage & zero km badges, never seminuevos or subasta lots)
             const isZeroKmVehicle = (v) => {
                 if (!v) return false;
+
+                // Auction / subasta / SMI lots can NEVER be 0KM
+                if (v.lot_number || v.lotNumber || v.smi_id || (v.id && String(v.id).startsWith('SMI-'))) return false;
+
+                // Check explicit 0KM catalog or condition marker
                 const c = (v.catalog || '').toLowerCase().trim();
                 const cond = (v.condition || '').toLowerCase().trim();
                 const badge = (v.badge || '').toLowerCase().trim();
-                const title = (v.title || '').toLowerCase().trim();
-                return c === '0km' || cond === '0km' || badge.includes('0km') || title.includes('0km');
+                const isExplicit0km = (c === '0km' || cond === '0km' || badge.includes('0km'));
+                if (!isExplicit0km) return false;
+
+                // Mileage validation: vehicles with high mileage (e.g. 35,000 km, 50,000 km, 93,000 km) CANNOT be 0KM
+                const rawKm = String(v.km || v.mileage || '0').replace(/\D/g, '');
+                const kmNum = parseInt(rawKm, 10) || 0;
+                if (kmNum > 100) return false;
+
+                return true;
             };
 
             // Helper Discriminator 2: Detect Imported / Por Pedido / Subasta vehicles
