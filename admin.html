@@ -3182,7 +3182,7 @@
             return false;
         }
 
-        function showAdmin(user) {
+        window.showAdmin = function showAdmin(user) {
             if (authScreen) authScreen.style.display = 'none';
             if (adminPanel) adminPanel.style.display = 'flex';
             const nameEl = document.getElementById('userName');
