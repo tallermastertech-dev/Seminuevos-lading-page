@@ -534,9 +534,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const allStatic = (typeof vehiclesSeminuevos !== 'undefined') ? vehiclesSeminuevos : [];
             
-            // Helper Discriminator: Strict detection of imported / auction / por_pedido vehicles
-            const isImportedOrAuction = (v) => {
+            // Helper Discriminator 1: Detect 0KM vehicles
+            const isZeroKmVehicle = (v) => {
                 if (!v) return false;
+                const c = (v.catalog || '').toLowerCase().trim();
+                const cond = (v.condition || '').toLowerCase().trim();
+                const badge = (v.badge || '').toLowerCase().trim();
+                const title = (v.title || '').toLowerCase().trim();
+                return c === '0km' || cond === '0km' || badge.includes('0km') || title.includes('0km');
+            };
+
+            // Helper Discriminator 2: Detect Imported / Por Pedido / Subasta vehicles
+            const isImportedOrAuctionVehicle = (v) => {
+                if (!v) return false;
+                if (isZeroKmVehicle(v)) return false; // 0KM vehicles stay in 0KM tab
+
                 const c = (v.catalog || '').toLowerCase().trim();
                 const avail = (v.availability || '').toLowerCase().trim();
                 const orig = (v.origin || '').toLowerCase().trim();
@@ -548,52 +560,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (v.lot_number || v.lotNumber || v.smi_id || (v.id && String(v.id).startsWith('SMI-'))) return true;
                 if (desc.includes('subasta') || desc.includes('yarda usa') || desc.includes('copart') || desc.includes('iaai') || desc.includes('por pedido') || desc.includes('importación') || desc.includes('importacion')) return true;
                 if (title.includes('actual') || title.includes('exceeds mechanical limits') || title.includes('smi-')) return true;
+
                 return false;
             };
 
-            const staticSemi = allStatic.filter(v => {
-                if (isImportedOrAuction(v)) return false;
-                const c = (v.catalog || '').toLowerCase().trim();
-                return c === 'seminuevos' || c === 'stock_local' || v.availability === 'entrega_inmediata' || v.origin === 'nacional';
-            });
+            // Helper Discriminator 3: Detect Stock Local (Seminuevo Entrega Inmediata) vehicles
+            const isStockLocalVehicle = (v) => {
+                if (!v) return false;
+                if (isZeroKmVehicle(v)) return false; // Strictly exclude 0KM
+                if (isImportedOrAuctionVehicle(v)) return false; // Strictly exclude Imported / Por Pedido
 
-            const staticPorPedido = allStatic.filter(v => {
-                if (isImportedOrAuction(v)) return true;
                 const c = (v.catalog || '').toLowerCase().trim();
-                return c === 'importados' || c === 'importado' || c === 'por_pedido' || c === 'pedido' || c === 'subasta' || c === 'subastas';
-            });
+                const avail = (v.availability || '').toLowerCase().trim();
+                const orig = (v.origin || '').toLowerCase().trim();
 
-            const staticZeroKm = allStatic.filter(v => {
-                const c = (v.catalog || '').toLowerCase().trim();
-                return c === '0km' || v.condition === '0km';
-            });
+                if (c === 'seminuevos' || c === 'seminuevo' || c === 'stock_local') return true;
+                if (avail === 'entrega_inmediata' || orig === 'nacional') return true;
+
+                return true; // Fallback for any non-0KM, non-Imported vehicle
+            };
+
+            const staticSemi = allStatic.filter(isStockLocalVehicle);
+            const staticPorPedido = allStatic.filter(isImportedOrAuctionVehicle);
+            const staticZeroKm = allStatic.filter(isZeroKmVehicle);
 
             let localVehs = [];
             try { localVehs = JSON.parse(localStorage.getItem('sn_vehicles') || '[]'); } catch(e) {}
             const combinedRaw = [...(vDataRes.data || []), ...localVehs];
 
-            const dbSemi = combinedRaw.filter(v => {
-                if (isImportedOrAuction(v)) return false; // Strictly exclude imported/auction vehicles from Stock Local
-                const c = (v.catalog || '').toLowerCase().trim();
-                if (c === 'seminuevos' || c === 'seminuevo' || c === 'stock_local') return true;
-                return v.availability === 'entrega_inmediata' || v.origin === 'nacional';
-            });
-
-            const dbPorPedido = combinedRaw.filter(v => {
-                if (isImportedOrAuction(v)) return true; // Strictly route imported/auction vehicles to Por Pedido
-                const c = (v.catalog || '').toLowerCase().trim();
-                if (c === 'importados' || c === 'importado' || c === 'por_pedido' || c === 'pedido' || c === 'subasta' || c === 'subastas') return true;
-                if (v.availability === 'por_pedido' || v.origin === 'importado') return true;
-                const desc = (v.description || '').toLowerCase();
-                if (desc.includes('subasta') || desc.includes('lote') || desc.includes('vin:')) return true;
-                return false;
-            });
-
-            const db0km = combinedRaw.filter(v => {
-                const c = (v.catalog || '').toLowerCase().trim();
-                if (c === '0km') return true;
-                return v.condition === '0km';
-            });
+            const dbSemi = combinedRaw.filter(isStockLocalVehicle);
+            const dbPorPedido = combinedRaw.filter(isImportedOrAuctionVehicle);
+            const db0km = combinedRaw.filter(isZeroKmVehicle);
 
             let deleted = [];
             try { deleted = JSON.parse(localStorage.getItem('sn_deleted_vehicles') || '[]'); } catch(e) {}
