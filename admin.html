@@ -3306,7 +3306,7 @@
             }
         }
 
-        async function performLogin() {
+        window.performLogin = async function performLogin() {
             const emailInput = document.getElementById('authEmail');
             const passwordInput = document.getElementById('authPassword');
             const email = (emailInput?.value || '').trim();
@@ -4938,7 +4938,7 @@
                             model: '',
                             lotNumber: lotId,
                             smi_id: `SMI-${lotId}`,
-                            images: Array.from({ length: 15 }, (_, i) => `https://vis.iaai.com/resizer?imageKeys=${lotId}~IAA~S${i + 1}&width=1024&height=768`)
+                            images: Array.from({ length: 15 }, (_, i) => `https://vis.iaai.com/resizer?imageKeys=${lotId}~SID~S0~I${i + 1}~TH0&width=1024&height=768`)
                         }];
                     } else {
                         const payload = isCopart 
@@ -4992,7 +4992,7 @@
                             model: '',
                             lotNumber: lotId,
                             smi_id: `SMI-${lotId}`,
-                            images: Array.from({ length: 15 }, (_, i) => `https://vis.iaai.com/resizer?imageKeys=${lotId}~IAA~S${i + 1}&width=1024&height=768`)
+                            images: Array.from({ length: 15 }, (_, i) => `https://vis.iaai.com/resizer?imageKeys=${lotId}~SID~S0~I${i + 1}~TH0&width=1024&height=768`)
                         };
                     } else if (!rawItem && (apifyResponseStatus === 401 || apifyResponseStatus === 403)) {
                         throw new Error(`Token de Apify no autorizado para el actor de subastas (HTTP ${apifyResponseStatus}). Activa el actor en console.apify.com o usa el botón Bookmarklet.`);
@@ -5024,7 +5024,7 @@
                         images = [];
                         if (lotId && isIaai) {
                             for (let i = 1; i <= 15; i++) {
-                                images.push(`https://vis.iaai.com/resizer?imageKeys=${lotId}~IAA~S${i}&width=1024&height=768`);
+                                images.push(`https://vis.iaai.com/resizer?imageKeys=${lotId}~SID~S0~I${i}~TH0&width=1024&height=768`);
                             }
                         }
                     }
