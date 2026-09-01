@@ -4934,20 +4934,50 @@
 
                     const apiUrl = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=60`;
 
+                    let apifyResponseStatus = 200;
                     try {
                         const res = await fetch(apiUrl, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(payload)
                         });
+                        apifyResponseStatus = res.status;
                         if (res.ok) {
                             items = await res.json();
+                        } else {
+                            console.warn(`Apify Actor HTTP ${res.status}: No autorizado o sin permisos para ${actorId}`);
                         }
                     } catch (e) {
                         console.warn("Apify direct fetch warning in bulk:", e.message);
                     }
 
                     let rawItem = (Array.isArray(items) && items.length > 0) ? items[0] : null;
+
+                    // Fallback: If direct Apify fetch failed or returned 401/403, try backend proxy scraper /api/scrape
+                    if (!rawItem) {
+                        try {
+                            if (liveTimerEl) liveTimerEl.innerHTML = `⚡ [${index + 1}/${links.length}] Consultando servidor proxy de respaldo para ${label}...`;
+                            const proxyRes = await fetch('/api/scrape', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ url: cleanUrl, proxyKey: token })
+                            });
+                            if (proxyRes.ok) {
+                                const proxyJson = await proxyRes.json();
+                                if (proxyJson && proxyJson.data && (proxyJson.data.make || proxyJson.data.title)) {
+                                    rawItem = proxyJson.data;
+                                }
+                            }
+                        } catch (proxyErr) {
+                            console.warn("Backend proxy scraper fallback error:", proxyErr);
+                        }
+                    }
+
+                    // Strict Validation: If Apify returned 401/403 and no dataset was retrieved, fail clearly instead of saving incomplete 2026 dummy entry
+                    if (!rawItem && (apifyResponseStatus === 401 || apifyResponseStatus === 403)) {
+                        throw new Error(`Token de Apify no autorizado para el actor de subastas (HTTP ${apifyResponseStatus}). Activa el actor en console.apify.com o usa el botón Bookmarklet.`);
+                    }
+
                     const info = rawItem ? (rawItem.vehicleInfo || rawItem.data || rawItem.details || rawItem) : {};
                     const item = { ...rawItem, ...info };
 
