@@ -4959,7 +4959,8 @@
                     let vin = item["VIN (Status)"] || item["VIN"] || item.vin || item.vinNumber || '';
                     if (vin) vin = vin.replace(/\s*\(OK\)/i, '').replace(/\s*\(.*?\)/g, '').trim();
 
-                    let title = item.title || `${year} ${make} ${model} ${series}`.trim() || `Vehículo Subasta #${lotId || index + 1}`;
+                    const fullMakeModel = `${make} ${model} ${series}`.trim();
+                    let title = item.title || (fullMakeModel ? `${year} ${fullMakeModel}` : `Lote Subasta ${isIaai ? 'IAAI' : 'Copart'} #${lotId || index + 1}`);
                     const rawOdo = item["Odometer"] || item.odometer || item.mileage || '';
                     let engine = item["Engine"] || item.engine || item.engineDescription || '';
                     let trans = item["Transmission"] || item.transmission || '';
