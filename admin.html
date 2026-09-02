@@ -4943,6 +4943,10 @@
                                 body: JSON.stringify(payload)
                             });
                             apifyResponseStatus = res.status;
+                            if (res.status === 401) {
+                                console.warn("Token de Apify no válido. Limpiando de localStorage...");
+                                localStorage.removeItem('seminuevos_apify_token');
+                            }
                             if (res.ok) {
                                 items = await res.json();
                             }
