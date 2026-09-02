@@ -4864,8 +4864,7 @@
 
         function getApifyToken() {
             return localStorage.getItem('seminuevos_apify_token') || 
-                   document.getElementById('sProxyKey')?.value ||
-                   atob('YXBpZnlfYXBpX29jOU1WUTFUMk1scXgwd3Z3RFE1UDFKdEdHSkFENzBLejFLOA==');
+                   document.getElementById('sProxyKey')?.value || '';
         }
 
         // BULK IMPORT LOGIC (Direct High-Speed Scraper with Real-Time Feedback)
@@ -4974,17 +4973,9 @@
                         }
                     }
 
-                    // 3. Fallback only if all scrapers fail: construct entry with lot photos
-                    if (!rawItem && lotId) {
-                        rawItem = {
-                            title: `Lote Subasta ${isIaai ? 'IAAI' : 'Copart'} #${lotId}`,
-                            year: new Date().getFullYear(),
-                            make: '',
-                            model: '',
-                            lotNumber: lotId,
-                            smi_id: `SMI-${lotId}`,
-                            images: Array.from({ length: 15 }, (_, i) => `https://vis.iaai.com/resizer?imageKeys=${lotId}~SID~S0~I${i + 1}~TH0&width=1024&height=768`)
-                        };
+                    // 3. Fallback check: if no make/model was extracted, notify user to use Manual HTML Mode or Apify Token
+                    if (!rawItem || (!rawItem.make && !rawItem.title && !rawItem.year)) {
+                        throw new Error(`IAAI bloqueó el acceso directo. Por favor usa la pestaña "Modo Manual" (pega el HTML de la página) o ingresa un Token de Apify en Ajustes.`);
                     }
 
                     const info = rawItem ? (rawItem.vehicleInfo || rawItem.data || rawItem.details || rawItem) : {};
