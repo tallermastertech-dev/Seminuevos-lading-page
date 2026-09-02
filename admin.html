@@ -4925,54 +4925,21 @@
                 }, 1000);
 
                 try {
-                    let items = null;
-                    const actorId = isCopart ? 'gbTCcvLIEYLA86fpJ' : 'yyMRiF5a4sHPCV0q9';
-                    const payload = isCopart 
-                        ? { startUrls: [{ url: cleanUrl }], proxyConfiguration: { useApifyProxy: true } }
-                        : { detailUrls: [ cleanUrl ], proxyConfiguration: { useApifyProxy: false } };
+                    let rawItem = null;
+                    if (liveTimerEl) liveTimerEl.innerHTML = `⚡ [${index + 1}/${links.length}] Consultando servidor para ${label}...`;
+                    
+                    const proxyRes = await fetch('/api/scrape', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ url: cleanUrl, proxyKey: token })
+                    });
 
-                    let apifyResponseStatus = null;
-
-                    // 1. Try direct Apify fetch if token is available
-                    if (token && token.length > 20) {
-                        try {
-                            const apiUrl = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=60`;
-                            const res = await fetch(apiUrl, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(payload)
-                            });
-                            apifyResponseStatus = res.status;
-                            if (res.status === 401) {
-                                console.warn("Token de Apify no válido. Limpiando de localStorage...");
-                                localStorage.removeItem('seminuevos_apify_token');
-                            }
-                            if (res.ok) {
-                                items = await res.json();
-                            }
-                        } catch (e) {
-                            console.warn("Apify fetch warning in bulk:", e.message);
+                    if (proxyRes.ok) {
+                        const proxyJson = await proxyRes.json();
+                        if (proxyJson && proxyJson.success && proxyJson.data) {
+                            rawItem = proxyJson.data;
                         }
                     }
-
-                    let rawItem = (Array.isArray(items) && items.length > 0) ? items[0] : null;
-
-                    // 2. Try backend proxy scraper /api/scrape for full data parsing
-                    if (!rawItem || (!rawItem.make && !rawItem.title)) {
-                        try {
-                            if (liveTimerEl) liveTimerEl.innerHTML = `⚡ [${index + 1}/${links.length}] Consultando servidor proxy de respaldo para ${label}...`;
-                            const proxyRes = await fetch('/api/scrape', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ url: cleanUrl, proxyKey: token })
-                            });
-                            if (proxyRes.ok) {
-                                const proxyJson = await proxyRes.json();
-                                if (proxyJson && proxyJson.data) {
-                                    rawItem = proxyJson.data;
-                                }
-                            }
-                        } catch (proxyErr) {
                             console.warn("Backend proxy scraper fallback error:", proxyErr);
                         }
                     }
@@ -7082,52 +7049,20 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                         updateFichaLive();
                     }
 
-                    let actorId = isCopart ? 'gbTCcvLIEYLA86fpJ' : 'yyMRiF5a4sHPCV0q9';
-                    let payload = isCopart 
-                        ? { startUrls: [{ url: cleanUrl }], proxyConfiguration: { useApifyProxy: true } }
-                        : { detailUrls: [ cleanUrl ], proxyConfiguration: { useApifyProxy: false } };
-
-                    // Only call direct Apify API if token is provided and valid
-                    if (token && token.length > 20) {
-                        try {
-                            const apiUrl = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=60`;
-                            const res = await fetch(apiUrl, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(payload)
-                            });
-                            if (res.status === 401) {
-                                console.warn("Token de Apify no válido. Limpiando de localStorage...");
-                                localStorage.removeItem('seminuevos_apify_token');
-                            } else if (res.ok) {
-                                items = await res.json();
-                            }
-                        } catch(e) {
-                            console.warn("Direct Apify call warning:", e.message);
-                        }
-                    }
-
-                    let seconds = 0;
-                    const timer = setInterval(() => {
-                        seconds += 2;
-                        if (statusEl && btn && btn.disabled) {
-                            statusEl.innerHTML = `🤖 Procesando lote en subasta... (${seconds}s)`;
-                        }
-                    }, 2000);
-
                     try {
-                        const res = await fetch(apiUrl, {
+                        const proxyRes = await fetch('/api/scrape', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
+                            body: JSON.stringify({ url: cleanUrl, proxyKey: token })
                         });
-                        if (res.ok) {
-                            items = await res.json();
+                        if (proxyRes.ok) {
+                            const proxyJson = await proxyRes.json();
+                            if (proxyJson && proxyJson.success && proxyJson.data) {
+                                items = [proxyJson.data];
+                            }
                         }
                     } catch (e) {
-                        console.warn("Apify direct fetch warning:", e.message);
-                    } finally {
-                        clearInterval(timer);
+                        console.warn("Backend scraper error:", e.message);
                     }
                 }
                 
