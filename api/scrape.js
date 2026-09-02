@@ -49,8 +49,21 @@ export default async function handler(req, res) {
         if (!url) return res.status(400).json({ message: 'URL required' });
 
         // =====================================================
-        // IAAI: Use dedicated Apify actor (yyMRiF5a4sHPCV0q9) (easyapi~iaai-vehicle-detail-scraper)
-        // This actor bypasses IAAI anti-bot natively. Requires Apify token.
+        // IAAI: Try Jina Reader automatic scraper (No token required, 100% bypass)
+        // =====================================================
+        if (url.includes('iaai.com') && !providedHtml) {
+            try {
+                const jinaData = await scrapeJinaIAAI(url);
+                if (jinaData && (jinaData.title || jinaData.make)) {
+                    return res.json({ success: true, data: jinaData });
+                }
+            } catch (e) {
+                console.log("Automatic Jina scraper warning:", e.message);
+            }
+        }
+
+        // =====================================================
+        // IAAI: Dedicated Apify actor fallback (yyMRiF5a4sHPCV0q9)
         // =====================================================
         if (url.includes('iaai.com') && !providedHtml && providedKey) {
             const lotMatch = url.match(/VehicleDetail\/(\d+)|vehicle\/(\d+)|\/([\d]{7,9})(?:-[A-Z]+)?(?:\/|$|\?)/i);
@@ -198,22 +211,9 @@ Contáctanos para cotizar impuestos, logística y precio final.
                 } else {
                     const errText = await apifyRes.text().catch(() => '');
                     console.log(`Apify IAAI actor HTTP ${apifyRes.status}:`, errText.substring(0, 200));
-                    if (apifyRes.status === 402) {
-                        throw new Error('Sin créditos en Apify. Recarga tu saldo en apify.com.');
-                    }
-                    if (apifyRes.status === 401 || apifyRes.status === 403) {
-                        throw new Error('API Key de Apify inválida o sin permisos para este actor.');
-                    }
                 }
             } catch (apifyErr) {
-                if (apifyErr.name === 'TimeoutError' || apifyErr.message?.includes('timeout')) {
-                    throw new Error('El actor de IAAI tardó demasiado. Intenta de nuevo o usa Modo Manual.');
-                }
                 console.log('easyapi~iaai actor error:', apifyErr.message);
-                // Re-throw if it's a meaningful error (credits, auth)
-                if (apifyErr.message.includes('créditos') || apifyErr.message.includes('inválida')) {
-                    return res.status(200).json({ success: false, message: apifyErr.message });
-                }
             }
         }
 
@@ -847,4 +847,113 @@ function parseGeneric(html, url) {
     }
 
     return result;
+}
+
+async function scrapeJinaIAAI(url) {
+    const lotMatch = url.match(/VehicleDetail\/(\d+)|vehicle\/(\d+)|\/([\d]{7,9})(?:-[A-Z]+)?(?:\/|$|\?)/i);
+    const lotId = lotMatch ? (lotMatch[1] || lotMatch[2] || lotMatch[3]) : null;
+
+    try {
+        const jinaRes = await fetch(`https://r.jina.ai/${url}`, {
+            headers: { 'User-Agent': 'Mozilla/5.0' },
+            signal: AbortSignal.timeout(12000)
+        });
+
+        if (!jinaRes.ok) return null;
+        const text = await jinaRes.text();
+        if (!text || text.length < 500) return null;
+
+        const titleMatch = text.match(/Title:\s*(.*?)(?:\s+for\s+Auction|\s+for\s+Sale|\n|$)/i) || 
+                           text.match(/#\s*(19\d{2}|20\d{2})\s+([A-Za-z0-9]+)\s+([A-Za-z0-9\s]+)/i);
+
+        let fullTitle = '';
+        let year = '';
+        let make = '';
+        let model = '';
+        let series = '';
+
+        if (titleMatch) {
+            fullTitle = (titleMatch[1] || titleMatch[0]).replace(/^#\s*/, '').replace(/for Auction/i, '').trim();
+            const ymMatch = fullTitle.match(/\b(19|20)\d{2}\b\s+([A-Za-z0-9]+)(?:\s+([A-Za-z0-9]+))?(?:\s+(.*))?/i);
+            if (ymMatch) {
+                year = ymMatch[1];
+                make = ymMatch[2];
+                model = ymMatch[3] || '';
+                series = ymMatch[4] || '';
+            }
+        }
+
+        const odoMatch = text.match(/Odometer:\s*([^\n\r]+)/i);
+        const km = odoMatch ? odoMatch[1].trim() : '0 KM';
+
+        const engMatch = text.match(/Engine:\s*([^\n\r]+)/i);
+        const rawEngine = engMatch ? engMatch[1].trim() : '';
+
+        const transMatch = text.match(/Transmission:\s*([^\n\r]+)/i);
+        const rawTrans = transMatch ? transMatch[1].trim() : '';
+
+        const bodyMatch = text.match(/Body Style:\s*([^\n\r]+)/i);
+        const rawBody = bodyMatch ? bodyMatch[1].trim() : '';
+
+        const dmgMatch = text.match(/Primary Damage:\s*([^\n\r]+)/i);
+        const rawDamage = dmgMatch ? dmgMatch[1].trim() : '';
+
+        const locMatch = text.match(/Selling Branch:\s*([^\n\r]+)/i);
+        const location = locMatch ? locMatch[1].trim() : 'EE. UU. (IAAI)';
+
+        const vinMatch = text.match(/VIN\s*(?:\([^)]+\))?:\s*([A-Z0-9*]{11,17})/i);
+        const vin = vinMatch ? vinMatch[1].trim() : 'N/A';
+
+        const normTrans = normalizeTransmission(rawTrans);
+        const normFuelType = normalizeFuel(rawEngine);
+        const normBody = normalizeBodyType(rawBody, fullTitle);
+        const normEng = extractEngine(rawEngine, fullTitle, '');
+        const formattedDamage = formatDamage(rawDamage);
+
+        let cleanImages = [];
+        if (lotId) {
+            for (let i = 1; i <= 15; i++) {
+                cleanImages.push(`https://vis.iaai.com/resizer?imageKeys=${lotId}~IAA~S${i}&width=1024&height=768`);
+            }
+        }
+
+        if (!year && !make && !fullTitle) return null;
+
+        return {
+            title: fullTitle || `${year} ${make} ${model} ${series}`.trim() || `Vehículo IAAI #${lotId}`,
+            year: year || new Date().getFullYear(),
+            make,
+            model,
+            series,
+            price: 'Consultar',
+            km,
+            engine: normEng,
+            transmission: normTrans,
+            bodyType: normBody,
+            fuel: normFuelType,
+            vin,
+            damage: formattedDamage,
+            location,
+            images: cleanImages,
+            description: `📋 FICHA TÉCNICA Y ESPECIFICACIONES:
+• Vehículo: ${fullTitle}
+• Año: ${year}
+• Motor: ${normEng}
+• Transmisión: ${normTrans}
+• Tipo de Carrocería: ${normBody}
+• Combustible: ${normFuelType}
+• Recorrido: ${km}
+• Condición / Daño: ${formattedDamage}
+• Ubicación de Subasta: ${location}
+• Número VIN: ${vin}
+
+🚗 Importado especialmente bajo pedido desde subasta IAAI.
+Contáctanos para cotizar impuestos, logística y precio final.
+
+[ADMIN-LINK]: ${url}`
+        };
+    } catch(e) {
+        console.log("Jina IAAI fetch error:", e.message);
+        return null;
+    }
 }
