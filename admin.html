@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
     <title>SemiNuevos | Panel de Administración</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="images/favicon.png">
@@ -3568,7 +3569,15 @@
                 return;
             }
             const statusBadge = (s) => s === 'active' ? '<span class="badge badge-green">ACTIVO</span>' : s === 'sold' ? '<span class="badge badge-red">VENDIDO</span>' : '<span class="badge badge-blue">RESERVADO</span>';
-            const imgSrc = (v) => v.images?.length ? v.images[0] : (v.image || '');
+            const imgSrc = (v) => {
+                let src = (v.images && v.images.length > 0) ? v.images[0] : (v.image || '');
+                if (src && src.includes('vis.iaai.com')) {
+                    if (src.includes('~IAA~S')) {
+                        src = src.replace(/~IAA~S(\d+)/g, '~SID~S0~I$1').replace(/&width=.*$/g, '');
+                    }
+                }
+                return src || 'images/favicon.png';
+            };
 
             const allSelected = filtered.length > 0 && filtered.every(v => selectedVehicles.has(v.id));
 
@@ -3577,9 +3586,11 @@
                 const sId = String(v.id);
                 const isChecked = (selectedVehicles.has(v.id) || selectedVehicles.has(sId)) ? 'checked' : '';
                 const isSelectedClass = (selectedVehicles.has(v.id) || selectedVehicles.has(sId)) ? 'class="selected"' : '';
+                const displayYear = (v.year && String(v.year).length === 4) ? v.year : (v.title?.match(/\b(19|20)\d{2}\b/)?.[0] || v.year || '');
+                
                 html += `<tr data-id="${v.id}" ${isSelectedClass}>
                     <td style="text-align:center;"><input type="checkbox" class="vehicle-checkbox" data-id="${v.id}" onchange="toggleVehicle('${v.id}')" ${isChecked}></td>
-                    <td><div class="vehicle-row-info"><img src="${imgSrc(v)}" class="vehicle-row-img" onerror="this.src='images/favicon.png'; this.style.opacity='0.3';"><div><div class="vehicle-row-name">${v.title}</div><div class="vehicle-row-cat">${v.year} · ${(v.body_type || v.bodyType || '').toUpperCase()}</div></div></div></td>
+                    <td><div class="vehicle-row-info"><img src="${imgSrc(v)}" class="vehicle-row-img" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='images/favicon.png'; this.style.opacity='0.3';"><div><div class="vehicle-row-name">${v.title}</div><div class="vehicle-row-cat">${displayYear} · ${(v.body_type || v.bodyType || '').toUpperCase()}</div></div></div></td>
                     <td style="color:var(--accent);font-weight:600">${v.price}</td>
                     <td><span class="badge badge-gold">${(v.catalog || '').toUpperCase()}</span></td>
                     <td>${statusBadge(v.status)}</td>

@@ -110,7 +110,7 @@ export default async function handler(req, res) {
                         // Fallback: build from CDN lot-ID pattern (always works for IAAI lots)
                         if (cleanImages.length === 0 && lotId) {
                             for (let i = 1; i <= 15; i++) {
-                                cleanImages.push(`https://vis.iaai.com/resizer?imageKeys=${lotId}~IAA~S${i}&width=1024&height=768`);
+                                cleanImages.push(`https://vis.iaai.com/resizer?imageKeys=${lotId}~SID~S0~I${i}`);
                             }
                         }
 
@@ -913,7 +913,7 @@ async function scrapeJinaIAAI(url) {
         let cleanImages = [];
         if (lotId) {
             for (let i = 1; i <= 15; i++) {
-                cleanImages.push(`https://vis.iaai.com/resizer?imageKeys=${lotId}~IAA~S${i}&width=1024&height=768`);
+                cleanImages.push(`https://vis.iaai.com/resizer?imageKeys=${lotId}~SID~S0~I${i}`);
             }
         }
 
