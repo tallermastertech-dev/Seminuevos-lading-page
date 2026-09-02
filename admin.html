@@ -4928,31 +4928,22 @@
                 try {
                     let items = null;
                     const actorId = isCopart ? 'gbTCcvLIEYLA86fpJ' : 'yyMRiF5a4sHPCV0q9';
+                    const payload = isCopart 
+                        ? { startUrls: [{ url: cleanUrl }], proxyConfiguration: { useApifyProxy: true } }
+                        : { detailUrls: [ cleanUrl ], proxyConfiguration: { useApifyProxy: false } };
 
-                    // Direct high-speed CDN lot processing for IAAI lots (zero console errors, zero 401 network failures)
-                    if (isIaai && lotId) {
-                        items = [{
-                            title: `Lote Subasta IAAI #${lotId}`,
-                            year: new Date().getFullYear(),
-                            make: '',
-                            model: '',
-                            lotNumber: lotId,
-                            smi_id: `SMI-${lotId}`,
-                            images: Array.from({ length: 15 }, (_, i) => `https://vis.iaai.com/resizer?imageKeys=${lotId}~SID~S0~I${i + 1}~TH0&width=1024&height=768`)
-                        }];
-                    } else {
-                        const payload = isCopart 
-                            ? { startUrls: [{ url: cleanUrl }], proxyConfiguration: { useApifyProxy: true } }
-                            : { detailUrls: [ cleanUrl ], proxyConfiguration: { useApifyProxy: false } };
+                    let apifyResponseStatus = null;
 
-                        const apiUrl = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=60`;
-
+                    // 1. Try direct Apify fetch if token is available
+                    if (token) {
                         try {
+                            const apiUrl = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=60`;
                             const res = await fetch(apiUrl, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify(payload)
                             });
+                            apifyResponseStatus = res.status;
                             if (res.ok) {
                                 items = await res.json();
                             }
@@ -4963,8 +4954,8 @@
 
                     let rawItem = (Array.isArray(items) && items.length > 0) ? items[0] : null;
 
-                    // Fallback: If direct Apify fetch failed or returned 401/403, try backend proxy scraper /api/scrape
-                    if (!rawItem) {
+                    // 2. Try backend proxy scraper /api/scrape for full data parsing
+                    if (!rawItem || (!rawItem.make && !rawItem.title)) {
                         try {
                             if (liveTimerEl) liveTimerEl.innerHTML = `⚡ [${index + 1}/${links.length}] Consultando servidor proxy de respaldo para ${label}...`;
                             const proxyRes = await fetch('/api/scrape', {
@@ -4974,7 +4965,7 @@
                             });
                             if (proxyRes.ok) {
                                 const proxyJson = await proxyRes.json();
-                                if (proxyJson && proxyJson.data && (proxyJson.data.make || proxyJson.data.title)) {
+                                if (proxyJson && proxyJson.data) {
                                     rawItem = proxyJson.data;
                                 }
                             }
@@ -4983,7 +4974,7 @@
                         }
                     }
 
-                    // Fallback: If Apify returned 401/403 or failed, but we have a valid lotId, create the vehicle entry with 15 HD photos
+                    // 3. Fallback only if all scrapers fail: construct entry with lot photos
                     if (!rawItem && lotId) {
                         rawItem = {
                             title: `Lote Subasta ${isIaai ? 'IAAI' : 'Copart'} #${lotId}`,
@@ -4994,16 +4985,14 @@
                             smi_id: `SMI-${lotId}`,
                             images: Array.from({ length: 15 }, (_, i) => `https://vis.iaai.com/resizer?imageKeys=${lotId}~SID~S0~I${i + 1}~TH0&width=1024&height=768`)
                         };
-                    } else if (!rawItem && (apifyResponseStatus === 401 || apifyResponseStatus === 403)) {
-                        throw new Error(`Token de Apify no autorizado para el actor de subastas (HTTP ${apifyResponseStatus}). Activa el actor en console.apify.com o usa el botón Bookmarklet.`);
                     }
 
                     const info = rawItem ? (rawItem.vehicleInfo || rawItem.data || rawItem.details || rawItem) : {};
                     const item = { ...rawItem, ...info };
 
-                    // Parse fields from Apify
-                    let year = item.year || item.modelYear || item["Year"] || new Date().getFullYear();
-                    let make = item.make || item["Make"] || item.mkn || '';
+                    // Parse fields
+                    let year = item.year || item.modelYear || item["Year"] || '';
+                    let make = item.make || item["Make"] || item.mkn || item.brand || '';
                     let model = item.model || item["Model"] || item.lm || '';
                     let series = item.series || item.trim || item["Series"] || '';
                     let vin = item["VIN (Status)"] || item["VIN"] || item.vin || item.vinNumber || '';
@@ -5011,12 +5000,13 @@
 
                     const fullMakeModel = `${make} ${model} ${series}`.trim();
                     let title = item.title || (fullMakeModel ? `${year} ${fullMakeModel}` : `Lote Subasta ${isIaai ? 'IAAI' : 'Copart'} #${lotId || index + 1}`);
-                    const rawOdo = item["Odometer"] || item.odometer || item.mileage || '';
+                    const rawOdo = item["Odometer"] || item.odometer || item.mileage || item.km || '';
                     let engine = item["Engine"] || item.engine || item.engineDescription || '';
                     let trans = item["Transmission"] || item.transmission || '';
                     const fuel = item["Fuel Type"] || item.fuel || 'Gasolina';
-                    let bodyType = item["Vehicle Class"] || item["Body Style"] || item.bodyStyle || 'SUV';
+                    let bodyType = item["Vehicle Class"] || item["Body Style"] || item.bodyStyle || item.bodyType || 'SUV';
                     const damage = item["Primary Damage"] || item.damage || item.primaryDamage || 'Sin daño mayor';
+                    const location = item.location || item.yard || item.sellingBranch || 'EE. UU. (Subasta)';
 
                     // Parse HD images with Guaranteed CDN Fallback
                     let images = item.images || item.photos || item.imageUrls || [];
@@ -5030,7 +5020,7 @@
                     }
                     const cleanImgs = images.map(img => typeof img === 'string' ? img : (img.hdUrl || img.full || img.url || img.thumbUrl || img.src)).filter(Boolean).slice(0, 15);
 
-                    // NHTSA Auto-Decodificación si hay VIN
+                    // NHTSA Auto-Decodificación si hay VIN de 17 caracteres
                     if (vin && /^[A-HJ-NPR-Z0-9]{17}$/i.test(vin)) {
                         try {
                             if (liveTimerEl) liveTimerEl.innerHTML = `⚡ [${index + 1}/${links.length}] Decodificando especificaciones con NHTSA (${vin})...`;
@@ -5060,11 +5050,26 @@
                     const normTransStr = formatTransmission(trans, null, make, model, year);
                     const normFuelType = normFuel(fuel);
                     const normBodyType = normBody(bodyType, title);
+                    const formattedYear = parseInt(year) || new Date().getFullYear();
+
+                    const fullDescription = item.description || `📋 FICHA TÉCNICA Y ESPECIFICACIONES:
+• Vehículo: ${title}
+• Año: ${formattedYear}
+• Motor: ${normEng}
+• Transmisión: ${normTransStr}
+• Tipo de Carrocería: ${normBodyType}
+• Combustible: ${normFuelType}
+• Recorrido / Millaje: ${rawOdo || '0 KM'}
+• Condición / Daño: ${damage}
+• Ubicación de Origen: ${location}
+• Número VIN: ${vin || 'N/A'}
+
+🚗 Importado bajo pedido desde subasta ${isCopart ? 'Copart' : 'IAAI'}. Contáctanos para cotizar flete e impuestos.`;
 
                     const vehicleData = {
                         title: title,
-                        price: 'Consultar',
-                        year: parseInt(year) || new Date().getFullYear(),
+                        price: item.price || 'Consultar',
+                        year: formattedYear,
                         km: rawOdo || '0 KM',
                         engine: normEng,
                         transmission: normTransStr,
@@ -5075,7 +5080,7 @@
                         origin: 'importado',
                         condition: 'seminuevo',
                         status: 'active',
-                        description: `📋 Importado bajo pedido desde subasta ${isCopart ? 'Copart' : 'IAAI'}.\n• Lote: ${lotId || 'N/A'}\n• VIN: ${vin || 'N/A'}\n• Condición: ${damage}\n• Millaje: ${rawOdo || 'N/A'}`,
+                        description: fullDescription,
                         images: cleanImgs.length > 0 ? cleanImgs : ['images/hero1.png']
                     };
 
