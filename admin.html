@@ -4934,7 +4934,7 @@
                     let apifyResponseStatus = null;
 
                     // 1. Try direct Apify fetch if token is available
-                    if (token) {
+                    if (token && token.length > 20) {
                         try {
                             const apiUrl = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=60`;
                             const res = await fetch(apiUrl, {
@@ -6989,7 +6989,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
 
         function getApifyToken() {
             return localStorage.getItem('seminuevos_apify_token') || 
-                   atob('YXBpZnlfYXBpX29jOU1WUTFUMk1scXgwd3Z3RFE1UDFKdEdHSkFENzBLejFLOA==');
+                   document.getElementById('sProxyKey')?.value || '';
         }
 
         async function extractLotWithApify() {
@@ -7009,7 +7009,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
             }
             if (statusEl) {
                 statusEl.style.display = 'block';
-                statusEl.innerHTML = '🤖 Conectando con Apify Scraper y extrayendo fotos HD y datos del lote...';
+                statusEl.innerHTML = '🤖 Conectando con el importador y extrayendo datos del lote...';
                 statusEl.style.color = '#38bdf8';
             }
 
@@ -7051,7 +7051,7 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                 // Caso 2: Pegó una URL de dataset de Apify (ej: api.apify.com/v2/datasets/.../items)
                 else if (cleanUrl.includes('api.apify.com')) {
                     let fetchUrl = cleanUrl;
-                    if (!fetchUrl.includes('token=')) {
+                    if (token && !fetchUrl.includes('token=')) {
                         fetchUrl += (fetchUrl.includes('?') ? '&' : '?') + `token=${token}`;
                     }
                     const res = await fetch(fetchUrl);
@@ -7087,7 +7087,25 @@ CREATE POLICY "Admin all promotions" ON promotions FOR ALL USING (auth.role() = 
                         ? { startUrls: [{ url: cleanUrl }], proxyConfiguration: { useApifyProxy: true } }
                         : { detailUrls: [ cleanUrl ], proxyConfiguration: { useApifyProxy: false } };
 
-                    const apiUrl = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=60`;
+                    // Only call direct Apify API if token is provided and valid
+                    if (token && token.length > 20) {
+                        try {
+                            const apiUrl = `https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${token}&timeout=60`;
+                            const res = await fetch(apiUrl, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            });
+                            if (res.status === 401) {
+                                console.warn("Token de Apify no válido. Limpiando de localStorage...");
+                                localStorage.removeItem('seminuevos_apify_token');
+                            } else if (res.ok) {
+                                items = await res.json();
+                            }
+                        } catch(e) {
+                            console.warn("Direct Apify call warning:", e.message);
+                        }
+                    }
 
                     let seconds = 0;
                     const timer = setInterval(() => {
