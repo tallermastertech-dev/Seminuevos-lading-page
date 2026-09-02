@@ -4839,7 +4839,7 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
-            const proxyKey = document.getElementById('sProxyKey')?.value;
+            const proxyKey = getApifyToken();
 
             try {
                 const response = await fetch('/api/scrape', {
@@ -4850,9 +4850,9 @@
                 const result = await response.json();
                 if (result.success) {
                     await fillForm(result.data);
-                    showToast('Datos importados con éxito', 'success');
+                    showToast('✓ Datos del vehículo e imágenes autocompletados', 'success');
                 } else {
-                    showToast('Sitio bloqueado o sin datos. ¡Usa el Bookmarklet!', 'warning');
+                    showToast(result.message || 'No se pudo extraer datos. Usa Modo Manual (pega el HTML).', 'warning');
                 }
             } catch (err) {
                 showToast('Error de conexión con el importador', 'error');
@@ -5168,12 +5168,14 @@
             if (data.engine) document.getElementById('vEngine').value = data.engine;
             if (data.transmission) document.getElementById('vTransmission').value = data.transmission;
             if (data.fuel) document.getElementById('vFuel').value = data.fuel;
-            if (data.description) document.getElementById('vDescription').value = data.description;
             if (data.bodyType) document.getElementById('vBodyType').value = data.bodyType;
+            if (data.description) document.getElementById('vDescription').value = data.description;
 
-            // Set catalog to "importados" as these are usually from auctions
-            document.getElementById('vCatalog').value = 'importados';
-            document.getElementById('vAvailability').value = 'por_pedido';
+            // Set default catalog & origin dropdowns for imported auction lots
+            if (document.getElementById('vCatalog')) document.getElementById('vCatalog').value = 'importados';
+            if (document.getElementById('vAvailability')) document.getElementById('vAvailability').value = 'por_pedido';
+            if (document.getElementById('vOrigin')) document.getElementById('vOrigin').value = 'importado';
+            if (document.getElementById('vCondition')) document.getElementById('vCondition').value = 'seminuevo';
 
             if (data.images && data.images.length) {
                 showToast('Descargando imágenes...', 'info');
