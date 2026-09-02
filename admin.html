@@ -4928,20 +4928,21 @@
                     let rawItem = null;
                     if (liveTimerEl) liveTimerEl.innerHTML = `⚡ [${index + 1}/${links.length}] Consultando servidor para ${label}...`;
                     
-                    const proxyRes = await fetch('/api/scrape', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ url: cleanUrl, proxyKey: token })
-                    });
+                    try {
+                        const proxyRes = await fetch('/api/scrape', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ url: cleanUrl, proxyKey: token })
+                        });
 
-                    if (proxyRes.ok) {
-                        const proxyJson = await proxyRes.json();
-                        if (proxyJson && proxyJson.success && proxyJson.data) {
-                            rawItem = proxyJson.data;
+                        if (proxyRes.ok) {
+                            const proxyJson = await proxyRes.json();
+                            if (proxyJson && proxyJson.success && proxyJson.data) {
+                                rawItem = proxyJson.data;
+                            }
                         }
-                    }
-                            console.warn("Backend proxy scraper fallback error:", proxyErr);
-                        }
+                    } catch (proxyErr) {
+                        console.warn("Backend proxy scraper fallback error:", proxyErr);
                     }
 
                     // 3. Fallback check: if no make/model was extracted, notify user to use Manual HTML Mode or Apify Token
