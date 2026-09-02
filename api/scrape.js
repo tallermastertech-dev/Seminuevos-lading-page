@@ -217,22 +217,6 @@ Contáctanos para cotizar impuestos, logística y precio final.
             }
         }
 
-        // IAAI without Apify key: build lot-ID image URLs and return minimal data
-        if (url.includes('iaai.com') && !providedHtml && !providedKey) {
-            const lotMatch = url.match(/VehicleDetail\/(\d+)|vehicle\/(\d+)|\/([\d]{7,9})(?:-[A-Z]+)?(?:\/|$|\?)/i);
-            const lotId = lotMatch ? (lotMatch[1] || lotMatch[2] || lotMatch[3]) : null;
-            if (lotId) {
-                const cleanImages = [];
-                for (let i = 1; i <= 15; i++) {
-                    cleanImages.push(`https://vis.iaai.com/resizer?imageKeys=${lotId}~IAA~S${i}&width=1024&height=768`);
-                }
-                return res.status(200).json({
-                    success: false,
-                    message: `Para importar desde IAAI necesitas tu API Key de Apify (actor: easyapi~iaai-vehicle-detail-scraper). Configúrala en Ajustes del Admin. Alternativamente usa el Bookmarklet o el Modo Manual.`,
-                    partialData: { images: cleanImages, url }
-                });
-            }
-        }
 
         // =====================================================
         // HTML SCRAPE FALLBACK (for manual HTML or Copart)
@@ -506,9 +490,65 @@ function parseIAAI(html, url, trustHtml = false) {
     const $ = cheerio.load(html);
     let rawData = {};
     
+    // 0. Try ProductDetailsVM (Native IAAI JSON script block)
+    const vmStr = html.match(/<script[^>]*id=["']?ProductDetailsVM["']?[^>]*>([\s\S]*?)<\/script>/i)?.[1];
+    if (vmStr) {
+        try {
+            const vmJson = JSON.parse(vmStr);
+            const attrs = vmJson?.inventoryView?.attributes || vmJson?.inventoryView || vmJson;
+            if (attrs) {
+                if (attrs.Year) rawData.year = String(attrs.Year);
+                if (attrs.Make) rawData.make = String(attrs.Make);
+                if (attrs.Model) rawData.model = String(attrs.Model);
+                if (attrs.Series) rawData.series = String(attrs.Series);
+                if (attrs.VIN && attrs.VIN !== 'N/A') rawData.vin = String(attrs.VIN);
+                if (attrs.ODOValue) rawData.km = `${attrs.ODOValue} ${attrs.ODOUoM || 'mi'}`.trim();
+                if (attrs.EngineSize || attrs.EngineInformation || attrs.Engine) rawData.engine = String(attrs.EngineSize || attrs.EngineInformation || attrs.Engine);
+                if (attrs.Transmission) rawData.transmission = String(attrs.Transmission);
+                if (attrs.PrimaryDamageDesc || attrs.PrimaryDamage) rawData.damage = String(attrs.PrimaryDamageDesc || attrs.PrimaryDamage);
+                if (attrs.ExteriorColor) rawData.color = String(attrs.ExteriorColor);
+                if (attrs.BranchName || attrs.LocName) rawData.location = String(attrs.BranchName || attrs.LocName);
+                if (attrs.VehicleClass || attrs.Segment || attrs.BodyStyleName) rawData.bodyType = String(attrs.VehicleClass || attrs.Segment || attrs.BodyStyleName);
+                if (attrs.BuyNowPrice || attrs.MinimumBidAmount) rawData.price = `$${parseInt(attrs.BuyNowPrice || attrs.MinimumBidAmount).toLocaleString()}`;
+            }
+            scanForData(vmJson, rawData);
+        } catch(e){}
+    }
+
+    // 0b. Parse HTML Title and Meta Description tags for guaranteed fallbacks
+    const pageTitle = ($('#TitleSection').text() || $('title').text() || '').trim();
+    if (pageTitle && (!rawData.make || !rawData.year)) {
+        const titleMatch = pageTitle.match(/\b(19|20)\d{2}\b\s+([A-Za-z0-9]+)\s+(.*?)(?:\s+for\s+Auction|\s+for\s+Sale|\s*-\s*IAA|$)/i);
+        if (titleMatch) {
+            rawData.year = rawData.year || titleMatch[1];
+            rawData.make = rawData.make || titleMatch[2];
+            rawData.model = rawData.model || titleMatch[3].trim();
+        }
+    }
+
+    const metaDesc = ($('meta[name="description"]').attr('content') || $('meta[property="og:description"]').attr('content') || '').trim();
+    if (metaDesc) {
+        if (!rawData.km) {
+            const odoMatch = metaDesc.match(/Mileage:\s*([\d,]+(?:\s*mi|\s*km)?)/i);
+            if (odoMatch) rawData.km = odoMatch[1];
+        }
+        if (!rawData.location) {
+            const locMatch = metaDesc.match(/at\s+([^.]+?)\s+branch/i);
+            if (locMatch) rawData.location = locMatch[1].trim();
+        }
+        if (!rawData.color) {
+            const colorMatch = metaDesc.match(/Color:\s*([A-Za-z]+)/i);
+            if (colorMatch) rawData.color = colorMatch[1].trim();
+        }
+        if (!rawData.transmission) {
+            const transMatch = metaDesc.match(/Transmission:\s*([A-Za-z]+)/i);
+            if (transMatch) rawData.transmission = transMatch[1].trim();
+        }
+    }
+
     // 1. Try __PRELOADED_STATE__
     const stateStr = html.match(/(?:window\.)?__PRELOADED_STATE__\s*=\s*(\{[\s\S]*?\})(?:[;<\n]|$)/i)?.[1];
-    if (stateStr) { try { rawData = scanForData(JSON.parse(stateStr)); } catch(e){} }
+    if (stateStr) { try { rawData = scanForData(JSON.parse(stateStr), rawData); } catch(e){} }
 
     // 2. Try __NEXT_DATA__
     const nextDataStr = html.match(/<script[^>]*id=["']?__NEXT_DATA__["']?[^>]*>([\s\S]*?)<\/script>/i)?.[1];
