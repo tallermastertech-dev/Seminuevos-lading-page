@@ -1777,7 +1777,7 @@
             <div class="auth-error" id="authError" style="display:none; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#fca5a5; padding:12px; border-radius:var(--radius); margin-bottom:16px; font-size:0.85rem; text-align:left;"></div>
             <div id="authSuccess" style="display:none; background: rgba(37,211,102,0.15); border:1px solid #25D366; color:#25D366; padding:12px; border-radius:var(--radius); margin-bottom:16px; font-size:0.9rem;"></div>
             
-            <form id="authLoginForm" onsubmit="event.preventDefault(); performLogin();" style="display:flex; flex-direction:column; gap:0;">
+            <form id="authLoginForm" onsubmit="event.preventDefault(); if (typeof window.performLogin === 'function') { window.performLogin(); } else if (typeof performLogin === 'function') { performLogin(); }" style="display:flex; flex-direction:column; gap:0;">
                 <input type="email" class="auth-input" id="authEmail" placeholder="Email (ej: jvaask16@gmail.com)" required autocomplete="username" value="jvaask16@gmail.com">
                 <input type="password" class="auth-input" id="authPassword" placeholder="Contraseña" autocomplete="current-password">
                 <button type="submit" class="btn btn-primary btn-block" id="authLogin" style="padding:14px; font-size:1rem; width:100%; justify-content:center;">
@@ -3306,7 +3306,7 @@
             }
         }
 
-        window.performLogin = async function performLogin() {
+        async function performLogin() {
             const emailInput = document.getElementById('authEmail');
             const passwordInput = document.getElementById('authPassword');
             const email = (emailInput?.value || '').trim();
