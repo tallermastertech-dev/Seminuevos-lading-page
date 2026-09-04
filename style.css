@@ -3010,19 +3010,37 @@ body::after {
     padding-left: 8px;
 }
 
-.footer-contact p {
+.footer-contact p,
+.footer-contact a {
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 7px 0;
     color: var(--on-surface-variant);
     font-size: 0.88rem;
+    text-decoration: none;
+    transition: var(--transition);
 }
 
-.footer-contact p i {
+.footer-contact a:hover {
+    color: var(--primary);
+    padding-left: 6px;
+}
+
+.footer-contact p i,
+.footer-contact a i {
     color: var(--primary-dim);
     width: 18px;
     text-align: center;
+    transition: var(--transition);
+}
+
+.footer-contact a:hover i {
+    color: var(--primary);
+}
+
+.service-card[id] {
+    scroll-margin-top: 130px;
 }
 
 .footer-bottom {
