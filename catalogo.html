@@ -147,15 +147,12 @@
                 </button>
             </div>
             <!-- Sort dropdown -->
-            <div class="catalog-sort-bar"
-                style="display: flex; gap: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
-                <div class="search-container" style="position: relative; flex: 1; min-width: 280px;">
-                    <i class="fas fa-search"
-                        style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--primary);"></i>
-                    <input type="text" id="catalogSearch" placeholder="Buscar vehículo..."
-                        style="width: 100%; padding: 12px 12px 12px 45px; border-radius: var(--radius-full); background: var(--surface-container); border: 1px solid var(--ghost-border); color: var(--on-surface); font-family: var(--font-body); font-size: 0.95rem;">
+            <div class="catalog-sort-bar">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="catalogSearch" placeholder="Buscar vehículo...">
                 </div>
-                <select id="catalogSort" class="sort-select" style="min-width: 200px;">
+                <select id="catalogSort" class="sort-select">
                     <option value="default">Ordenar por...</option>
                     <option value="price_asc">Precio: Menor a Mayor</option>
                     <option value="price_desc">Precio: Mayor a Menor</option>
