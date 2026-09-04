@@ -5233,6 +5233,35 @@
                 await supabaseClient.from('vehicles').delete().eq('id', v.id);
             }
             showToast('Limpieza completada', 'success');
+            if (typeof loadVehicles === 'function') await loadVehicles();
+        }
+
+        async function cleanBase64Images() {
+            showToast('Optimizando imágenes en Supabase...', 'info');
+            let updatedCount = 0;
+            for (const v of vehicles) {
+                if (!v.images || !v.images.length) continue;
+                let modified = false;
+                const cleanedImages = v.images.filter(img => {
+                    if (typeof img === 'string' && img.startsWith('data:image')) {
+                        modified = true;
+                        return false;
+                    }
+                    return true;
+                });
+
+                if (modified) {
+                    await supabaseClient.from('vehicles').update({ images: cleanedImages }).eq('id', v.id);
+                    updatedCount++;
+                }
+            }
+            if (updatedCount > 0) {
+                showToast(`✓ Se optimizaron ${updatedCount} vehículos removiendo imágenes Base64 pesadas`, 'success');
+                if (typeof loadVehicles === 'function') await loadVehicles();
+            } else {
+                showToast('Tus vehículos ya tienen imágenes limpias en formato URL', 'info');
+            }
+        }
             loadVehicles();
         }
 
